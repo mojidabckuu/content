@@ -2,6 +2,8 @@ use_frameworks!
 
 target 'Content_Example' do
   pod 'Content', :path => '../'
+  pod 'AlamofireImage'
+  pod 'Eureka', git: 'https://github.com/mojidabckuu/Eureka'
 
   target 'Content_Tests' do
     inherit! :search_paths

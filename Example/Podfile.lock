@@ -1,0 +1,32 @@
+PODS:
+  - Alamofire (3.4.1)
+  - AlamofireImage (2.4.1):
+    - Alamofire (~> 3.3)
+  - Content (0.1.0)
+  - Eureka (1.7.0)
+
+DEPENDENCIES:
+  - AlamofireImage
+  - Content (from `../`)
+  - Eureka (from `https://github.com/mojidabckuu/Eureka`)
+
+EXTERNAL SOURCES:
+  Content:
+    :path: ../
+  Eureka:
+    :git: https://github.com/mojidabckuu/Eureka
+
+CHECKOUT OPTIONS:
+  Eureka:
+    :commit: 61dfa6a776cb2ec4e58e4227c17ae11be093bad5
+    :git: https://github.com/mojidabckuu/Eureka
+
+SPEC CHECKSUMS:
+  Alamofire: 01a82e2f6c0f860ade35534c8dd88be61bdef40c
+  AlamofireImage: 3ccf3347d9ea24580dc11fb892770a0be6a29826
+  Content: c67f1b6681b8b29108d38081503afccf3462d818
+  Eureka: 2020d9faeef7b7e9adeb9e3d8af779e5931c1897
+
+PODFILE CHECKSUM: d7710a32bf5c6d82a2c1e57fcd402773974c51c2
+
+COCOAPODS: 1.0.1
