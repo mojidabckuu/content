@@ -12,13 +12,17 @@ func == (left: User, right: User) -> Bool {
     return left.name == right.name
 }
 
-class User: Equatable {
+class User: Equatable, CustomStringConvertible {
     var name: String
     var avatarURL: NSURL
     
     init(name: String, avatarURL: NSURL) {
         self.name = name
         self.avatarURL = avatarURL
+    }
+    
+    var description: String {
+        return "\(self.name), \(self.avatarURL.absoluteString)"
     }
 }
 
