@@ -34,7 +34,7 @@ class UsersViewController: UIViewController {
         self.content = Content(view: self.tableView).onCellSetup({ (user, cell) in
             // Cell setup
             cell.textLabel?.text = user.name
-            cell.imageView?.af_setImageWithURL(user.avatarURL)
+            cell.imageView?.af_setImage(withURL: user.avatarURL)
         }).onSelect({ [weak self] (content, user, cell) in
             let viewController = UserViewController()
             viewController.user = user
@@ -44,7 +44,7 @@ class UsersViewController: UIViewController {
         }).onAction({ [unowned self] (content, model, cell, action) in
             if action == "posts" {
                 let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                if let viewController = storyboard.instantiateViewControllerWithIdentifier("PostsViewController") as? PostsViewController {
+                if let viewController = storyboard.instantiateViewController(withIdentifier: "PostsViewController") as? PostsViewController {
                     viewController.user = model
                     self.navigationController?.pushViewController(viewController, animated: true)
                 }

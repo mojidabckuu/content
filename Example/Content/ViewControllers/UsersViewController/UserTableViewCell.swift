@@ -15,7 +15,7 @@ class UserTableViewCell: UITableViewCell, ContentCell {
     
     //MARK: - User interaction
     
-    @IBAction func posts(sender: AnyObject) {
+    @IBAction func posts(_ sender: AnyObject) {
         self.raiser?.raise("posts", sender: self)
     }
     

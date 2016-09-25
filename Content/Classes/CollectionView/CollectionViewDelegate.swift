@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
  
     var collectionView: UICollectionView { return self.content.view as! UICollectionView }
     
@@ -18,60 +18,60 @@ public class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Cont
  
     // Insert
     
-    override func insert(models: [Model], index: Int) {
-        self.collectionView.insertItemsAtIndexPaths(self.indexPaths(models))
+    override func insert(_ models: [Model], index: Int) {
+        self.collectionView.insertItems(at: self.indexPaths(models))
     }
         
-    override func indexPath(cell: Cell) -> NSIndexPath? {
+    override func indexPath(_ cell: Cell) -> IndexPath? {
         if let collectionViewCell = cell as? UICollectionViewCell {
-            return self.collectionView.indexPathForCell(collectionViewCell)
+            return self.collectionView.indexPath(for: collectionViewCell)
         }
         return nil
     }
     
     // Registration
     
-    override func registerCell(reuseIdentifier: String, nib: UINib) {
-        self.collectionView.registerNib(nib, forCellWithReuseIdentifier: reuseIdentifier)
+    override func registerCell(_ reuseIdentifier: String, nib: UINib) {
+        self.collectionView.register(nib, forCellWithReuseIdentifier: reuseIdentifier)
     }
     
     // UICollectionView delegate
     
-    public func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-        let cell = collectionView.cellForItemAtIndexPath(indexPath) as! Cell
-        self.content.actions.onSelect?(self.content, self.content.items[indexPath.row], cell)
+    open func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as! Cell
+        self.content.actions.onSelect?(self.content, self.content.items[(indexPath as NSIndexPath).row], cell)
         if self.content.configuration.autoDeselect {
-            self.collectionView.deselectItemAtIndexPath(indexPath, animated: true)
+            self.collectionView.deselectItem(at: indexPath, animated: true)
         }
     }
     
-    public func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
-        let cell = collectionView.cellForItemAtIndexPath(indexPath) as! Cell
-        self.content.actions.onDeselect?(self.content, self.content.items[indexPath.row], cell)
+    open func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as! Cell
+        self.content.actions.onDeselect?(self.content, self.content.items[(indexPath as NSIndexPath).row], cell)
         if self.content.configuration.autoDeselect {
-            self.collectionView.deselectItemAtIndexPath(indexPath, animated: true)
+            self.collectionView.deselectItem(at: indexPath, animated: true)
         }
     }
     
     // UICollectionView data
     
-    public func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.content.items.count
     }
     
-    public func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let collectionViewCell = collectionView.dequeueReusableCellWithReuseIdentifier(Cell.identifier, forIndexPath: indexPath)
+    open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let collectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: Cell.identifier, for: indexPath)
         if var cell = collectionViewCell as? Cell {
             cell.raiser = self.content
-            self.content.callbacks.onCellSetupBlock?(self.content.items[indexPath.row], cell)
+            self.content.callbacks.onCellSetupBlock?(self.content.items[(indexPath as NSIndexPath).row], cell)
         }
         return collectionViewCell
     }
     
     // CollectionView float layout
     
-    public func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
-        if let size = self.content.callbacks.onLayout?(self.content, self.content.items[indexPath.row]) {
+    open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if let size = self.content.callbacks.onLayout?(self.content, self.content.items[(indexPath as NSIndexPath).row]) {
             return size
         }
         print(#file + " You didn't specify size block. Use onLayout chain.")

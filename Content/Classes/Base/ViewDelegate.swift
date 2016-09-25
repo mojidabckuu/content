@@ -15,8 +15,8 @@ public protocol ViewDelegate {
     func reloadData()
 }
 
-public class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: NSObject {
-    public var content: Content<Model, View, Cell>
+open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: NSObject {
+    open var content: Content<Model, View, Cell>
     
     public init(content: Content<Model, View, Cell>) {
         self.content = content
@@ -26,18 +26,18 @@ public class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCel
     func setup() {}
     
     //
-    func insert(models: [Model], index: Int = 0) {}
-    func delete(models: [Model]) { }
+    func insert(_ models: [Model], index: Int = 0) {}
+    func delete(_ models: [Model]) { }
     func reload() {
         self.content.view.reloadData()
     }
-    func reload(models: [Model]) {}
+    func reload(_ models: [Model]) {}
     
-    func indexPaths(models: [Model]) -> [NSIndexPath] {
-        var indexPaths: [NSIndexPath] = []
+    func indexPaths(_ models: [Model]) -> [IndexPath] {
+        var indexPaths: [IndexPath] = []
         for model in models {
-            if let index = self.content.items.indexOf(model) {
-                let indexPath = NSIndexPath(forRow: Int(index), inSection: 0)
+            if let index = self.content.items.index(of: model) {
+                let indexPath = IndexPath(row: Int(index), section: 0)
                 indexPaths.append(indexPath)
             }
         }
@@ -45,9 +45,9 @@ public class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCel
     }
     
     //
-    func registerCell(reuseIdentifier: String, `class`: AnyClass) {}
-    func registerCell(reuseIdentifier: String, nib: UINib) {}
+    func registerCell(_ reuseIdentifier: String, class: AnyClass) {}
+    func registerCell(_ reuseIdentifier: String, nib: UINib) {}
     
     func dequeu() -> Cell? { return nil }
-    func indexPath(cell: Cell) -> NSIndexPath? { return nil }
+    func indexPath(_ cell: Cell) -> IndexPath? { return nil }
 }

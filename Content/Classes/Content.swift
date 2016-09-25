@@ -17,11 +17,11 @@ public struct Configuration {
 }
 
 public enum State {
-    case None
-    case Loading
-    case Refreshing
-    case AllLoaded
-    case Cancelled
+    case none
+    case loading
+    case refreshing
+    case allLoaded
+    case cancelled
 }
 
 class ContentActionsCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
@@ -33,7 +33,7 @@ class ContentActionsCallbacks<Model: Equatable, View: ViewDelegate, Cell: Conten
 }
 
 class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
-    var onLoad: (Content<Model, View, Cell> -> Void)?
+    var onLoad: ((Content<Model, View, Cell>) -> Void)?
     var willLoad: (() -> Void)?
     var didLoad: ((NSError?, [Model]) -> Void)?
 }
@@ -46,7 +46,7 @@ class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> 
 }
 
 public protocol ActionRaiser {
-    func raise(action: String, sender: ContentCell)
+    func raise(_ action: String, sender: ContentCell)
 }
 
 //public extension ActionRaiser {
@@ -59,9 +59,9 @@ public protocol Raiser {
 
 public protocol ContentCell: _Cell, Raiser {}
 
-public class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: ActionRaiser {
-    private var _items: [Model] = []
-    public var items: [Model] {
+open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: ActionRaiser {
+    fileprivate var _items: [Model] = []
+    open var items: [Model] {
         get { return _items }
         set {
             _items = newValue
@@ -69,9 +69,10 @@ public class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: A
         }
     }
     let configuration = Configuration()
-    public var model: Model?
-    public let view: View!
-    public var delegate: BaseDelegate<Model, View, Cell>?
+    open var model: Model?
+    open var view: View { return _view }
+    private var _view: View
+    open var delegate: BaseDelegate<Model, View, Cell>?
     
     let actions = ContentActionsCallbacks<Model, View, Cell>()
     let URLCallbacks = ContentURLCallbacks<Model, View, Cell>()
@@ -82,19 +83,19 @@ public class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: A
     
     public init(model: Model? = nil, view: View, delegate: BaseDelegate<Model, View, Cell>? = nil) {
         self.model = model
-        self.view = view
+        _view = view
         
-        self.view.contentDelegate = delegate as? AnyObject
-        self.view.contentDataSource = delegate as? AnyObject
+        _view.contentDelegate = delegate as? AnyObject
+        _view.contentDataSource = delegate as? AnyObject
         if delegate == nil {
             if view is UITableView {
                 self.delegate = TableDelegate<Model, View, Cell>(content: self)
-                self.view.contentDelegate = self.delegate
-                self.view.contentDataSource = self.delegate
+                _view.contentDelegate = self.delegate
+                _view.contentDataSource = self.delegate
             } else if view is UICollectionView {
                 self.delegate = CollectionDelegate(content: self)
-                self.view.contentDelegate = self.delegate
-                self.view.contentDataSource = self.delegate
+                _view.contentDelegate = self.delegate
+                _view.contentDataSource = self.delegate
             }
         } else {
             self.delegate = delegate
@@ -102,98 +103,98 @@ public class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: A
     }
     
     // URL lifecycle
-    private var _state: State = .None
-    public var state: State { return _state }
-    public var isAllLoaded: Bool { return _state == .AllLoaded }
+    fileprivate var _state: State = .none
+    open var state: State { return _state }
+    open var isAllLoaded: Bool { return _state == .allLoaded }
     
-    public func reloadData() {
+    open func reloadData() {
         self.delegate?.reload()
     }
-    public func refresh() {
-        _state = .Refreshing
+    open func refresh() {
+        _state = .refreshing
         self.loadItems()
     }
-    public func loadMore() {
-        _state = .Loading
+    open func loadMore() {
+        _state = .loading
         self.loadItems()
     }
-    public func loadItems() {
+    open func loadItems() {
         self.URLCallbacks.onLoad?(self)
     }
     
     // Utils
     
-    public func fetch(models: [Model]?, error: NSError?) {
+    open func fetch(_ models: [Model]?, error: NSError?) {
         if let error = error {
-            _state = .None
+            _state = .none
             self.URLCallbacks.didLoad?(error, [])
             return
         }
         if let models = models {
-            if self.state == .Refreshing {
+            if self.state == .refreshing {
                 _items.removeAll()
             }
             if self.configuration.animatedRefresh {
                 self.add(models, index: _items.count)
                 self.URLCallbacks.didLoad?(error, models)
             } else {
-                _items.appendContentsOf(models)
+                _items.append(contentsOf: models)
                 self.reloadData()
                 self.URLCallbacks.didLoad?(error, models)
             }
             if models.count < self.length {
-                _state = .AllLoaded
+                _state = .allLoaded
             } else {
-                _state = .None
+                _state = .none
             }
         }
     }
     
     // Management
     
-    func add(items: [Model], index: Int = 0) {
-        _items.insertContentsOf(items, at: index)
+    func add(_ items: [Model], index: Int = 0) {
+        _items.insert(contentsOf: items, at: index)
         self.delegate?.insert(items, index: index)
     }
-    func add1(models: Model..., index: Int = 0) {
+    func add1(_ models: Model..., index: Int = 0) {
         self.add(models, index: index)
     }
     
-    func delete(models: Model...) {
+    func delete(_ models: Model...) {
         self.delegate?.delete(models)
     }
-    func reload(models: Model...) {
+    func reload(_ models: Model...) {
         self.delegate?.reload(models)
     }
 }
 
 // Setup
 public extension Content {
-    func onCellSetup(block: (model: Model, cell: Cell) -> Void) -> Content<Model, View, Cell> {
+    func onCellSetup(_ block: @escaping (_ model: Model, _ cell: Cell) -> Void) -> Content<Model, View, Cell> {
         self.callbacks.onCellSetupBlock = block
         return self
     }
     
-    func onSetup(block: (content: Content<Model, View, Cell>) -> Void) -> Content<Model, View, Cell> {
+    func onSetup(_ block: @escaping (_ content: Content<Model, View, Cell>) -> Void) -> Content<Model, View, Cell> {
         self.callbacks.onSetupBlock = block
-        block(content: self)
+        block(self)
         return self
     }
 }
 
 // Actions
 public extension Content {
-    func onSelect(block: ((contnet: Content<Model, View, Cell>, model: Model, cell: Cell) -> Void)) -> Content<Model, View, Cell> {
+    func onSelect(_ block: @escaping ((_ contnet: Content<Model, View, Cell>, _ model: Model, _ cell: Cell) -> Void)) -> Content<Model, View, Cell> {
         self.actions.onSelect = block
         return self
     }
     
-    func onDeselect(block: ((content: Content<Model, View, Cell>, model: Model, cell: Cell) -> Void)) -> Content<Model, View, Cell> {
+    func onDeselect(_ block: @escaping ((_ content: Content<Model, View, Cell>, _ model: Model, _ cell: Cell) -> Void)) -> Content<Model, View, Cell> {
         self.actions.onDeselect = block
         return self
     }
     
-    func onAction(block: ((content: Content<Model, View, Cell>, model: Model, cell: Cell, action: String) -> Void)) -> Content<Model, View, Cell> {
+    func onAction(_ block: @escaping ((_ content: Content<Model, View, Cell>, _ model: Model, _ cell: Cell, _ action: String) -> Void)) -> Content<Model, View, Cell> {
         self.actions.onAction = block
         return self
     }
@@ -201,14 +202,14 @@ public extension Content {
 
 // Loading
 public extension Content {
-    func onLoad(block: ((content: Content<Model, View, Cell>) -> Void)) -> Content<Model, View, Cell> {
+    func onLoad(_ block: @escaping ((_ content: Content<Model, View, Cell>) -> Void)) -> Content<Model, View, Cell> {
         self.URLCallbacks.onLoad = block
         return self
     }
 }
 
 public extension Content where View: UICollectionView {
-    func onLayout(block: ((content: Content<Model, View, Cell>, model: Model) -> CGSize)) -> Content<Model, View, Cell> {
+    func onLayout(_ block: @escaping ((_ content: Content<Model, View, Cell>, _ model: Model) -> CGSize)) -> Content<Model, View, Cell> {
         self.callbacks.onLayout = block
         return self
     }
@@ -216,9 +217,9 @@ public extension Content where View: UICollectionView {
 
 // Raising
 public extension Content {
-    func raise(action: String, sender: ContentCell) {
+    func raise(_ action: String, sender: ContentCell) {
         if let cell = sender as? Cell, let indexPath = self.delegate?.indexPath(cell) {
-            self.actions.onAction?(self, self._items[indexPath.row], cell, action)
+            self.actions.onAction?(self, self._items[(indexPath as NSIndexPath).row], cell, action)
         }
     }
 }

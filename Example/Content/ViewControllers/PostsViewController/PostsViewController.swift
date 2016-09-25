@@ -27,14 +27,14 @@ class PostsViewController: UIViewController {
                 layout.minimumLineSpacing = 2
                 layout.minimumInteritemSpacing = 0
                 layout.sectionInset = UIEdgeInsets.init(top: 0, left: 0, bottom: 0, right: 0)
-                layout.scrollDirection = .Vertical
+                layout.scrollDirection = .vertical
             }
         }).onCellSetup({ (model, cell) in
            cell.textLabel.text = model.text
         }).onLoad({ [unowned self] (content) in
             self.user.posts({ content.fetch($0, error: nil) })
         }).onLayout({ (content, model) -> CGSize in
-            let screenSize = UIScreen.mainScreen().bounds.size
+            let screenSize = UIScreen.main.bounds.size
             return CGSize(width: screenSize.width, height: 400)
         }).onSelect({ (contnet, model, cell) in
             print(model)
