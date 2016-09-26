@@ -67,4 +67,18 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         }
         return tableViewCell
     }
+    
+    //ScrollView
+    
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        self.content.scrollCallbacks.onDidEndDecelerating?(self.content)
+    }
+    
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        self.content.scrollCallbacks.onDidScroll?(self.content)
+    }
+    
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        self.content.scrollCallbacks.onDidEndDragging?(self.content, decelerate)
+    }
 }

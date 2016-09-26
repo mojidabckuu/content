@@ -43,6 +43,14 @@ class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> 
     var onCellSetupBlock: ((Model, Cell) -> Void)?
     var onDequeue: ((Content<Model, View, Cell>, Model) -> Void)?
     var onLayout: ((Content<Model, View, Cell>, Model) -> CGSize)?
+    var onItemChanged: ((Content<Model, View, Cell>, Model, Int) -> Void)?
+}
+
+class ScrollCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
+    var onDidScroll: ((Content<Model, View, Cell>) -> Void)?
+    var onDidEndDecelerating : ((Content<Model, View, Cell>) -> Void)?
+    var onDidStartDecelerating : ((Content<Model, View, Cell>) -> Void)?
+    var onDidEndDragging: ((Content<Model, View, Cell>, Bool) -> Void)?
 }
 
 public protocol ActionRaiser {
@@ -77,6 +85,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     let actions = ContentActionsCallbacks<Model, View, Cell>()
     let URLCallbacks = ContentURLCallbacks<Model, View, Cell>()
     var callbacks = ContentCallbacks<Model, View, Cell>()
+    var scrollCallbacks = ScrollCallbacks<Model, View, Cell>()
     
     var offset: Any?
     var length: Int { return self.configuration.length }
@@ -208,13 +217,6 @@ public extension Content {
     }
 }
 
-public extension Content where View: UICollectionView {
-    func onLayout(_ block: @escaping ((_ content: Content<Model, View, Cell>, _ model: Model) -> CGSize)) -> Content<Model, View, Cell> {
-        self.callbacks.onLayout = block
-        return self
-    }
-}
-
 // Raising
 public extension Content {
     func raise(_ action: String, sender: ContentCell) {
@@ -222,4 +224,38 @@ public extension Content {
             self.actions.onAction?(self, self._items[(indexPath as NSIndexPath).row], cell, action)
         }
     }
+}
+
+//CollectionView applicable
+public extension Content where View: UICollectionView {
+    func onPageChange(_ block: @escaping ((Content<Model, View, Cell>, Model, Int) -> Void)) -> Content {
+        self.callbacks.onItemChanged = block
+        return self
+    }
+    
+    func onLayout(_ block: @escaping ((Content<Model, View, Cell>, Model) -> CGSize)) -> Content<Model, View, Cell> {
+        self.callbacks.onLayout = block
+        return self
+    }
+}
+
+public extension Content where View: UIScrollView {
+    
+    func onDidScroll(block: ((Content<Model, View, Cell>) -> Void)?) -> Content {
+        self.scrollCallbacks.onDidScroll = block
+        return self
+    }
+    func onDidEndDecelerating(block: ((Content<Model, View, Cell>) -> Void)?) -> Content {
+        self.scrollCallbacks.onDidEndDecelerating = block
+        return self
+    }
+    func onDidStartDecelerating(block: ((Content<Model, View, Cell>) -> Void)?) -> Content {
+        self.scrollCallbacks.onDidStartDecelerating = block
+        return self
+    }
+    func onDidEndDragging(block: ((Content<Model, View, Cell>, Bool) -> Void)?) -> Content {
+        self.scrollCallbacks.onDidEndDragging = block
+        return self
+    }
+    
 }

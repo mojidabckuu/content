@@ -77,4 +77,10 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         print(#file + " You didn't specify size block. Use onLayout chain.")
         return CGSize(width: 40, height: 40)
     }
+    
+    open func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        let pageWidth = scrollView.frame.width
+        let page = Int(scrollView.contentOffset.x / pageWidth)
+        self.content.callbacks.onItemChanged?(self.content, self.content.items[page], page)
+    }
 }
