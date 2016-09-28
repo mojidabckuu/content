@@ -10,12 +10,6 @@ import UIKit
 import Content
 import AlamofireImage
 
-protocol V {
-    associatedtype _Model
-//    associatedtype _View
-//    associatedtype _Delegate
-}
-
 class UsersViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!

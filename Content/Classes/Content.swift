@@ -27,7 +27,7 @@ public enum State {
 class ContentActionsCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
     var onSelect: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
     var onDeselect: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
-    var onAction: ((Content<Model, View, Cell>, Model, Cell, String) -> Void)?
+    var onAction: ((Content<Model, View, Cell>, Model, Cell, Action) -> Void)?
     var onAdd: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
     var onDelete: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
 }
@@ -53,13 +53,22 @@ class ScrollCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
     var onDidEndDragging: ((Content<Model, View, Cell>, Bool) -> Void)?
 }
 
-public protocol ActionRaiser {
-    func raise(_ action: String, sender: ContentCell)
+public protocol Action {}
+extension String: Action {}
+
+public func == (action: Action, key: String) -> Bool {
+    guard let actionString = action as? String else { return false }
+    return actionString == key
 }
 
-//public extension ActionRaiser {
-//    func raise(action: String) {}
-//}
+public func == (key: String, action: Action) -> Bool {
+    guard let actionString = action as? String else { return false }
+    return actionString == key
+}
+
+public protocol ActionRaiser {
+    func raise(_ action: Action, sender: ContentCell)
+}
 
 public protocol Raiser {
     var raiser: ActionRaiser? { get set }
@@ -192,17 +201,17 @@ public extension Content {
 
 // Actions
 public extension Content {
-    func on(select block: @escaping ((_ contnet: Content<Model, View, Cell>, _ model: Model, _ cell: Cell) -> Void)) -> Content<Model, View, Cell> {
+    func on(select block: @escaping ((Content<Model, View, Cell>, Model, Cell) -> Void)) -> Content<Model, View, Cell> {
         self.actions.onSelect = block
         return self
     }
     
-    func on(deselect block: @escaping ((_ content: Content<Model, View, Cell>, _ model: Model, _ cell: Cell) -> Void)) -> Content<Model, View, Cell> {
+    func on(deselect block: @escaping ((Content<Model, View, Cell>, Model, Cell) -> Void)) -> Content<Model, View, Cell> {
         self.actions.onDeselect = block
         return self
     }
     
-    func on(action block: @escaping ((_ content: Content<Model, View, Cell>, _ model: Model, _ cell: Cell, _ action: String) -> Void)) -> Content<Model, View, Cell> {
+    func on(action block: @escaping ((Content<Model, View, Cell>, Model, Cell, _ action: Action) -> Void)) -> Content<Model, View, Cell> {
         self.actions.onAction = block
         return self
     }
@@ -218,7 +227,7 @@ public extension Content {
 
 // Raising
 public extension Content {
-    func raise(_ action: String, sender: ContentCell) {
+    func raise(_ action: Action, sender: ContentCell) {
         if let cell = sender as? Cell, let indexPath = self.delegate?.indexPath(cell) {
             self.actions.onAction?(self, self._items[(indexPath as NSIndexPath).row], cell, action)
         }
@@ -227,7 +236,7 @@ public extension Content {
 
 //CollectionView applicable
 public extension Content where View: UICollectionView {
-    func on(pageChange block: @escaping (Content<Model, View, Cell>, _ model: Model, _ page: Int) -> Void) -> Content {
+    func on(pageChange block: @escaping (Content<Model, View, Cell>, Model, Int) -> Void) -> Content {
         self.callbacks.onItemChanged = block
         return self
     }
@@ -238,6 +247,7 @@ public extension Content where View: UICollectionView {
     }
 }
 
+//ScrollView applicable
 public extension Content where View: UIScrollView {
     
     func on(didScroll block: ((Content<Model, View, Cell>) -> Void)?) -> Content {
