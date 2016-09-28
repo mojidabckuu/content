@@ -165,10 +165,9 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         _items.insert(contentsOf: items, at: index)
         self.delegate?.insert(items, index: index)
     }
-    func add1(_ models: Model..., index: Int = 0) {
-        self.add(models, index: index)
+    func add(_ items: Model..., index: Int = 0) {
+        self.add(items, index: index)
     }
-    
     func delete(_ models: Model...) {
         self.delegate?.delete(models)
     }
@@ -179,12 +178,12 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
 
 // Setup
 public extension Content {
-    func onCellSetup(_ block: @escaping (_ model: Model, _ cell: Cell) -> Void) -> Content<Model, View, Cell> {
+    func on(cellSetup block: @escaping (_ model: Model, _ cell: Cell) -> Void) -> Content<Model, View, Cell> {
         self.callbacks.onCellSetupBlock = block
         return self
     }
     
-    func onSetup(_ block: @escaping (_ content: Content<Model, View, Cell>) -> Void) -> Content<Model, View, Cell> {
+    func on(setup block: @escaping (_ content: Content<Model, View, Cell>) -> Void) -> Content<Model, View, Cell> {
         self.callbacks.onSetupBlock = block
         block(self)
         return self
@@ -193,17 +192,17 @@ public extension Content {
 
 // Actions
 public extension Content {
-    func onSelect(_ block: @escaping ((_ contnet: Content<Model, View, Cell>, _ model: Model, _ cell: Cell) -> Void)) -> Content<Model, View, Cell> {
+    func on(select block: @escaping ((_ contnet: Content<Model, View, Cell>, _ model: Model, _ cell: Cell) -> Void)) -> Content<Model, View, Cell> {
         self.actions.onSelect = block
         return self
     }
     
-    func onDeselect(_ block: @escaping ((_ content: Content<Model, View, Cell>, _ model: Model, _ cell: Cell) -> Void)) -> Content<Model, View, Cell> {
+    func on(deselect block: @escaping ((_ content: Content<Model, View, Cell>, _ model: Model, _ cell: Cell) -> Void)) -> Content<Model, View, Cell> {
         self.actions.onDeselect = block
         return self
     }
     
-    func onAction(_ block: @escaping ((_ content: Content<Model, View, Cell>, _ model: Model, _ cell: Cell, _ action: String) -> Void)) -> Content<Model, View, Cell> {
+    func on(action block: @escaping ((_ content: Content<Model, View, Cell>, _ model: Model, _ cell: Cell, _ action: String) -> Void)) -> Content<Model, View, Cell> {
         self.actions.onAction = block
         return self
     }
@@ -211,7 +210,7 @@ public extension Content {
 
 // Loading
 public extension Content {
-    func onLoad(_ block: @escaping ((_ content: Content<Model, View, Cell>) -> Void)) -> Content<Model, View, Cell> {
+    func on(load block: @escaping ((_ content: Content<Model, View, Cell>) -> Void)) -> Content<Model, View, Cell> {
         self.URLCallbacks.onLoad = block
         return self
     }
@@ -228,12 +227,12 @@ public extension Content {
 
 //CollectionView applicable
 public extension Content where View: UICollectionView {
-    func onPageChange(_ block: @escaping ((Content<Model, View, Cell>, Model, Int) -> Void)) -> Content {
+    func on(pageChange block: @escaping (Content<Model, View, Cell>, _ model: Model, _ page: Int) -> Void) -> Content {
         self.callbacks.onItemChanged = block
         return self
     }
     
-    func onLayout(_ block: @escaping ((Content<Model, View, Cell>, Model) -> CGSize)) -> Content<Model, View, Cell> {
+    func on(layout block: @escaping ((_ content: Content<Model, View, Cell>, Model) -> CGSize)) -> Content<Model, View, Cell> {
         self.callbacks.onLayout = block
         return self
     }
@@ -241,19 +240,19 @@ public extension Content where View: UICollectionView {
 
 public extension Content where View: UIScrollView {
     
-    func onDidScroll(block: ((Content<Model, View, Cell>) -> Void)?) -> Content {
+    func on(didScroll block: ((Content<Model, View, Cell>) -> Void)?) -> Content {
         self.scrollCallbacks.onDidScroll = block
         return self
     }
-    func onDidEndDecelerating(block: ((Content<Model, View, Cell>) -> Void)?) -> Content {
+    func on(didEndDecelerating block: ((Content<Model, View, Cell>) -> Void)?) -> Content {
         self.scrollCallbacks.onDidEndDecelerating = block
         return self
     }
-    func onDidStartDecelerating(block: ((Content<Model, View, Cell>) -> Void)?) -> Content {
+    func on(didStartDecelerating block: ((Content<Model, View, Cell>) -> Void)?) -> Content {
         self.scrollCallbacks.onDidStartDecelerating = block
         return self
     }
-    func onDidEndDragging(block: ((Content<Model, View, Cell>, Bool) -> Void)?) -> Content {
+    func on(didEndDragging block: ((Content<Model, View, Cell>, Bool) -> Void)?) -> Content {
         self.scrollCallbacks.onDidEndDragging = block
         return self
     }

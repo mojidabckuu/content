@@ -29,27 +29,25 @@ class UsersViewController: UIViewController {
         
         self.title = "Users"
         
-//        var c = Content<Equatable, UITableView, UserTableViewCell>()
-        
-        self.content = Content(view: self.tableView).onCellSetup({ (user, cell) in
-            // Cell setup
+        self.content = Content(view: self.tableView).on(cellSetup: { (user, cell) in
             cell.textLabel?.text = user.name
             cell.imageView?.af_setImage(withURL: user.avatarURL)
-        }).onSelect({ [weak self] (content, user, cell) in
+        }).on(select: { [weak self] (contnet, user, cell) in
             let viewController = UserViewController()
             viewController.user = user
             self?.navigationController?.pushViewController(viewController, animated: true)
-        }).onLoad({ (content) in
+        }).on(load: { (content) in
             User.index({ content.fetch($0, error: nil) })
-        }).onAction({ [unowned self] (content, model, cell, action) in
+        }).on(action: { (content, user, cell, action) in
             if action == "posts" {
                 let storyboard = UIStoryboard(name: "Main", bundle: nil)
                 if let viewController = storyboard.instantiateViewController(withIdentifier: "PostsViewController") as? PostsViewController {
-                    viewController.user = model
+                    viewController.user = user
                     self.navigationController?.pushViewController(viewController, animated: true)
                 }
             }
         })
+    
         self.content.refresh()
     }
     
