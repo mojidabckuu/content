@@ -13,6 +13,12 @@ protocol ContentView {
     func stopAnimating()
 }
 
+extension CGRect {
+    var center: CGPoint {
+        return CGPoint(x: self.origin.x + self.width / 2, y: self.origin.y + self.height / 2)
+    }
+}
+
 class UIInfiniteControl: UIControl, ContentView {
     var height: CGFloat = 60
     var activityIndicatorView: UIActivityIndicatorView!
@@ -48,6 +54,7 @@ class UIInfiniteControl: UIControl, ContentView {
     func startAnimating() { self.infiniteState = .loading }
     func stopAnimating() { self.infiniteState = .stopped }
     
+    //MARK: - Lifecycle
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.setup()
@@ -57,19 +64,22 @@ class UIInfiniteControl: UIControl, ContentView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // 
-    
+    //MARK: - Setup
     func setup() {
         self.activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
-        self.activityIndicatorView.hidesWhenStopped = true
-        self.activityIndicatorView.center = self.center
+        self.activityIndicatorView.hidesWhenStopped = false
+        self.addSubview(self.activityIndicatorView)
     }
     
-    // Layout
-    
+    //MARK: - Layout
     override func layoutSubviews() {
         super.layoutSubviews()
-        self.activityIndicatorView.center = self.center
+        let size = self.scrollView!.bounds.size
+        self.frame = CGRect(x: 0, y: self.contentSize.height, width: size.width, height: self.height)
+        self.activityIndicatorView.center = self.bounds.center
+        print(self.activityIndicatorView.frame)
+        print(self.bounds.center)
+        self.bringSubview(toFront: self.activityIndicatorView)
     }
     
     //
@@ -114,19 +124,18 @@ class UIInfiniteControl: UIControl, ContentView {
         }, completion: nil)
     }
     
-    //
-    
+    //MARK: - Observing
     func startObserveScrollView() {
+        print(#function)
         if !self.isObserving {
             self.scrollView?.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
             self.scrollView?.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
             _isObserving = true
             self.adjustInsets()
-            let size = self.scrollView!.bounds.size
-            self.frame = CGRect(x: 0, y: self.contentSize.height, width: size.width, height: self.height)
         }
     }
     func stopObserveScrollView() {
+        print(#function)
         if self.isObserving {
             self.scrollView?.removeObserver(self, forKeyPath: "contentOffset")
             self.scrollView?.removeObserver(self, forKeyPath: "contentSize")
@@ -137,15 +146,9 @@ class UIInfiniteControl: UIControl, ContentView {
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if let keyPath = keyPath, keyPath == "contentOffset" {
-            if let offset = (change?[NSKeyValueChangeKey.newKey] as? NSValue)?.cgPointValue {
-                self.scrollViewDidScroll(offset)
-            }
-            
+            if let offset = (change?[NSKeyValueChangeKey.newKey] as? NSValue)?.cgPointValue { self.scrollViewDidScroll(offset) }
         } else {
-            if let keyPath = keyPath, keyPath == "contentSize" {
-                self.layoutSubviews()
-                self.frame = CGRect(x: 0, y: (self.scrollView?.contentSize.height)!, width: self.bounds.width, height: self.height)
-            }
+            if let keyPath = keyPath, keyPath == "contentSize" { self.layoutSubviews() }
         }
     }
     
@@ -165,7 +168,6 @@ class UIInfiniteControl: UIControl, ContentView {
     }
     
     func scrollViewDidScroll(_ contentOffset: CGPoint) {
-        print(#line)
         if _state != .loading && self.isEnabled {
             let contentSize = self.contentSize
             let threshold = contentSize.height - self.scrollView!.bounds.size.height

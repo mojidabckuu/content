@@ -27,13 +27,16 @@ class User: Equatable, CustomStringConvertible {
 }
 
 extension User {
+    static var counter = 0
     class func index(_ block: @escaping (([User]) -> Void)) {
-        let delayTime = DispatchTime.now() + Double(Int64(1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+        let delayTime = DispatchTime.now() + Double(Int64(10 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
         DispatchQueue.main.asyncAfter(deadline: delayTime) {
-            let names = ["Darwin", "Leo", "Vinci", "Rafael", "Ioan", "Duma", "Victor", "Bah", "Mick", "Lorenco", "Donatello"]
+//            let names = ["Darwin", "Leo", "Vinci", "Rafael", "Ioan", "Duma", "Victor", "Bah", "Mick", "Lorenco", "Donatello"]
             var users: [User] = []
             for i in 0..<20 {
-                let name = i >= names.count ? "name\(i)" : names[i]
+                counter = counter + 1
+//                let name = i >= names.count ? "name\(counter)" : names[i]
+                let name = "name\(counter)"
                 let user = User(name: name, avatarURL: URL(string:"https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!)
                 users.append(user)
             }
@@ -42,7 +45,7 @@ extension User {
     }
     
     func posts(_ block: @escaping (([Post]) -> Void)) {
-        let delayTime = DispatchTime.now() + Double(Int64(2 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+        let delayTime = DispatchTime.now() + Double(Int64(10 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
         DispatchQueue.main.asyncAfter(deadline: delayTime) {
             var posts: [Post] = []
             posts.append(Post(text: "This is my post1", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
