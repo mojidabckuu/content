@@ -8,7 +8,12 @@
 
 import UIKit
 
-class InfiniteControl: UIControl {
+protocol ContentView {
+    func startAnimating()
+    func stopAnimating()
+}
+
+class UIInfiniteControl: UIControl, ContentView {
     var height: CGFloat = 60
     var activityIndicatorView: UIActivityIndicatorView!
     
@@ -19,6 +24,7 @@ class InfiniteControl: UIControl {
             if _state != newValue {
                 let prevState = _state
                 _state = newValue
+                print("state: \(_state) prevState: \(prevState)")
                 self.activityIndicatorView.center = self.center
                 switch newValue {
                 case .stopped:              self.activityIndicatorView.stopAnimating()
@@ -69,9 +75,12 @@ class InfiniteControl: UIControl {
     //
     override func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
-        if let superView = self.superview, let scrollView = newSuperview as? UIScrollView , self.scrollView == nil {
-            self.scrollView = scrollView
-            self.originalInset = scrollView.contentInset
+        if let scrollView = newSuperview as? UIScrollView, self.superview == nil {
+            if self.scrollView == nil {
+                self.scrollView = scrollView
+                self.originalInset = scrollView.contentInset
+            }
+            self.startObserveScrollView()
         }
     }
     
@@ -108,10 +117,11 @@ class InfiniteControl: UIControl {
     //
     
     func startObserveScrollView() {
-        if self.isObserving {
+        if !self.isObserving {
             self.scrollView?.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
             self.scrollView?.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
             _isObserving = true
+            self.adjustInsets()
             let size = self.scrollView!.bounds.size
             self.frame = CGRect(x: 0, y: self.contentSize.height, width: size.width, height: self.height)
         }
@@ -122,6 +132,20 @@ class InfiniteControl: UIControl {
             self.scrollView?.removeObserver(self, forKeyPath: "contentSize")
             _isObserving = false
             self.resetInsets()
+        }
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if let keyPath = keyPath, keyPath == "contentOffset" {
+            if let offset = (change?[NSKeyValueChangeKey.newKey] as? NSValue)?.cgPointValue {
+                self.scrollViewDidScroll(offset)
+            }
+            
+        } else {
+            if let keyPath = keyPath, keyPath == "contentSize" {
+                self.layoutSubviews()
+                self.frame = CGRect(x: 0, y: (self.scrollView?.contentSize.height)!, width: self.bounds.width, height: self.height)
+            }
         }
     }
     
@@ -141,6 +165,7 @@ class InfiniteControl: UIControl {
     }
     
     func scrollViewDidScroll(_ contentOffset: CGPoint) {
+        print(#line)
         if _state != .loading && self.isEnabled {
             let contentSize = self.contentSize
             let threshold = contentSize.height - self.scrollView!.bounds.size.height
@@ -176,7 +201,7 @@ class InfiniteControl: UIControl {
     }
 }
 
-extension InfiniteControl {
+extension UIInfiniteControl {
     enum State {
         case stopped
         case triggered

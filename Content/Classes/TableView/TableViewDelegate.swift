@@ -8,6 +8,8 @@
 
 import UIKit
 
+extension UITableView: Scrollable {}
+
 open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UITableViewDelegate, UITableViewDataSource {
 
     open var tableView: UITableView { return self.content.view as! UITableView }

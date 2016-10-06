@@ -9,11 +9,11 @@
 import UIKit
 
 public struct Configuration {
-    var refreshControl: Bool = true
-    var infiniteScrolling: Bool = true
     var animatedRefresh: Bool = true
     var length: Int = 20
     var autoDeselect = true
+    var refreshControl: UIControl? = UIRefreshControl()
+    var infiniteControl: UIControl? = UIInfiniteControl()
 }
 
 public enum State {
@@ -85,7 +85,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.reloadData()
         }
     }
-    let configuration = Configuration()
+    internal(set) var configuration = Configuration()
     open var model: Model?
     open var view: View { return _view }
     private var _view: View
@@ -99,13 +99,29 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     var offset: Any?
     var length: Int { return self.configuration.length }
     
+    public init(model: Model? = nil, view: View, configuration: Configuration, delegate: BaseDelegate<Model, View, Cell>? = nil) {
+        self.model = model
+        _view = view
+        _view.contentDelegate = delegate as? AnyObject
+        _view.contentDataSource = delegate as? AnyObject
+        self.delegate = delegate
+        self.setupDelegate()
+        self.configuration = configuration
+        self.setup()
+    }
+    
     public init(model: Model? = nil, view: View, delegate: BaseDelegate<Model, View, Cell>? = nil) {
         self.model = model
         _view = view
-        
         _view.contentDelegate = delegate as? AnyObject
         _view.contentDataSource = delegate as? AnyObject
-        if delegate == nil {
+        self.delegate = delegate
+        self.setupDelegate()
+        self.setup()
+    }
+    
+    func setupDelegate() {
+        if self.delegate == nil {
             if view is UITableView {
                 self.delegate = TableDelegate<Model, View, Cell>(content: self)
                 _view.contentDelegate = self.delegate
@@ -115,8 +131,17 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                 _view.contentDelegate = self.delegate
                 _view.contentDataSource = self.delegate
             }
-        } else {
-            self.delegate = delegate
+        }
+    }
+    
+    func setup() {
+        if let refreshControl = self.configuration.refreshControl {
+            refreshControl.addTarget(self, action: "refresh", for: .valueChanged)
+            self.view.scrollView.addSubview(refreshControl)
+        }
+        if let infiniteControl = self.configuration.infiniteControl {
+            infiniteControl.addTarget(self, action: "loadMore", for: .valueChanged)
+            self.view.scrollView.addSubview(infiniteControl)
         }
     }
     
@@ -128,11 +153,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open func reloadData() {
         self.delegate?.reload()
     }
-    open func refresh() {
+    open dynamic func refresh() {
         _state = .refreshing
         self.loadItems()
     }
-    open func loadMore() {
+    open dynamic func loadMore() {
         _state = .loading
         self.loadItems()
     }
@@ -151,15 +176,19 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         if let models = models {
             if self.state == .refreshing {
                 _items.removeAll()
-            }
-            if self.configuration.animatedRefresh {
-                self.add(models, index: _items.count)
-                self.URLCallbacks.didLoad?(error, models)
+                if self.configuration.animatedRefresh {
+                    self.reloadData()
+                    self.add(models, index: _items.count)
+                    (self.configuration.refreshControl as? ContentView)?.stopAnimating()
+                } else {
+                    _items.append(contentsOf: models)
+                    self.reloadData()
+                }
             } else {
-                _items.append(contentsOf: models)
-                self.reloadData()
-                self.URLCallbacks.didLoad?(error, models)
+                self.add(models, index: _items.count)
+                (self.configuration.infiniteControl as? ContentView)?.stopAnimating()
             }
+            self.URLCallbacks.didLoad?(error, models)
             if models.count < self.length {
                 _state = .allLoaded
             } else {

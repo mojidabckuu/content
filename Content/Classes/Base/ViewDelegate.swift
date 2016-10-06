@@ -8,7 +8,12 @@
 
 import UIKit
 
-public protocol ViewDelegate {
+public protocol Scrollable {}
+extension Scrollable {
+    var scrollView: UIScrollView { return self as! UIScrollView }
+}
+
+public protocol ViewDelegate: Scrollable {
     var contentDelegate: AnyObject? { get set }
     var contentDataSource: AnyObject? { get set }
     
@@ -49,5 +54,5 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     func registerCell(_ reuseIdentifier: String, nib: UINib) {}
     
     func dequeu() -> Cell? { return nil }
-    func indexPath(_ cell: Cell) -> IndexPath? { return nil }
+    func indexPath(_ cell: Cell) -> IndexPath? { return nil }    
 }

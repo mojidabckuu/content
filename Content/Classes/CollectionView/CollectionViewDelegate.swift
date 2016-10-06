@@ -8,6 +8,8 @@
 
 import UIKit
 
+extension UICollectionView: Scrollable {}
+
 open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
  
     var collectionView: UICollectionView { return self.content.view as! UICollectionView }
@@ -74,7 +76,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         if let size = self.content.callbacks.onLayout?(self.content, self.content.items[(indexPath as NSIndexPath).row]) {
             return size
         }
-        print(#file + " You didn't specify size block. Use onLayout chain.")
+        print(#file + " You didn't specify size block. Use on(:layout) chain.")
         return CGSize(width: 40, height: 40)
     }
     

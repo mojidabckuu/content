@@ -30,8 +30,13 @@ extension User {
     class func index(_ block: @escaping (([User]) -> Void)) {
         let delayTime = DispatchTime.now() + Double(Int64(1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
         DispatchQueue.main.asyncAfter(deadline: delayTime) {
-            let users = [User(name: "Darwin", avatarURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!),
-                         User(name: "Leo", avatarURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!)]
+            let names = ["Darwin", "Leo", "Vinci", "Rafael", "Ioan", "Duma", "Victor", "Bah", "Mick", "Lorenco", "Donatello"]
+            var users: [User] = []
+            for i in 0..<20 {
+                let name = i >= names.count ? "name\(i)" : names[i]
+                let user = User(name: name, avatarURL: URL(string:"https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!)
+                users.append(user)
+            }
             block(users)
         }
     }

@@ -22,7 +22,7 @@ class UsersViewController: UIViewController {
         super.viewDidLoad()
         
         self.title = "Users"
-        
+
         self.content = Content(view: self.tableView).on(cellSetup: { (user, cell) in
             cell.textLabel?.text = user.name
             cell.imageView?.af_setImage(withURL: user.avatarURL)
