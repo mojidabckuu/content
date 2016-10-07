@@ -157,14 +157,14 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                 _items.removeAll()
                 if self.configuration.animatedRefresh {
                     self.reloadData()
-                    self.add(models, index: _items.count)
+                    self.add(items: models, index: _items.count)
                     (self.configuration.refreshControl as? ContentView)?.stopAnimating()
                 } else {
                     _items.append(contentsOf: models)
                     self.reloadData()
                 }
             } else {
-                self.add(models, index: _items.count)
+                self.add(items: models, index: _items.count)
                 (self.configuration.infiniteControl as? ContentView)?.stopAnimating()
             }
             self.URLCallbacks.didLoad?(error, models)
@@ -178,12 +178,12 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     // Management
     
-    func add(_ items: [Model], index: Int = 0) {
+    func add(items items: [Model], index: Int = 0) {
         _items.insert(contentsOf: items, at: index)
         self.delegate?.insert(items, index: index)
     }
     func add(_ items: Model..., index: Int = 0) {
-        self.add(items, index: index)
+        self.add(items: items, index: index)
     }
     func delete(_ models: Model...) {
         self.delegate?.delete(models)
