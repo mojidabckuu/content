@@ -9,11 +9,18 @@
 import UIKit
 
 public struct Configuration {
-    var animatedRefresh: Bool = true
+    var animatedRefresh: Bool = false
     var length: Int = 20
     var autoDeselect = true
-    var refreshControl: UIControl? = UIRefreshControl()
-    var infiniteControl: UIControl? = UIInfiniteControl()
+    var refreshControl: UIControl?
+    var infiniteControl: UIControl?
+    
+    static let `default`: Configuration = {
+        var configuration = Configuration()
+        configuration.refreshControl = UIRefreshControl()
+        configuration.infiniteControl = UIInfiniteControl()
+        return configuration
+    }()
 }
 
 public enum State {
@@ -35,7 +42,7 @@ class ContentActionsCallbacks<Model: Equatable, View: ViewDelegate, Cell: Conten
 class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
     var onLoad: ((Content<Model, View, Cell>) -> Void)?
     var willLoad: (() -> Void)?
-    var didLoad: ((NSError?, [Model]) -> Void)?
+    var didLoad: ((Error?, [Model]) -> Void)?
 }
 
 class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
@@ -64,7 +71,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.reloadData()
         }
     }
-    var configuration = Configuration()
+    var configuration = Configuration.default
     open var model: Model?
     open var view: View { return _view }
     private var _view: View
@@ -146,7 +153,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     // Utils
     
-    open func fetch(_ models: [Model]?, error: NSError?) {
+    open func fetch(_ models: [Model]?, error: Error?) {
         if let error = error {
             _state = .none
             self.URLCallbacks.didLoad?(error, [])
@@ -157,14 +164,14 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                 _items.removeAll()
                 if self.configuration.animatedRefresh {
                     self.reloadData()
-                    self.add(models, index: _items.count)
+                    self.add(items: models, index: _items.count)
                     (self.configuration.refreshControl as? ContentView)?.stopAnimating()
                 } else {
                     _items.append(contentsOf: models)
                     self.reloadData()
                 }
             } else {
-                self.add(models, index: _items.count)
+                self.add(items: models, index: _items.count)
                 (self.configuration.infiniteControl as? ContentView)?.stopAnimating()
             }
             self.URLCallbacks.didLoad?(error, models)
@@ -178,12 +185,12 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     // Management
     
-    func add(_ items: [Model], index: Int = 0) {
+    func add(items items: [Model], index: Int = 0) {
         _items.insert(contentsOf: items, at: index)
         self.delegate?.insert(items, index: index)
     }
     func add(_ items: Model..., index: Int = 0) {
-        self.add(items, index: index)
+        self.add(items: items, index: index)
     }
     func delete(_ models: Model...) {
         self.delegate?.delete(models)

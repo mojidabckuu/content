@@ -21,7 +21,12 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     // Insert
     
     override func insert(_ models: [Model], index: Int) {
-        self.collectionView.insertItems(at: self.indexPaths(models))
+        let indexPaths = self.indexPaths(models)
+        let collectionView = self.collectionView
+        self.collectionView.performBatchUpdates({ 
+            collectionView.insertItems(at: indexPaths)
+        }, completion: nil)
+        
     }
         
     override func indexPath(_ cell: Cell) -> IndexPath? {
