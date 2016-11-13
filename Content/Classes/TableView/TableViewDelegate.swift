@@ -70,6 +70,14 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         return tableViewCell
     }
     
+    public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return self.content.viewDelegateCallbacks.onHeaderDequeue?(self.content)
+    }
+    
+    public func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return self.content.viewDelegateCallbacks.onFooterDequeue?(self.content)
+    }
+    
     //ScrollView
     
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {

@@ -68,6 +68,19 @@ public extension Content where View: UICollectionView {
     }
 }
 
+//Views
+public extension Content {
+    func on(headerDequeue block: @escaping (Content<Model, View, Cell>) -> UIView?) -> Content {
+        self.viewDelegateCallbacks.onHeaderDequeue = block
+        return self
+    }
+    
+    func on(footerDequeue block: @escaping (Content<Model, View, Cell>) -> UIView?) -> Content {
+        self.viewDelegateCallbacks.onFooterDequeue = block
+        return self
+    }
+}
+
 //ScrollView applicable
 public extension Content where View: UIScrollView {
     

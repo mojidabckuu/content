@@ -48,7 +48,6 @@ class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCel
 class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
     var onSetupBlock: ((Content<Model, View, Cell>) -> Void)?
     var onCellSetupBlock: ((Model, Cell) -> Void)?
-    var onDequeue: ((Content<Model, View, Cell>, Model) -> Void)?
     var onLayout: ((Content<Model, View, Cell>, Model) -> CGSize)?
     var onItemChanged: ((Content<Model, View, Cell>, Model, Int) -> Void)?
 }
@@ -58,6 +57,11 @@ class ScrollCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
     var onDidEndDecelerating : ((Content<Model, View, Cell>) -> Void)?
     var onDidStartDecelerating : ((Content<Model, View, Cell>) -> Void)?
     var onDidEndDragging: ((Content<Model, View, Cell>, Bool) -> Void)?
+}
+
+class ViewDelegateCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
+    var onHeaderDequeue: ((Content<Model, View, Cell>) -> UIView?)?
+    var onFooterDequeue: ((Content<Model, View, Cell>) -> UIView?)?
 }
 
 public protocol ContentCell: _Cell, Raiser {}
@@ -81,6 +85,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     let URLCallbacks = ContentURLCallbacks<Model, View, Cell>()
     var callbacks = ContentCallbacks<Model, View, Cell>()
     var scrollCallbacks = ScrollCallbacks<Model, View, Cell>()
+    var viewDelegateCallbacks = ViewDelegateCallbacks<Model, View, Cell>()
     
     var offset: Any?
     var length: Int { return self.configuration.length }
