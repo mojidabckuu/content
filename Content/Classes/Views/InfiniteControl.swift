@@ -11,6 +11,7 @@ import UIKit
 protocol ContentView {
     func startAnimating()
     func stopAnimating()
+    var isAnimating: Bool { get }
 }
 
 extension CGRect {
@@ -19,18 +20,18 @@ extension CGRect {
     }
 }
 
-class UIInfiniteControl: UIControl, ContentView {
+class UIInfiniteControl: UIControl {
     var height: CGFloat = 60
     var activityIndicatorView: UIActivityIndicatorView!
     
-    var isAnimating: Bool { return self.activityIndicatorView.isAnimating }
+    override var isAnimating: Bool { return self.activityIndicatorView.isAnimating }
     var isObserving: Bool { return _isObserving }
     var infiniteState: State {
         set {
             if _state != newValue {
                 let prevState = _state
                 _state = newValue
-                self.activityIndicatorView.center = self.center
+                self.activityIndicatorView.center = self.bounds.center
                 switch newValue {
                 case .stopped:              self.activityIndicatorView.stopAnimating()
                 case .triggered, .loading:  self.activityIndicatorView.startAnimating()
@@ -50,8 +51,8 @@ class UIInfiniteControl: UIControl, ContentView {
     fileprivate weak var scrollView: UIScrollView?
     fileprivate var originalInset: UIEdgeInsets = UIEdgeInsets()
     
-    func startAnimating() { self.infiniteState = .loading }
-    func stopAnimating() { self.infiniteState = .stopped }
+    override func startAnimating() { self.infiniteState = .loading }
+    override func stopAnimating() { self.infiniteState = .stopped }
     
     //MARK: - Lifecycle
     override init(frame: CGRect) {
@@ -66,7 +67,7 @@ class UIInfiniteControl: UIControl, ContentView {
     //MARK: - Setup
     func setup() {
         self.activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
-        self.activityIndicatorView.hidesWhenStopped = false
+        self.activityIndicatorView.hidesWhenStopped = true
         self.addSubview(self.activityIndicatorView)
     }
     
@@ -76,8 +77,6 @@ class UIInfiniteControl: UIControl, ContentView {
         let size = self.scrollView!.bounds.size
         self.frame = CGRect(x: 0, y: self.contentSize.height, width: size.width, height: self.height)
         self.activityIndicatorView.center = self.bounds.center
-        print(self.activityIndicatorView.frame)
-        print(self.bounds.center)
         self.bringSubview(toFront: self.activityIndicatorView)
     }
     

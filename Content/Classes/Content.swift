@@ -8,7 +8,7 @@
 
 import UIKit
 
-public struct Configuration {
+struct Configuration {
     var animatedRefresh: Bool = false
     var length: Int = 20
     var autoDeselect = true
@@ -90,17 +90,6 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     var offset: Any?
     var length: Int { return self.configuration.length }
     
-//    public init(model: Model? = nil, view: View, configuration: Configuration, delegate: BaseDelegate<Model, View, Cell>? = nil) {
-//        self.model = model
-//        _view = view
-//        _view.contentDelegate = delegate as? AnyObject
-//        _view.contentDataSource = delegate as? AnyObject
-//        self.delegate = delegate
-//        self.setupDelegate()
-//        self.configuration = configuration
-//        self.setup()
-//    }
-    
     public init(model: Model? = nil, view: View, delegate: BaseDelegate<Model, View, Cell>? = nil) {
         self.model = model
         _view = view
@@ -132,8 +121,6 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
         if let infiniteControl = self.configuration.infiniteControl {
             infiniteControl.addTarget(self, action: "loadMore", for: .valueChanged)
-            let tableView = self.view as? UITableView
-            print(tableView)
             self.view.addSubview(infiniteControl)
         }
     }
@@ -149,12 +136,21 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open dynamic func refresh() {
         if _state != .refreshing {
             _state = .refreshing
+            configuration.infiniteControl?.isEnabled = true
+            let isAnimating = configuration.refreshControl?.isAnimating
+            let refresh = configuration.refreshControl as? UIRefreshControl
+            let isA = refresh?.isAnimating
+            if !(configuration.refreshControl?.isAnimating == true) {
+                self.configuration.infiniteControl?.startAnimating()
+            }
             self.loadItems()
         }
     }
     open dynamic func loadMore() {
-        _state = .loading
-        self.loadItems()
+        if _state != .loading && _state != .refreshing && _state != .allLoaded {
+            _state = .loading
+            self.loadItems()
+        }
     }
     open func loadItems() {
         self.URLCallbacks.onLoad?(self)
@@ -178,14 +174,15 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                     _items.append(contentsOf: models)
                     self.reloadData()
                 }
-                (self.configuration.refreshControl as? ContentView)?.stopAnimating()
+                configuration.refreshControl?.stopAnimating()
             } else {
                 self.add(items: models, index: _items.count)
-                (self.configuration.infiniteControl as? ContentView)?.stopAnimating()
             }
+            configuration.infiniteControl?.stopAnimating()
             self.URLCallbacks.didLoad?(error, models)
             if models.count < self.length {
                 _state = .allLoaded
+                configuration.infiniteControl?.isEnabled = false
             } else {
                 _state = .none
             }

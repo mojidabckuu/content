@@ -8,12 +8,23 @@
 
 import UIKit
 
-extension UIRefreshControl: ContentView {
-    func startAnimating() {
+extension UIControl: ContentView {
+    func startAnimating() {}
+    func stopAnimating() {}
+    
+    var isAnimating: Bool { return false }
+}
+
+extension UIRefreshControl {
+    override func startAnimating() {
         self.beginRefreshing()
     }
     
-    func stopAnimating() {
+    override func stopAnimating() {
         self.endRefreshing()
+    }
+    
+    override var isAnimating: Bool {
+        return self.isRefreshing
     }
 }
