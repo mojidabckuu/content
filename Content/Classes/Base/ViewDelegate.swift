@@ -20,7 +20,7 @@ public protocol ViewDelegate: Scrollable {
     func reloadData()
 }
 
-open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: NSObject {
+open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: NSObject where View: UIView {
     open var content: Content<Model, View, Cell>
     
     public init(content: Content<Model, View, Cell>) {

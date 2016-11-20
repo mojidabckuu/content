@@ -10,7 +10,7 @@ import UIKit
 
 extension UICollectionView: Scrollable {}
 
-open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout where View: UIView {
  
     var collectionView: UICollectionView { return self.content.view as! UICollectionView }
     

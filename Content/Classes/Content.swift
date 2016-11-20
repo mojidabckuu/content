@@ -15,12 +15,12 @@ public struct Configuration {
     var refreshControl: UIControl?
     var infiniteControl: UIControl?
     
-    static let `default`: Configuration = {
+    static var `default`: Configuration {
         var configuration = Configuration()
         configuration.refreshControl = UIRefreshControl()
         configuration.infiniteControl = UIInfiniteControl()
         return configuration
-    }()
+    }
 }
 
 public enum State {
@@ -31,7 +31,7 @@ public enum State {
     case cancelled
 }
 
-class ContentActionsCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
+class ContentActionsCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
     var onSelect: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
     var onDeselect: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
     var onAction: ((Content<Model, View, Cell>, Model, Cell, Action) -> Void)?
@@ -39,34 +39,34 @@ class ContentActionsCallbacks<Model: Equatable, View: ViewDelegate, Cell: Conten
     var onDelete: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
 }
 
-class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
+class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
     var onLoad: ((Content<Model, View, Cell>) -> Void)?
     var willLoad: (() -> Void)?
     var didLoad: ((Error?, [Model]) -> Void)?
 }
 
-class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
+class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
     var onSetupBlock: ((Content<Model, View, Cell>) -> Void)?
     var onCellSetupBlock: ((Model, Cell) -> Void)?
     var onLayout: ((Content<Model, View, Cell>, Model) -> CGSize)?
     var onItemChanged: ((Content<Model, View, Cell>, Model, Int) -> Void)?
 }
 
-class ScrollCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
+class ScrollCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
     var onDidScroll: ((Content<Model, View, Cell>) -> Void)?
     var onDidEndDecelerating : ((Content<Model, View, Cell>) -> Void)?
     var onDidStartDecelerating : ((Content<Model, View, Cell>) -> Void)?
     var onDidEndDragging: ((Content<Model, View, Cell>, Bool) -> Void)?
 }
 
-class ViewDelegateCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> {
+class ViewDelegateCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
     var onHeaderDequeue: ((Content<Model, View, Cell>) -> UIView?)?
     var onFooterDequeue: ((Content<Model, View, Cell>) -> UIView?)?
 }
 
 public protocol ContentCell: _Cell, Raiser {}
 
-open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: ActionRaiser {
+open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: ActionRaiser where View: UIView {
     private var _items: [Model] = []
     open var items: [Model] {
         get { return _items }
@@ -128,11 +128,13 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     func setupControls() {
         if let refreshControl = self.configuration.refreshControl {
             refreshControl.addTarget(self, action: "refresh", for: .valueChanged)
-            self.view.scrollView.addSubview(refreshControl)
+            self.view.addSubview(refreshControl)
         }
         if let infiniteControl = self.configuration.infiniteControl {
             infiniteControl.addTarget(self, action: "loadMore", for: .valueChanged)
-            self.view.scrollView.addSubview(infiniteControl)
+            let tableView = self.view as? UITableView
+            print(tableView)
+            self.view.addSubview(infiniteControl)
         }
     }
     
@@ -145,8 +147,10 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.delegate?.reload()
     }
     open dynamic func refresh() {
-        _state = .refreshing
-        self.loadItems()
+        if _state != .refreshing {
+            _state = .refreshing
+            self.loadItems()
+        }
     }
     open dynamic func loadMore() {
         _state = .loading
@@ -170,11 +174,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                 if self.configuration.animatedRefresh {
                     self.reloadData()
                     self.add(items: models, index: _items.count)
-                    (self.configuration.refreshControl as? ContentView)?.stopAnimating()
                 } else {
                     _items.append(contentsOf: models)
                     self.reloadData()
                 }
+                (self.configuration.refreshControl as? ContentView)?.stopAnimating()
             } else {
                 self.add(items: models, index: _items.count)
                 (self.configuration.infiniteControl as? ContentView)?.stopAnimating()

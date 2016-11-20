@@ -30,7 +30,6 @@ class UIInfiniteControl: UIControl, ContentView {
             if _state != newValue {
                 let prevState = _state
                 _state = newValue
-                print("state: \(_state) prevState: \(prevState)")
                 self.activityIndicatorView.center = self.center
                 switch newValue {
                 case .stopped:              self.activityIndicatorView.stopAnimating()
@@ -85,7 +84,7 @@ class UIInfiniteControl: UIControl, ContentView {
     //
     override func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
-        if let scrollView = newSuperview as? UIScrollView, self.superview == nil {
+        if let scrollView = newSuperview as? UIScrollView {
             if self.scrollView == nil {
                 self.scrollView = scrollView
                 self.originalInset = scrollView.contentInset
@@ -126,7 +125,6 @@ class UIInfiniteControl: UIControl, ContentView {
     
     //MARK: - Observing
     func startObserveScrollView() {
-        print(#function)
         if !self.isObserving {
             self.scrollView?.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
             self.scrollView?.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
@@ -135,7 +133,6 @@ class UIInfiniteControl: UIControl, ContentView {
         }
     }
     func stopObserveScrollView() {
-        print(#function)
         if self.isObserving {
             self.scrollView?.removeObserver(self, forKeyPath: "contentOffset")
             self.scrollView?.removeObserver(self, forKeyPath: "contentSize")
