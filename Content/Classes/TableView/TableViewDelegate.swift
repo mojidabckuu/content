@@ -13,17 +13,20 @@ extension UITableView: Scrollable {}
 open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UITableViewDelegate, UITableViewDataSource where View: UIView {
 
     open var tableView: UITableView { return self.content.view as! UITableView }
+    public override init() {
+        super.init()
+    }
     override init(content: Content<Model, View, Cell>) {
         super.init(content: content)
     }
     
     // Insert
     
-    override func insert(_ models: [Model], index: Int) {
+    override open func insert(_ models: [Model], index: Int) {
         self.tableView.insertRows(at: self.indexPaths(models), with: .automatic)
     }
         
-    override func indexPath(_ cell: Cell) -> IndexPath? {
+    override open func indexPath(_ cell: Cell) -> IndexPath? {
         if let tableViewCell = cell as? UITableViewCell {
             return self.tableView.indexPath(for: tableViewCell)
         }
@@ -32,7 +35,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     //Register
     
-    override func registerCell(_ reuseIdentifier: String, nib: UINib) {
+    override open func registerCell(_ reuseIdentifier: String, nib: UINib) {
         self.tableView.register(nib, forCellReuseIdentifier: reuseIdentifier)
     }
     

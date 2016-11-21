@@ -21,24 +21,28 @@ public protocol ViewDelegate: Scrollable {
 }
 
 open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: NSObject where View: UIView {
-    open var content: Content<Model, View, Cell>
+    open var content: Content<Model, View, Cell>!
     
-    public init(content: Content<Model, View, Cell>) {
+    public override init() {
+        super.init()
+    }
+    
+    init(content: Content<Model, View, Cell>) {
         self.content = content
     }
     
     // Setup
-    func setup() {}
+    open func setup() {}
     
     //
-    func insert(_ models: [Model], index: Int = 0) {}
-    func delete(_ models: [Model]) { }
-    func reload() {
+    open func insert(_ models: [Model], index: Int = 0) {}
+    open func delete(_ models: [Model]) { }
+    open func reload() {
         self.content.view.reloadData()
     }
-    func reload(_ models: [Model]) {}
+    open func reload(_ models: [Model]) {}
     
-    func indexPaths(_ models: [Model]) -> [IndexPath] {
+    open func indexPaths(_ models: [Model]) -> [IndexPath] {
         var indexPaths: [IndexPath] = []
         for model in models {
             if let index = self.content.items.index(of: model) {
@@ -50,9 +54,9 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     }
     
     //
-    func registerCell(_ reuseIdentifier: String, class: AnyClass) {}
-    func registerCell(_ reuseIdentifier: String, nib: UINib) {}
+    open func registerCell(_ reuseIdentifier: String, class: AnyClass) {}
+    open func registerCell(_ reuseIdentifier: String, nib: UINib) {}
     
-    func dequeu() -> Cell? { return nil }
-    func indexPath(_ cell: Cell) -> IndexPath? { return nil }    
+    open func dequeu() -> Cell? { return nil }
+    open func indexPath(_ cell: Cell) -> IndexPath? { return nil }
 }

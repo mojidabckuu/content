@@ -22,8 +22,9 @@ class UsersViewController: UIViewController {
         super.viewDidLoad()
         
         self.title = "Users"
-
-        self.content = Content(view: self.tableView, configuration: Configuration.regular).on(cellSetup: { (user, cell) in
+        self.tableView.isEditing = true
+        let delegate = TableDeleteDelegate<User, UITableView, UserTableViewCell>()
+        self.content = Content(view: self.tableView, delegate: delegate, configuration: Configuration.regular).on(cellSetup: { (user, cell) in
             cell.textLabel?.text = user.name
             cell.imageView?.af_setImage(withURL: user.avatarURL)
         }).on(select: { [weak self] (contnet, user, cell) in

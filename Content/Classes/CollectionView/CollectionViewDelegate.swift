@@ -20,7 +20,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
  
     // Insert
     
-    override func insert(_ models: [Model], index: Int) {
+    override open func insert(_ models: [Model], index: Int) {
         let indexPaths = self.indexPaths(models)
         let collectionView = self.collectionView
         self.collectionView.performBatchUpdates({ 
@@ -29,7 +29,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         
     }
         
-    override func indexPath(_ cell: Cell) -> IndexPath? {
+    override open func indexPath(_ cell: Cell) -> IndexPath? {
         if let collectionViewCell = cell as? UICollectionViewCell {
             return self.collectionView.indexPath(for: collectionViewCell)
         }
@@ -38,7 +38,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     // Registration
     
-    override func registerCell(_ reuseIdentifier: String, nib: UINib) {
+    override open func registerCell(_ reuseIdentifier: String, nib: UINib) {
         self.collectionView.register(nib, forCellWithReuseIdentifier: reuseIdentifier)
     }
     

@@ -121,6 +121,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                 _view.contentDelegate = self.delegate
                 _view.contentDataSource = self.delegate
             }
+        } else {
+            self.delegate?.content = self
         }
     }
     
