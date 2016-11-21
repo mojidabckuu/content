@@ -8,17 +8,24 @@
 
 import UIKit
 
-struct Configuration {
-    var animatedRefresh: Bool = false
-    var length: Int = 20
-    var autoDeselect = true
-    var refreshControl: UIControl?
-    var infiniteControl: UIControl?
+public struct Configuration {
+    public var animatedRefresh: Bool = false
+    public var length: Int = 20
+    public var autoDeselect = true
+    public var refreshControl: UIControl?
+    public var infiniteControl: UIControl?
     
-    static var `default`: Configuration {
+    // Default configuration is for normal flow with refresh/infinte controls.
+    public static var `default`: Configuration {
         var configuration = Configuration()
         configuration.refreshControl = UIRefreshControl()
         configuration.infiniteControl = UIInfiniteControl()
+        return configuration
+    }
+    
+    // Simple configuration to show list without refresh/infinite controls
+    public static var regular: Configuration {
+        var configuration = Configuration()
         return configuration
     }
 }
@@ -90,8 +97,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     var offset: Any?
     var length: Int { return self.configuration.length }
     
-    public init(model: Model? = nil, view: View, delegate: BaseDelegate<Model, View, Cell>? = nil) {
+    public init(model: Model? = nil, view: View, delegate: BaseDelegate<Model, View, Cell>? = nil, configuration: Configuration? = nil) {
         self.model = model
+        if let configuration = configuration {
+            self.configuration = configuration
+        }
         _view = view
         _view.contentDelegate = delegate as? AnyObject
         _view.contentDataSource = delegate as? AnyObject
