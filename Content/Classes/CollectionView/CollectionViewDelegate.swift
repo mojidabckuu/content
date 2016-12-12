@@ -81,7 +81,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         if let size = self.content.callbacks.onLayout?(self.content, self.content.items[(indexPath as NSIndexPath).row]) {
             return size
         }
-        print(#file + " You didn't specify size block. Use on(:layout) chain.")
+//        print(#file + " You didn't specify size block. Use on(:layout) chain.")
         return CGSize(width: 40, height: 40)
     }
     
@@ -89,5 +89,9 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         let pageWidth = scrollView.frame.width
         let page = Int(scrollView.contentOffset.x / pageWidth)
         self.content.callbacks.onItemChanged?(self.content, self.content.items[page], page)
+    }
+    
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        self.content.scrollCallbacks.onDidScroll?(self.content)
     }
 }

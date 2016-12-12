@@ -73,12 +73,20 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         return tableViewCell
     }
     
+    public func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return self.content.viewDelegateCallbacks.onHeaderDequeue?(self.content, section)
+    }
+    
+    public func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        return self.content.viewDelegateCallbacks.onFooterDequeue?(self.content, section)
+    }
+    
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return self.content.viewDelegateCallbacks.onHeaderDequeue?(self.content)
+        return self.content.viewDelegateCallbacks.onHeaderViewDequeue?(self.content, section)
     }
     
     public func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        return self.content.viewDelegateCallbacks.onFooterDequeue?(self.content)
+        return self.content.viewDelegateCallbacks.onFooterViewDequeue?(self.content, section)
     }
     
     //ScrollView

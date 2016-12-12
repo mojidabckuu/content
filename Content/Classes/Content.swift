@@ -67,8 +67,10 @@ class ScrollCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> w
 }
 
 class ViewDelegateCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
-    var onHeaderDequeue: ((Content<Model, View, Cell>) -> UIView?)?
-    var onFooterDequeue: ((Content<Model, View, Cell>) -> UIView?)?
+    var onHeaderViewDequeue: ((Content<Model, View, Cell>, Int) -> UIView?)?
+    var onHeaderDequeue: ((Content<Model, View, Cell>, Int) -> String?)?
+    var onFooterViewDequeue: ((Content<Model, View, Cell>, Int) -> UIView?)?
+    var onFooterDequeue: ((Content<Model, View, Cell>, Int) -> String?)?
 }
 
 public protocol ContentCell: _Cell, Raiser {}

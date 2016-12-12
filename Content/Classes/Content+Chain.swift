@@ -70,12 +70,22 @@ public extension Content where View: UICollectionView {
 
 //Views
 public extension Content {
-    func on(headerDequeue block: @escaping (Content<Model, View, Cell>) -> UIView?) -> Content {
+    func on(headerDequeue block: @escaping (Content<Model, View, Cell>, Int) -> UIView?) -> Content {
+        self.viewDelegateCallbacks.onHeaderViewDequeue = block
+        return self
+    }
+    
+    func on(headerDequeue block: @escaping (Content<Model, View, Cell>, Int) -> String?) -> Content {
         self.viewDelegateCallbacks.onHeaderDequeue = block
         return self
     }
     
-    func on(footerDequeue block: @escaping (Content<Model, View, Cell>) -> UIView?) -> Content {
+    func on(footerDequeue block: @escaping (Content<Model, View, Cell>, Int) -> UIView?) -> Content {
+        self.viewDelegateCallbacks.onFooterViewDequeue = block
+        return self
+    }
+    
+    func on(footerDequeue block: @escaping (Content<Model, View, Cell>, Int) -> String?) -> Content {
         self.viewDelegateCallbacks.onFooterDequeue = block
         return self
     }
