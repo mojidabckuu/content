@@ -14,6 +14,10 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
  
     var collectionView: UICollectionView { return self.content.view as! UICollectionView }
     
+    public override init() {
+        super.init()
+    }
+    
     override init(content: Content<Model, View, Cell>) {
         super.init(content: content)
     }
