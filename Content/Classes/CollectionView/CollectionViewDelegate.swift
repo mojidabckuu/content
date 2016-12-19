@@ -49,11 +49,17 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     // UICollectionView delegate
     
     open func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath) as! Cell
-        self.content.actions.onSelect?(self.content, self.content.items[(indexPath as NSIndexPath).row], cell)
-        if self.content.configuration.autoDeselect {
-            self.collectionView.deselectItem(at: indexPath, animated: true)
+        return self.collectionView(collectionView, cellForItemAt: indexPath, with: Cell.identifier)
+    }
+    
+    //TODO: It is a workaround to achieve different rows for dequeue.
+    open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath, with identifier: String) -> UICollectionViewCell {
+        let collectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
+        if var cell = collectionViewCell as? Cell {
+            cell.raiser = self.content
+            self.content.callbacks.onCellSetupBlock?(self.content.items[(indexPath as NSIndexPath).row], cell)
         }
+        return collectionViewCell
     }
     
     open func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
