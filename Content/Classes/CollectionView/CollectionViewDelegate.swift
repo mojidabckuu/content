@@ -48,7 +48,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     // UICollectionView delegate
     
-    open func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    open func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) -> UICollectionViewCell {
         return self.collectionView(collectionView, cellForItemAt: indexPath, with: Cell.identifier)
     }
     
