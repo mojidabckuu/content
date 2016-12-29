@@ -111,7 +111,9 @@ class UIInfiniteControl: UIControl {
     
     func adjustInsets() {
         var contentInset = self.scrollView!.contentInset
-        contentInset.bottom = self.originalInset.bottom + self.height
+        if self.isEnabled {
+            contentInset.bottom = self.originalInset.bottom + self.height
+        }
         self.setContentInset(contentInset)
     }
     
