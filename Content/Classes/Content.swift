@@ -28,6 +28,13 @@ public struct Configuration {
         var configuration = Configuration()
         return configuration
     }
+    
+    // Simple configuration to show list without refresh/infinite controls
+    public static var infinite: Configuration {
+        var configuration = Configuration()
+        configuration.infiniteControl = UIInfiniteControl()
+        return configuration
+    }
 }
 
 public enum State {
