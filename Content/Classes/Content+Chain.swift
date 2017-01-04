@@ -36,6 +36,16 @@ public extension Content {
         self.actions.onAction = block
         return self
     }
+    
+    func on(delete block: @escaping ((Content<Model, View, Cell>, Model, Cell) -> Void)) -> Content<Model, View, Cell> {
+        self.actions.onDelete = block
+        return self
+    }
+    
+    func on(add block: @escaping ((Content<Model, View, Cell>, Model, Cell) -> Void)) -> Content<Model, View, Cell> {
+        self.actions.onAdd = block
+        return self
+    }
 }
 
 // Loading
@@ -112,4 +122,3 @@ public extension Content where View: UIScrollView {
     }
     
 }
-
