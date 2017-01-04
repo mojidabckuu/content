@@ -35,7 +35,8 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     open func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let cell = tableView.cellForRow(at: indexPath) as! Cell
-            self.content.actions.onDelete?(self.content, self.content.items[indexPath.row], cell)
+            let item = self.content.items[indexPath.row]
+            self.content.actions.onDelete?(self.content, item, cell)
         }
     }
     
@@ -66,7 +67,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath) as! Cell
-        self.content.actions.onSelect?(self.content, self.content.items[(indexPath as NSIndexPath).row], cell)
+        self.content.actions.onSelect?(self.content, self.content.items[indexPath.row], cell)
         if self.content.configuration.autoDeselect {
             self.tableView.deselectRow(at: indexPath, animated: true)
         }
@@ -74,11 +75,11 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     open func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath) as! Cell
-        self.content.actions.onDeselect?(self.content, self.content.items[(indexPath as NSIndexPath).row], cell)
+        let item = self.content.items[indexPath.row]
+        self.content.actions.onDeselect?(self.content, item, cell)
     }
     
     //UITableView data source
-    
     open func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -91,7 +92,8 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         let tableViewCell = tableView.dequeueReusableCell(withIdentifier: Cell.identifier, for: indexPath)
         if var cell = tableViewCell as? Cell {
             cell.raiser = self.content
-            self.content.callbacks.onCellSetupBlock?(self.content.items[(indexPath as NSIndexPath).row], cell)
+            let item = self.content.items[indexPath.row]
+            self.content.callbacks.onCellSetupBlock?(item, cell)
         }
         return tableViewCell
     }
