@@ -12,7 +12,4 @@ target 'Content_Example' do
   pod 'Content', :path => '../'
   pod 'AlamofireImage', '~> 3.0'
 #  pod 'Eureka', git: 'https://github.com/mojidabckuu/Eureka'
-
-  target 'Content_Tests' do
-  end
 end
