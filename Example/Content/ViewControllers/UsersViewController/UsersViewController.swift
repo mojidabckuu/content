@@ -23,7 +23,7 @@ class UsersViewController: UIViewController {
         
         self.title = "Users"
         self.tableView.isEditing = true
-        let delegate = TableDeleteDelegate<User, UITableView, UserTableViewCell>()
+        let delegate = TableDelegate<User, UITableView, UserTableViewCell>()
         self.content = Content(view: self.tableView, delegate: delegate, configuration: Configuration.regular).on(cellSetup: { (user, cell) in
             cell.textLabel?.text = user.name
             cell.imageView?.af_setImage(withURL: user.avatarURL)
