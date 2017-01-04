@@ -43,7 +43,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     //Delete
     open override func delete(_ models: [Model]) {
         self.tableView.beginUpdates()
-        var indexes = self.content.items
+        var indexes = models
             .flatMap { self.content.items.index(of: $0) }
             .map {IndexPath(row: $0, section: 0)}
         self.tableView.deleteRows(at: indexes, with: .fade)

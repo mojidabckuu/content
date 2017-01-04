@@ -35,7 +35,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     //Delete
     open override func delete(_ models: [Model]) {
-        var indexes = self.content.items
+        var indexes = models
             .flatMap { self.content.items.index(of: $0) }
             .map {IndexPath(row: $0, section: 0)}
         let collectionView = self.collectionView
