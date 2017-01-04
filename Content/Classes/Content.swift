@@ -214,7 +214,6 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     //MARK: - Management
     // Add
     open func add(items items: [Model], at index: Int = 0) {
-        _items.insert(contentsOf: items, at: index)
         self.delegate?.insert(items, index: index)
     }
     open func add(_ items: Model..., at index: Int = 0) {
@@ -228,8 +227,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.delegate?.delete(models)
     }
     //Reload
-    open func reload(_ models: Model...) {
-        self.delegate?.reload(models)
+    open func reload(_ models: Model..., animated: Bool = false) {
+        self.delegate?.reload(models, animated: animated)
     }
 }
 

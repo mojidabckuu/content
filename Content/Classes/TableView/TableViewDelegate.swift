@@ -21,20 +21,43 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     // Insert
-    
     override open func insert(_ models: [Model], index: Int) {
+        self.tableView.beginUpdates()
+        self.content.items.insert(contentsOf: models, at: index)
         self.tableView.insertRows(at: self.indexPaths(models), with: .automatic)
+        self.tableView.endUpdates()
     }
-        
-    override open func indexPath(_ cell: Cell) -> IndexPath? {
-        if let tableViewCell = cell as? UITableViewCell {
-            return self.tableView.indexPath(for: tableViewCell)
+    
+    public func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return self.content.isEditing
+    }
+    
+    open func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let cell = tableView.cellForRow(at: indexPath) as! Cell
+            self.content.actions.onDelete?(self.content, self.content.items[indexPath.row], cell)
         }
-        return nil
+    }
+    
+    //Delete
+    open override func delete(_ models: [Model]) {
+        self.tableView.beginUpdates()
+        var indexes = self.content.items
+            .flatMap { self.content.items.index(of: $0) }
+            .map {IndexPath(row: $0, section: 0)}
+        self.tableView.deleteRows(at: indexes, with: .fade)
+        indexes.forEach { self.content.items.remove(at: $0.row) }
+        self.tableView.endUpdates()
+    }
+    
+    //Reload
+    open override func reload(_ models: [Model], animated: Bool) {
+        let indexes = self.indexPaths(models)
+        let animationStyle: UITableViewRowAnimation = animated ? .automatic : .none
+        self.tableView.reloadRows(at: indexes, with: animationStyle)
     }
     
     //Register
-    
     override open func registerCell(_ reuseIdentifier: String, nib: UINib) {
         self.tableView.register(nib, forCellReuseIdentifier: reuseIdentifier)
     }

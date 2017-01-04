@@ -40,7 +40,7 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     open func reload() {
         self.content.view.reloadData()
     }
-    open func reload(_ models: [Model]) {}
+    open func reload(_ models: [Model], animated: Bool) {}
     
     open func indexPaths(_ models: [Model]) -> [IndexPath] {
         var indexPaths: [IndexPath] = []
