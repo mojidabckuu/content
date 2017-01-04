@@ -84,6 +84,7 @@ public protocol ContentCell: _Cell, Raiser {}
 
 open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: ActionRaiser where View: UIView {
     private var _items: [Model] = []
+    open var isEditing = false
     open var items: [Model] {
         get { return _items }
         set {
@@ -190,14 +191,14 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                 _items.removeAll()
                 if self.configuration.animatedRefresh {
                     self.reloadData()
-                    self.add(items: models, index: _items.count)
+                    self.add(items: models, at: _items.count)
                 } else {
                     _items.append(contentsOf: models)
                     self.reloadData()
                 }
                 configuration.refreshControl?.stopAnimating()
             } else {
-                self.add(items: models, index: _items.count)
+                self.add(items: models, at: _items.count)
             }
             configuration.infiniteControl?.stopAnimating()
             self.URLCallbacks.didLoad?(error, models)
@@ -210,19 +211,24 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
     }
     
-    // Management
-    
-    func add(items items: [Model], index: Int = 0) {
+    //MARK: - Management
+    // Add
+    open func add(items items: [Model], at index: Int = 0) {
         _items.insert(contentsOf: items, at: index)
         self.delegate?.insert(items, index: index)
     }
-    func add(_ items: Model..., index: Int = 0) {
-        self.add(items: items, index: index)
+    open func add(_ items: Model..., at index: Int = 0) {
+        self.add(items: items, at: index)
     }
-    func delete(_ models: Model...) {
+    // Delete
+    open func delete(items models: [Model]) {
         self.delegate?.delete(models)
     }
-    func reload(_ models: Model...) {
+    open func delete(_ models: Model...) {
+        self.delegate?.delete(models)
+    }
+    //Reload
+    open func reload(_ models: Model...) {
         self.delegate?.reload(models)
     }
 }
