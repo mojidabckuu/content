@@ -74,8 +74,9 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     open func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath) as! Cell
-        self.content.actions.onDeselect?(self.content, self.content.items[indexPath.row], cell)
+        if let cell = collectionView.cellForItem(at: indexPath) as? Cell {
+            self.content.actions.onDeselect?(self.content, self.content.items[indexPath.row], cell)
+        }
     }
     
     //MARK: - UICollectionView data

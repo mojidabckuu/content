@@ -74,9 +74,10 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     open func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath) as! Cell
-        let item = self.content.items[indexPath.row]
-        self.content.actions.onDeselect?(self.content, item, cell)
+        if let cell = tableView.cellForRow(at: indexPath) as? Cell {
+            let item = self.content.items[indexPath.row]
+            self.content.actions.onDeselect?(self.content, item, cell)
+        }
     }
     
     //UITableView data source
