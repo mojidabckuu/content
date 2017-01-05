@@ -85,6 +85,22 @@ public protocol ContentCell: _Cell, Raiser {}
 open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: ActionRaiser where View: UIView {
     private var _items: [Model] = []
     open var isEditing = false
+    open var selectedItem: Model? {
+        get { return self.delegate?.selectedItem }
+        set { self.delegate?.selectedItem = newValue }
+    }
+    open var selectedItems: [Model]? {
+        get { return self.delegate?.selectedItems }
+        set { self.delegate?.selectedItems = newValue }
+    }
+    open var visibleItem: Model? {
+        get { return self.delegate?.visibleItem }
+        set { self.delegate?.visibleItem = newValue }
+    }
+    open var visibleItems: [Model]? {
+        get { return self.delegate?.visibleItems }
+        set { self.delegate?.visibleItems = newValue }
+    }
     open var items: [Model] {
         get { return _items }
         set {

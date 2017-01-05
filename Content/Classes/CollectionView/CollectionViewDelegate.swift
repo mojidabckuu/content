@@ -33,6 +33,25 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         get { return self.collectionView.indexPathsForSelectedItems?.map { self.content.items[$0.row] } }
     }
     
+    open override var visibleItem: Model? {
+        get {
+            guard let indexPath = self.collectionView.indexPathsForVisibleItems.first else { return nil }
+            return self.content.items[indexPath.row]
+        }
+        set {
+            // TODO: Implement
+            fatalError("Not implemented")
+        }
+    }
+    
+    open override var visibleItems: [Model]? {
+        get { return self.collectionView.indexPathsForVisibleItems.map { self.content.items[$0.row] } }
+        set {
+            // TODO: Implement
+            fatalError("Not implemented")
+        }
+    }
+    
     //MARK: - Lifecycle
     public override init() {
         super.init()

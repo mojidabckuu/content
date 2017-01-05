@@ -24,6 +24,8 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     open var content: Content<Model, View, Cell>!
     open var selectedItem: Model?
     open var selectedItems: [Model]?
+    open var visibleItem: Model?
+    open var visibleItems: [Model]?
     
     public override init() {
         super.init()
