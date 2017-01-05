@@ -12,7 +12,26 @@ extension UICollectionView: Scrollable {}
 
 open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout where View: UIView {
  
-    var collectionView: UICollectionView { return self.content.view as! UICollectionView }
+    open var collectionView: UICollectionView { return self.content.view as! UICollectionView }
+    
+    open override var selectedItem: Model? {
+        set {
+            // TODO: Implement
+            fatalError("Not implemented")
+        }
+        get {
+            guard let indexPath = self.collectionView.indexPathsForSelectedItems?.first else { return nil }
+            return self.content.items[indexPath.row]
+        }
+    }
+    
+    open override var selectedItems: [Model]? {
+        set {
+            // TODO: Implement
+            fatalError("Not implemented")
+        }
+        get { return self.collectionView.indexPathsForSelectedItems?.map { self.content.items[$0.row] } }
+    }
     
     //MARK: - Lifecycle
     public override init() {

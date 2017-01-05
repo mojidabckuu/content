@@ -13,6 +13,27 @@ extension UITableView: Scrollable {}
 open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UITableViewDelegate, UITableViewDataSource where View: UIView {
 
     open var tableView: UITableView { return self.content.view as! UITableView }
+    
+    open override var selectedItem: Model? {
+        set {
+            // TODO: Implement
+        }
+        get {
+            guard let indexPath = self.tableView.indexPathForSelectedRow else { return nil }
+            return self.content.items[indexPath.row]
+        }
+    }
+    
+    open override var selectedItems: [Model]? {
+        set {
+            // TODO: Implement
+            fatalError("Not implemented")
+        }
+        get {
+            return self.tableView.indexPathsForSelectedRows?.map { self.content.items[$0.row] }
+        }
+    }
+    
     public override init() {
         super.init()
     }

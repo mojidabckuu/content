@@ -22,6 +22,8 @@ public protocol ViewDelegate: Scrollable {
 
 open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: NSObject where View: UIView {
     open var content: Content<Model, View, Cell>!
+    open var selectedItem: Model?
+    open var selectedItems: [Model]?
     
     public override init() {
         super.init()
