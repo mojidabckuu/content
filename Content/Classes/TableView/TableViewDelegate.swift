@@ -111,7 +111,11 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let tableViewCell = tableView.dequeueReusableCell(withIdentifier: Cell.identifier, for: indexPath)
+        return self.tableView(tableView, cellForRowAt: indexPath, with: Cell.identifier)
+    }
+    
+    open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath, with identifier: String) -> UITableViewCell {
+        let tableViewCell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath)
         if var cell = tableViewCell as? Cell {
             cell.raiser = self.content
             let item = self.content.items[indexPath.row]
