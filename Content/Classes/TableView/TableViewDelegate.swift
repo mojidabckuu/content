@@ -141,7 +141,6 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     //ScrollView
-    
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         self.content.scrollCallbacks.onDidEndDecelerating?(self.content)
     }
@@ -152,5 +151,11 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         self.content.scrollCallbacks.onDidEndDragging?(self.content, decelerate)
+    }
+    
+    //Utils
+    open override func indexPath(_ cell: Cell) -> IndexPath? {
+        guard let cell = cell as? UITableViewCell else { return nil }
+        return self.tableView.indexPath(for: cell)
     }
 }
