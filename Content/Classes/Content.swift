@@ -64,6 +64,7 @@ class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> 
     var onCellSetupBlock: ((Model, Cell) -> Void)?
     var onLayout: ((Content<Model, View, Cell>, Model) -> CGSize)?
     var onItemChanged: ((Content<Model, View, Cell>, Model, Int) -> Void)?
+    var onDequeueBlock: ((Model) -> Cell.Type?)?
 }
 
 class ScrollCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {

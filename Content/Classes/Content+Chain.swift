@@ -8,6 +8,11 @@
 
 // Setup
 public extension Content {
+    func on(cellDequeue block: @escaping (_ model: Model) -> Cell.Type?) -> Content<Model, View, Cell> {
+        self.callbacks.onDequeueBlock = block
+        return self
+    }
+    
     func on(cellSetup block: @escaping (_ model: Model, _ cell: Cell) -> Void) -> Content<Model, View, Cell> {
         self.callbacks.onCellSetupBlock = block
         return self

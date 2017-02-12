@@ -41,6 +41,11 @@ class UsersViewController: UIViewController {
                     self.navigationController?.pushViewController(viewController, animated: true)
                 }
             }
+        }).on(cellDequeue: { (user) -> UserTableViewCell.Type? in
+            if user.name == "name3" {
+                return User2222TableViewCell.self
+            }
+            return nil
         })
     
         self.content.refresh()

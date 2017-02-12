@@ -128,10 +128,12 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     //TODO: It is a workaround to achieve different rows for dequeue.
     open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath, with identifier: String) -> UICollectionViewCell {
-        let collectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
+        let item = self.content.items[indexPath.row]
+        let id = self.content.callbacks.onDequeueBlock?(item)?.identifier ?? identifier
+        let collectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath)
         if var cell = collectionViewCell as? Cell {
             cell.raiser = self.content
-            self.content.callbacks.onCellSetupBlock?(self.content.items[indexPath.row], cell)
+            self.content.callbacks.onCellSetupBlock?(item, cell)
         }
         return collectionViewCell
     }

@@ -33,7 +33,7 @@ extension User {
         DispatchQueue.main.asyncAfter(deadline: delayTime) {
 //            let names = ["Darwin", "Leo", "Vinci", "Rafael", "Ioan", "Duma", "Victor", "Bah", "Mick", "Lorenco", "Donatello"]
             var users: [User] = []
-            for i in 0..<20 {
+            for _ in 0..<20 {
                 counter = counter + 1
 //                let name = i >= names.count ? "name\(counter)" : names[i]
                 let name = "name\(counter)"

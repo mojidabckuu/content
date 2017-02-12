@@ -115,10 +115,11 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath, with identifier: String) -> UITableViewCell {
-        let tableViewCell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath)
+        let item = self.content.items[indexPath.row]
+        let id = self.content.callbacks.onDequeueBlock?(item)?.identifier ?? identifier
+        let tableViewCell = tableView.dequeueReusableCell(withIdentifier: id, for: indexPath)
         if var cell = tableViewCell as? Cell {
             cell.raiser = self.content
-            let item = self.content.items[indexPath.row]
             self.content.callbacks.onCellSetupBlock?(item, cell)
         }
         return tableViewCell

@@ -20,3 +20,11 @@ class UserTableViewCell: UITableViewCell, ContentCell {
     }
     
 }
+
+class User2222TableViewCell: UserTableViewCell {
+    
+    @IBAction override func posts(_ sender: AnyObject) {
+        print("asjdgjaskgdjasgdjhsagd")
+    }
+    
+}
