@@ -33,6 +33,25 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         }
     }
     
+    open override var visibleItem: Model? {
+        set {
+            self.scroll(to: self.visibleItem)
+        }
+        get {
+            guard let indexPath = self.tableView.indexPathsForVisibleRows?.first else { return nil }
+            return self.content.items[indexPath.row]
+        }
+    }
+    
+    open override var visibleItems: [Model]? {
+        set {
+            self.scroll(to: self.visibleItems)
+        }
+        get {
+            return self.tableView.indexPathsForVisibleRows?.map { self.content.items[$0.row] }
+        }
+    }
+    
     public override init() {
         super.init()
     }
@@ -55,6 +74,21 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         for (i, model) in models.enumerated() {
             self.select(model: model, animated: animated, scrollPosition: i == 0 ? scrollPosition : .none)
         }
+    }
+    
+    //Scroll
+    override func scroll(to model: Model?, at: ContentScrollPosition = .middle, animated: Bool = true) {
+        guard let model = model else { return }
+        if let index = self.content.items.index(of: model) {
+            let indexPath = IndexPath(row: index, section: 0)
+            self.tableView.scrollToRow(at: indexPath, at: at.tableScroll, animated: animated)
+        }
+    }
+    
+    /** Scrolls to first item only */
+    override func scroll(to models: [Model]?, at: ContentScrollPosition = .top, animated: Bool = true) {
+        guard let model = models?.first else { return }
+        self.scroll(to: model, at: at, animated: animated)
     }
     
     // Insert

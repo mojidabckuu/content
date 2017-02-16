@@ -75,6 +75,10 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     open func select(model: Model?, animated: Bool, scrollPosition: ContentScrollPosition) {}
     open func select(models: [Model]?, animated: Bool, scrollPosition: ContentScrollPosition) {}
     
+    //Scroll
+    func scroll(to model: Model?, at: ContentScrollPosition, animated: Bool) {}
+    func scroll(to models: [Model]?, at: ContentScrollPosition, animated: Bool) {}
+    
     //
     open func insert(_ models: [Model], index: Int) {}
     open func delete(_ models: [Model]) { }

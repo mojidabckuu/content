@@ -32,22 +32,20 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     open override var visibleItem: Model? {
+        set {
+            self.scroll(to: self.visibleItem)
+        }
         get {
             guard let indexPath = self.collectionView.indexPathsForVisibleItems.first else { return nil }
             return self.content.items[indexPath.row]
         }
-        set {
-            // TODO: Implement
-            fatalError("Not implemented")
-        }
     }
     
     open override var visibleItems: [Model]? {
-        get { return self.collectionView.indexPathsForVisibleItems.map { self.content.items[$0.row] } }
         set {
-            // TODO: Implement
-            fatalError("Not implemented")
+            self.scroll(to: self.visibleItems)
         }
+        get { return self.collectionView.indexPathsForVisibleItems.map { self.content.items[$0.row] } }
     }
     
     //MARK: - Lifecycle
@@ -63,7 +61,8 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     open override func select(model: Model?, animated: Bool = false, scrollPosition: ContentScrollPosition = .none) {
         guard let model = model else { return }
         if let index = self.content.items.index(of: model) {
-            let indexPath = IndexPath(row: index, section: 0)
+            let indexPath = IndexPath(item: index, section: 0)
+            let defaultScroll = scrollPosition == .none ? self.none : scrollPosition
             self.collectionView.selectItem(at: indexPath, animated: animated, scrollPosition: scrollPosition.collectionScroll)
         }
     }
@@ -71,10 +70,24 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     open override func select(models: [Model]?, animated: Bool = false, scrollPosition: ContentScrollPosition = .none) {
         guard let models = models else { return }
         for (i, model) in models.enumerated() {
-            /* In this case it will not scroll anywhere, becasue vertical can't scroll left, horizontal can't scroll top */
-            let defaultScroll: ContentScrollPosition = (self.collectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.scrollDirection == .vertical ? .left : .top
-            self.select(model: model, animated: animated, scrollPosition: i == 0 ? scrollPosition : defaultScroll)
+            self.select(model: model, animated: animated, scrollPosition: i == 0 ? scrollPosition : self.none)
         }
+    }
+    
+    //Scroll
+    override func scroll(to model: Model?, at: ContentScrollPosition = .middle, animated: Bool = true) {
+        guard let model = model else { return }
+        if let index = self.content.items.index(of: model) {
+            let indexPath = IndexPath(row: index, section: 0)
+            let defaultScroll = at == .middle ? self.middle : at
+            self.collectionView.scrollToItem(at: indexPath, at: at.collectionScroll, animated: true)
+        }
+    }
+    
+    /** Scrolls to first item only */
+    override func scroll(to models: [Model]?, at: ContentScrollPosition = .middle, animated: Bool = true) {
+        guard let model = models?.first else { return }
+        self.scroll(to: model, at: at, animated: animated)
     }
     
     // Insert
@@ -175,6 +188,17 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     //MARK: - Utils
+    
+    private var none : ContentScrollPosition {
+        let position: ContentScrollPosition = (self.collectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.scrollDirection == .vertical ? .left : .top
+        return position
+    }
+    
+    private var middle : ContentScrollPosition {
+        let position: ContentScrollPosition = (self.collectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.scrollDirection == .vertical ? .centeredVertically : .centeredHorizontally
+        return position
+    }
+    
     override open func indexPath(_ cell: Cell) -> IndexPath? {
         if let collectionViewCell = cell as? UICollectionViewCell {
             return self.collectionView.indexPath(for: collectionViewCell)
