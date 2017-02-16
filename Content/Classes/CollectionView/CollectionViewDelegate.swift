@@ -16,8 +16,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     open override var selectedItem: Model? {
         set {
-            // TODO: Implement
-            fatalError("Not implemented")
+            self.select(model: self.selectedItem)
         }
         get {
             guard let indexPath = self.collectionView.indexPathsForSelectedItems?.first else { return nil }
@@ -27,8 +26,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     open override var selectedItems: [Model]? {
         set {
-            // TODO: Implement
-            fatalError("Not implemented")
+            self.select(models: self.selectedItems)
         }
         get { return self.collectionView.indexPathsForSelectedItems?.map { self.content.items[$0.row] } }
     }
@@ -61,8 +59,26 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         super.init(content: content)
     }
     
+    // Select
+    open override func select(model: Model?, animated: Bool = false, scrollPosition: ContentScrollPosition = .none) {
+        guard let model = model else { return }
+        if let index = self.content.items.index(of: model) {
+            let indexPath = IndexPath(row: index, section: 0)
+            self.collectionView.selectItem(at: indexPath, animated: animated, scrollPosition: scrollPosition.collectionScroll)
+        }
+    }
+    
+    open override func select(models: [Model]?, animated: Bool = false, scrollPosition: ContentScrollPosition = .none) {
+        guard let models = models else { return }
+        for (i, model) in models.enumerated() {
+            /* In this case it will not scroll anywhere, becasue vertical can't scroll left, horizontal can't scroll top */
+            let defaultScroll: ContentScrollPosition = (self.collectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.scrollDirection == .vertical ? .left : .top
+            self.select(model: model, animated: animated, scrollPosition: i == 0 ? scrollPosition : defaultScroll)
+        }
+    }
+    
     // Insert
-    override open func insert(_ models: [Model], index: Int) {
+    override open func insert(_ models: [Model], index: Int = 0) {
         let collectionView = self.collectionView
         self.collectionView.performBatchUpdates({
             self.content.items.insert(contentsOf: models, at: index)

@@ -20,6 +20,39 @@ public protocol ViewDelegate: Scrollable {
     func reloadData()
 }
 
+public enum ContentScrollPosition {
+    case none
+    case top
+    case middle
+    case bottom
+    
+    case centeredVertically
+    
+    case left
+    case centeredHorizontally
+    case right
+    
+    var tableScroll: UITableViewScrollPosition {
+        switch self {
+        case .top: return UITableViewScrollPosition.top
+        case .middle, .centeredVertically: return UITableViewScrollPosition.middle
+        case .bottom: return UITableViewScrollPosition.bottom
+        default: return UITableViewScrollPosition.none
+        }
+    }
+    
+    var collectionScroll: UICollectionViewScrollPosition {
+        switch self {
+        case .middle, .centeredVertically: return UICollectionViewScrollPosition.centeredVertically
+        case .bottom: return UICollectionViewScrollPosition.bottom
+        case .left: return UICollectionViewScrollPosition.left
+        case .centeredHorizontally: return UICollectionViewScrollPosition.centeredHorizontally
+        case .right: return UICollectionViewScrollPosition.right
+        default: return UICollectionViewScrollPosition.top
+        }
+    }
+}
+
 open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: NSObject where View: UIView {
     open var content: Content<Model, View, Cell>!
     open var selectedItem: Model?
@@ -38,8 +71,12 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     // Setup
     open func setup() {}
     
+    // Select
+    open func select(model: Model?, animated: Bool, scrollPosition: ContentScrollPosition) {}
+    open func select(models: [Model]?, animated: Bool, scrollPosition: ContentScrollPosition) {}
+    
     //
-    open func insert(_ models: [Model], index: Int = 0) {}
+    open func insert(_ models: [Model], index: Int) {}
     open func delete(_ models: [Model]) { }
     open func reload() {
         self.content.view.reloadData()

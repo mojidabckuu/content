@@ -16,7 +16,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     open override var selectedItem: Model? {
         set {
-            // TODO: Implement
+            self.select(model: self.selectedItem)
         }
         get {
             guard let indexPath = self.tableView.indexPathForSelectedRow else { return nil }
@@ -26,8 +26,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     open override var selectedItems: [Model]? {
         set {
-            // TODO: Implement
-            fatalError("Not implemented")
+            self.select(models: self.selectedItems)
         }
         get {
             return self.tableView.indexPathsForSelectedRows?.map { self.content.items[$0.row] }
@@ -41,8 +40,25 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         super.init(content: content)
     }
     
+    // Select
+    open override func select(model: Model?, animated: Bool = false, scrollPosition: ContentScrollPosition = .none) {
+        guard let model = model else { return }
+        if let index = self.content.items.index(of: model) {
+            let indexPath = IndexPath(row: index, section: 0)
+            self.tableView.selectRow(at: indexPath, animated: animated, scrollPosition: scrollPosition.tableScroll)
+        }
+    }
+    
+    /** Scroll position will apply only for first item */
+    open override func select(models: [Model]?, animated: Bool = false, scrollPosition: ContentScrollPosition = .none) {
+        guard let models = models else { return }
+        for (i, model) in models.enumerated() {
+            self.select(model: model, animated: animated, scrollPosition: i == 0 ? scrollPosition : .none)
+        }
+    }
+    
     // Insert
-    override open func insert(_ models: [Model], index: Int) {
+    override open func insert(_ models: [Model], index: Int = 0) {
         self.tableView.beginUpdates()
         self.content.items.insert(contentsOf: models, at: index)
         self.tableView.insertRows(at: self.indexPaths(models), with: .automatic)
