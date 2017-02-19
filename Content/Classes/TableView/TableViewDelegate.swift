@@ -77,7 +77,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     //Scroll
-    override func scroll(to model: Model?, at: ContentScrollPosition = .middle, animated: Bool = true) {
+    open override func scroll(to model: Model?, at: ContentScrollPosition = .middle, animated: Bool = true) {
         guard let model = model else { return }
         if let index = self.content.items.index(of: model) {
             let indexPath = IndexPath(row: index, section: 0)
@@ -86,7 +86,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     /** Scrolls to first item only */
-    override func scroll(to models: [Model]?, at: ContentScrollPosition = .top, animated: Bool = true) {
+    open override func scroll(to models: [Model]?, at: ContentScrollPosition = .top, animated: Bool = true) {
         guard let model = models?.first else { return }
         self.scroll(to: model, at: at, animated: animated)
     }

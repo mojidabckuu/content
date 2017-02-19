@@ -75,7 +75,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     //Scroll
-    override func scroll(to model: Model?, at: ContentScrollPosition = .middle, animated: Bool = true) {
+    open override func scroll(to model: Model?, at: ContentScrollPosition = .middle, animated: Bool = true) {
         guard let model = model else { return }
         if let index = self.content.items.index(of: model) {
             let indexPath = IndexPath(row: index, section: 0)
@@ -85,7 +85,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     /** Scrolls to first item only */
-    override func scroll(to models: [Model]?, at: ContentScrollPosition = .middle, animated: Bool = true) {
+    open override func scroll(to models: [Model]?, at: ContentScrollPosition = .middle, animated: Bool = true) {
         guard let model = models?.first else { return }
         self.scroll(to: model, at: at, animated: animated)
     }
