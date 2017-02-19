@@ -16,7 +16,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     open override var selectedItem: Model? {
         set {
-            self.select(model: self.selectedItem)
+            self.select(model: newValue)
         }
         get {
             guard let indexPath = self.collectionView.indexPathsForSelectedItems?.first else { return nil }
@@ -26,14 +26,14 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     open override var selectedItems: [Model]? {
         set {
-            self.select(models: self.selectedItems)
+            self.select(models: newValue)
         }
         get { return self.collectionView.indexPathsForSelectedItems?.map { self.content.items[$0.row] } }
     }
     
     open override var visibleItem: Model? {
         set {
-            self.scroll(to: self.visibleItem)
+            self.scroll(to: newValue)
         }
         get {
             guard let indexPath = self.collectionView.indexPathsForVisibleItems.first else { return nil }
@@ -43,7 +43,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     open override var visibleItems: [Model]? {
         set {
-            self.scroll(to: self.visibleItems)
+            self.scroll(to: newValue)
         }
         get { return self.collectionView.indexPathsForVisibleItems.map { self.content.items[$0.row] } }
     }

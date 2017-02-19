@@ -16,7 +16,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     open override var selectedItem: Model? {
         set {
-            self.select(model: self.selectedItem)
+            self.select(model: newValue)
         }
         get {
             guard let indexPath = self.tableView.indexPathForSelectedRow else { return nil }
@@ -26,7 +26,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     open override var selectedItems: [Model]? {
         set {
-            self.select(models: self.selectedItems)
+            self.select(models: newValue)
         }
         get {
             return self.tableView.indexPathsForSelectedRows?.map { self.content.items[$0.row] }
@@ -35,7 +35,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     open override var visibleItem: Model? {
         set {
-            self.scroll(to: self.visibleItem)
+            self.scroll(to: newValue)
         }
         get {
             guard let indexPath = self.tableView.indexPathsForVisibleRows?.first else { return nil }
@@ -45,7 +45,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     open override var visibleItems: [Model]? {
         set {
-            self.scroll(to: self.visibleItems)
+            self.scroll(to: newValue)
         }
         get {
             return self.tableView.indexPathsForVisibleRows?.map { self.content.items[$0.row] }
