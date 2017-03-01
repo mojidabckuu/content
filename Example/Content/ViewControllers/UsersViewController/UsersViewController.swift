@@ -24,7 +24,7 @@ class UsersViewController: UIViewController {
         self.title = "Users"
         self.tableView.isEditing = true
         let delegate = TableDelegate<User, UITableView, UserTableViewCell>()
-        self.content = Content(view: self.tableView, delegate: delegate, configuration: Configuration.regular).on(cellSetup: { (user, cell) in
+        self.content = Content(view: self.tableView, delegate: delegate, configuration: Configuration.default).on(cellSetup: { (user, cell) in
             cell.textLabel?.text = user.name
             cell.imageView?.af_setImage(withURL: user.avatarURL)
         }).on(select: { [weak self] (contnet, user, cell) in

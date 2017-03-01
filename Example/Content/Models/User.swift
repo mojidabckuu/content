@@ -49,9 +49,9 @@ extension User {
         DispatchQueue.main.asyncAfter(deadline: delayTime) {
             var posts: [Post] = []
             posts.append(Post(text: "This is my post1", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
-            posts.append(Post(text: "This is my post2", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
-            posts.append(Post(text: "This is my post3", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
-            posts.append(Post(text: "This is my post4", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
+//            posts.append(Post(text: "This is my post2", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
+//            posts.append(Post(text: "This is my post3", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
+//            posts.append(Post(text: "This is my post4", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
             block(posts)
         }
     }

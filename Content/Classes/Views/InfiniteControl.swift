@@ -166,7 +166,7 @@ class UIInfiniteControl: UIControl {
     }
     
     func scrollViewDidScroll(_ contentOffset: CGPoint) {
-        if _state != .loading && self.isEnabled {
+        if _state != .loading && self.isEnabled && contentOffset.y >= 0 {
             let contentSize = self.contentSize
             let threshold = contentSize.height - self.scrollView!.bounds.size.height
             if self.scrollView?.isDragging == true && _state == .triggered {

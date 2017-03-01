@@ -178,8 +178,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             configuration.infiniteControl?.isEnabled = true
             let isAnimating = configuration.refreshControl?.isAnimating
             let refresh = configuration.refreshControl as? UIRefreshControl
-            let isA = refresh?.isAnimating
-            if !(configuration.refreshControl?.isAnimating == true) {
+            if isAnimating == false {
                 self.configuration.infiniteControl?.startAnimating()
             }
             self.loadItems()
