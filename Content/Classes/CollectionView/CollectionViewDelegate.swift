@@ -167,6 +167,14 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         return collectionViewCell
     }
     
+    public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let item = self.content.items[indexPath.row]
+        if var cell = cell as? Cell {
+            cell.raiser = self.content
+            self.content.callbacks.onCellDisplay?(item, cell)
+        }
+    }
+    
     // CollectionView float layout
     
     open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

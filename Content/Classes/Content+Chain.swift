@@ -18,6 +18,11 @@ public extension Content {
         return self
     }
     
+    func on(cellDisplay block: @escaping (_ model: Model, _ cell: Cell) -> Void) -> Content<Model, View, Cell> {
+        self.callbacks.onCellDisplay = block
+        return self
+    }
+    
     func on(setup block: @escaping (_ content: Content<Model, View, Cell>) -> Void) -> Content<Model, View, Cell> {
         self.callbacks.onSetupBlock = block
         block(self)

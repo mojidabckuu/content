@@ -175,6 +175,14 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         return tableViewCell
     }
     
+    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let item = self.content.items[indexPath.row]
+        if var cell = cell as? Cell {
+            cell.raiser = self.content
+            self.content.callbacks.onCellDisplay?(item, cell)
+        }
+    }
+    
     public func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return self.content.viewDelegateCallbacks.onHeaderDequeue?(self.content, section)
     }

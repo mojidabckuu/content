@@ -62,6 +62,7 @@ class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCel
 class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
     var onSetupBlock: ((Content<Model, View, Cell>) -> Void)?
     var onCellSetupBlock: ((Model, Cell) -> Void)?
+    var onCellDisplay: ((Model, Cell) -> Void)?
     var onLayout: ((Content<Model, View, Cell>, Model) -> CGSize)?
     var onItemChanged: ((Content<Model, View, Cell>, Model, Int) -> Void)?
     var onDequeueBlock: ((Model) -> Cell.Type?)?
