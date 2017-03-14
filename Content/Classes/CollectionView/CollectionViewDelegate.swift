@@ -185,6 +185,10 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         return CGSize(width: 40, height: 40)
     }
     
+    open func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        return UICollectionReusableView()
+    }
+    
     open func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let pageWidth = scrollView.frame.width
         let page = Int(scrollView.contentOffset.x / pageWidth)
