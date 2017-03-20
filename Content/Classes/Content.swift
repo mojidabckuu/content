@@ -10,7 +10,7 @@ import UIKit
 
 public struct Configuration {
     public var animatedRefresh: Bool = false
-    public var length: Int = 20
+    public var length: Int = 50
     public var autoDeselect = true
     public var refreshControl: UIControl?
     public var infiniteControl: UIControl?
@@ -34,6 +34,12 @@ public struct Configuration {
         var configuration = Configuration()
         configuration.infiniteControl = UIInfiniteControl()
         return configuration
+    }
+    
+    public init(animatedRefresh: Bool = false, length: Int = 50, autoDeselect: Bool = true) {
+        self.animatedRefresh = animatedRefresh
+        self.length = length
+        self.autoDeselect = autoDeselect
     }
 }
 
