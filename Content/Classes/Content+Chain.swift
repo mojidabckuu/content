@@ -37,6 +37,11 @@ public extension Content {
         return self
     }
     
+    func on(shouldSelect block: @escaping ((Content<Model, View, Cell>, Model, Cell) -> Bool)) -> Content<Model, View, Cell> {
+        self.actions.onShouldSelect = block
+        return self
+    }
+    
     func on(deselect block: @escaping ((Content<Model, View, Cell>, Model, Cell) -> Void)) -> Content<Model, View, Cell> {
         self.actions.onDeselect = block
         return self

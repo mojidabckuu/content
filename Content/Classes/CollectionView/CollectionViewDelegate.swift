@@ -146,6 +146,11 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         }
     }
     
+    open func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        let cell = collectionView.cellForItem(at: indexPath) as! Cell
+        return self.content.actions.onShouldSelect?(self.content, self.content.items[indexPath.row], cell) ?? true
+    }
+    
     //MARK: - UICollectionView data
     open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.content.items.count
