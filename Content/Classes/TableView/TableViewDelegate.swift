@@ -76,6 +76,21 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         }
     }
     
+    open override func deselect(model: Model?, animated: Bool = false) {
+        guard let model = model else { return }
+        if let index = self.content.items.index(of: model) {
+            let indexPath = IndexPath(row: index, section: 0)
+            self.tableView.deselectRow(at: indexPath, animated: animated)
+        }
+    }
+    
+    open override func deselect(models: [Model]?, animated: Bool = false) {
+        guard let models = models else { return }
+        for (i, model) in models.enumerated() {
+            self.deselect(model: model, animated: animated)
+        }
+    }
+    
     //Scroll
     open override func scroll(to model: Model?, at: ContentScrollPosition = .middle, animated: Bool = true) {
         guard let model = model else { return }
