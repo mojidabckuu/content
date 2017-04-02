@@ -129,7 +129,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     var scrollCallbacks = ScrollCallbacks<Model, View, Cell>()
     var viewDelegateCallbacks = ViewDelegateCallbacks<Model, View, Cell>()
     
-    var offset: Any?
+    open var offset: Any?
     var length: Int { return self.configuration.length }
     
     public init(model: Model? = nil, view: View, delegate: BaseDelegate<Model, View, Cell>? = nil, configuration: Configuration? = nil) {
@@ -183,6 +183,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open dynamic func refresh() {
         if _state != .refreshing {
             _state = .refreshing
+            self.offset = nil
             configuration.infiniteControl?.isEnabled = true
             let isAnimating = configuration.refreshControl?.isAnimating
             let refresh = configuration.refreshControl as? UIRefreshControl
