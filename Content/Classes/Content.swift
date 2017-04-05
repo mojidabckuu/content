@@ -68,6 +68,8 @@ class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCel
 
 class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
     var onSetupBlock: ((Content<Model, View, Cell>) -> Void)?
+    var onHeight: ((Model) -> CGFloat?)?
+    var onEstimatedHeight: ((Model) -> CGFloat?)?
     var onCellSetupBlock: ((Model, Cell) -> Void)?
     var onCellDisplay: ((Model, Cell) -> Void)?
     var onLayout: ((Content<Model, View, Cell>, Model) -> CGSize)?
@@ -208,6 +210,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open func fetch(_ models: [Model]?, error: Error?) {
         if let error = error {
             _state = .none
+            configuration.infiniteControl?.stopAnimating()
             self.URLCallbacks.didLoad?(error, [])
             return
         }

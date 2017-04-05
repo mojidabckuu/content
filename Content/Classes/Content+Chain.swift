@@ -28,6 +28,16 @@ public extension Content {
         block(self)
         return self
     }
+    
+    func on(height block: @escaping (_ model: Model) -> CGFloat?) -> Content<Model, View, Cell> {
+        self.callbacks.onHeight = block
+        return self
+    }
+    
+    func on(estimatedHeight block: @escaping (_ model: Model) -> CGFloat?) -> Content<Model, View, Cell> {
+        self.callbacks.onEstimatedHeight = block
+        return self
+    }
 }
 
 // Actions

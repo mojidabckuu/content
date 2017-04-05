@@ -198,6 +198,16 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         }
     }
     
+    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let item = self.content.items[indexPath.row]
+        return self.content.callbacks.onHeight?(item) ?? tableView.rowHeight
+    }
+    
+    public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        let item = self.content.items[indexPath.row]
+        return self.content.callbacks.onHeight?(item) ?? tableView.estimatedRowHeight
+    }
+    
     public func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return self.content.viewDelegateCallbacks.onHeaderDequeue?(self.content, section)
     }
