@@ -151,6 +151,14 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     //UITableView delegate
     
+    public func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        let cell = tableView.cellForRow(at: indexPath) as! Cell
+        if let should = self.content.actions.onShouldSelect?(self.content, self.content.items[indexPath.row], cell), should == false {
+            return nil
+        }
+        return indexPath
+    }
+    
     open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath) as! Cell
         self.content.actions.onSelect?(self.content, self.content.items[indexPath.row], cell)
