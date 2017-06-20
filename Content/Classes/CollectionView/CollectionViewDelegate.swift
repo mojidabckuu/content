@@ -167,6 +167,11 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     //MARK: - UICollectionView data
+    
+    open func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    
     open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.content.items.count
     }
