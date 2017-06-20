@@ -202,6 +202,11 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     // CollectionView float layout
     
+    open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        let a = (collectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.sectionInset ?? .zero
+        return a
+    }
+    
     open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if let size = self.content.callbacks.onLayout?(self.content, self.content.items[indexPath.row]) {
             return size
