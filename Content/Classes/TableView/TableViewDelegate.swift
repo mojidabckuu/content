@@ -76,6 +76,21 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         }
     }
     
+    open override func deselect(model: Model?, animated: Bool = false) {
+        guard let model = model else { return }
+        if let index = self.content.items.index(of: model) {
+            let indexPath = IndexPath(row: index, section: 0)
+            self.tableView.deselectRow(at: indexPath, animated: animated)
+        }
+    }
+    
+    open override func deselect(models: [Model]?, animated: Bool = false) {
+        guard let models = models else { return }
+        for (i, model) in models.enumerated() {
+            self.deselect(model: model, animated: animated)
+        }
+    }
+    
     //Scroll
     open override func scroll(to model: Model?, at: ContentScrollPosition = .middle, animated: Bool = true) {
         guard let model = model else { return }
@@ -136,6 +151,14 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     //UITableView delegate
     
+    public func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        let cell = tableView.cellForRow(at: indexPath) as! Cell
+        if let should = self.content.actions.onShouldSelect?(self.content, self.content.items[indexPath.row], cell), should == false {
+            return nil
+        }
+        return indexPath
+    }
+    
     open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath) as! Cell
         self.content.actions.onSelect?(self.content, self.content.items[indexPath.row], cell)
@@ -183,7 +206,17 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         }
     }
     
-    open func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let item = self.content.items[indexPath.row]
+        return self.content.callbacks.onHeight?(item) ?? tableView.rowHeight
+    }
+    
+    public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        let item = self.content.items[indexPath.row]
+        return self.content.callbacks.onHeight?(item) ?? tableView.estimatedRowHeight
+    }
+    
+    public func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return self.content.viewDelegateCallbacks.onHeaderDequeue?(self.content, section)
     }
     

@@ -54,6 +54,7 @@ public enum State {
 class ContentActionsCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
     var onSelect: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
     var onDeselect: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
+    var onShouldSelect: ((Content<Model, View, Cell>, Model, Cell) -> Bool)?
     var onAction: ((Content<Model, View, Cell>, Model, Cell, Action) -> Void)?
     var onAdd: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
     var onDelete: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
@@ -67,6 +68,8 @@ class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCel
 
 class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
     var onSetupBlock: ((Content<Model, View, Cell>) -> Void)?
+    var onHeight: ((Model) -> CGFloat?)?
+    var onEstimatedHeight: ((Model) -> CGFloat?)?
     var onCellSetupBlock: ((Model, Cell) -> Void)?
     var onCellDisplay: ((Model, Cell) -> Void)?
     var onLayout: ((Content<Model, View, Cell>, Model) -> CGSize)?
@@ -128,7 +131,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     var scrollCallbacks = ScrollCallbacks<Model, View, Cell>()
     var viewDelegateCallbacks = ViewDelegateCallbacks<Model, View, Cell>()
     
-    var offset: Any?
+    open var offset: Any?
     var length: Int { return self.configuration.length }
     
     public init(model: Model? = nil, view: View, delegate: BaseDelegate<Model, View, Cell>? = nil, configuration: Configuration? = nil) {
@@ -182,6 +185,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open dynamic func refresh() {
         if _state != .refreshing {
             _state = .refreshing
+            self.offset = nil
             configuration.infiniteControl?.isEnabled = true
             let isAnimating = configuration.refreshControl?.isAnimating
             let refresh = configuration.refreshControl as? UIRefreshControl
@@ -206,6 +210,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open func fetch(_ models: [Model]?, error: Error?) {
         if let error = error {
             _state = .none
+            configuration.infiniteControl?.stopAnimating()
             self.URLCallbacks.didLoad?(error, [])
             return
         }

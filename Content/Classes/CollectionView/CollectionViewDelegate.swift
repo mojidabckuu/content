@@ -80,7 +80,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         if let index = self.content.items.index(of: model) {
             let indexPath = IndexPath(row: index, section: 0)
             let defaultScroll = at == .middle ? self.middle : at
-            self.collectionView.scrollToItem(at: indexPath, at: at.collectionScroll, animated: true)
+            self.collectionView.scrollToItem(at: indexPath, at: at.collectionScroll, animated: animated)
         }
     }
     
@@ -88,6 +88,21 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     open override func scroll(to models: [Model]?, at: ContentScrollPosition = .middle, animated: Bool = true) {
         guard let model = models?.first else { return }
         self.scroll(to: model, at: at, animated: animated)
+    }
+    
+    open override func deselect(model: Model?, animated: Bool = false) {
+        guard let model = model else { return }
+        if let index = self.content.items.index(of: model) {
+            let indexPath = IndexPath(row: index, section: 0)
+            self.collectionView.deselectItem(at: indexPath, animated: animated)
+        }
+    }
+    
+    open override func deselect(models: [Model]?, animated: Bool = false) {
+        guard let models = models else { return }
+        for (i, model) in models.enumerated() {
+            self.deselect(model: model, animated: animated)
+        }
     }
     
     // Insert
@@ -146,7 +161,17 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         }
     }
     
+    open func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        let cell = collectionView.cellForItem(at: indexPath) as! Cell
+        return self.content.actions.onShouldSelect?(self.content, self.content.items[indexPath.row], cell) ?? true
+    }
+    
     //MARK: - UICollectionView data
+    
+    open func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    
     open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.content.items.count
     }
@@ -176,6 +201,11 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     // CollectionView float layout
+    
+    open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        let a = (collectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.sectionInset ?? .zero
+        return a
+    }
     
     open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if let size = self.content.callbacks.onLayout?(self.content, self.content.items[indexPath.row]) {
