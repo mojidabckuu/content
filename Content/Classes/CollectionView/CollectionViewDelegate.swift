@@ -195,7 +195,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         self.content.callbacks.onItemChanged?(self.content, self.content.items[page], page)
     }
     
-    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    open func scrollViewDidScroll(_ scrollView: UIScrollView) {
         self.content.scrollCallbacks.onDidScroll?(self.content)
     }
     
