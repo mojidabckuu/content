@@ -133,7 +133,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
             .flatMap { self.content.items.index(of: $0) }
             .map {IndexPath(row: $0, section: 0)}
         self.tableView.deleteRows(at: indexes, with: .fade)
-        indexes.forEach { self.content.items.remove(at: $0.row) }
+        indexes.forEach { self.content._items.remove(at: $0.row) }
         self.tableView.endUpdates()
     }
     

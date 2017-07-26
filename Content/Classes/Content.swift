@@ -94,7 +94,7 @@ class ViewDelegateCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentC
 public protocol ContentCell: _Cell, Raiser {}
 
 open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: ActionRaiser where View: UIView {
-    private var _items: [Model] = []
+    var _items: [Model] = []
     open var isEditing = false
     open var selectedItem: Model? {
         get { return self.delegate?.selectedItem }
