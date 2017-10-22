@@ -18,6 +18,9 @@ public protocol ViewDelegate: Scrollable {
     var contentDataSource: AnyObject? { get set }
     
     func reloadData()
+    
+    func beginLoadUpdated()
+    func endLoadUpdates()
 }
 
 public enum ContentScrollPosition {
@@ -83,6 +86,7 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     
     //
     open func insert(_ models: [Model], index: Int) {}
+    open func insert(_ models: [Model], index: Int, completion: (() -> ())?) {}
     open func delete(_ models: [Model]) { }
     open func reload() {
         self.content.view.reloadData()

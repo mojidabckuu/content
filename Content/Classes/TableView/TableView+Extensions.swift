@@ -9,7 +9,10 @@
 import UIKit
 import ObjectiveC
 
-extension UITableView: ViewDelegate {}
+extension UITableView: ViewDelegate {
+    open func beginLoadUpdated() {}
+    open func endLoadUpdates() {}
+}
 public extension UITableView {
     var contentDelegate: AnyObject? {
         get { return self.delegate }

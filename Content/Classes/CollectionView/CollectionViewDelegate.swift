@@ -106,13 +106,21 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     // Insert
-    override open func insert(_ models: [Model], index: Int = 0) {
+    override open func insert(_ models: [Model], index: Int, completion: (() -> ())?) {
         let collectionView = self.collectionView
-        self.collectionView.performBatchUpdates({
+        self.collectionView.beginLoadUpdated()
+        collectionView.performBatchUpdates({
             self.content.items.insert(contentsOf: models, at: index)
             let indexPaths = self.indexPaths(models)
             collectionView.insertItems(at: indexPaths)
-        }, completion: nil)
+        }, completion: { finished in
+            completion?()
+            collectionView.endLoadUpdates()
+        })
+    }
+    
+    override open func insert(_ models: [Model], index: Int = 0) {
+        self.insert(models, index: index, completion: nil)
     }
     
     //Delete

@@ -8,7 +8,15 @@
 
 import UIKit
 
-extension UICollectionView: ViewDelegate {}
+extension UICollectionView: ViewDelegate {
+    open func beginLoadUpdated() {
+        
+    }
+    
+    open func endLoadUpdates() {
+        
+    }
+}
 public extension UICollectionView {
     var contentDelegate: AnyObject? {
         get { return self.delegate }

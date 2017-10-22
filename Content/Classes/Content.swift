@@ -196,6 +196,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
     }
     open dynamic func loadMore() {
+        print("LOAD MORE")
         if _state != .loading && _state != .refreshing && _state != .allLoaded {
             _state = .loading
             self.loadItems()
@@ -215,6 +216,16 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             return
         }
         if let models = models {
+            let completion = {
+                self.configuration.infiniteControl?.stopAnimating()
+                self.URLCallbacks.didLoad?(error, models)
+                if models.count < self.length {
+                    self._state = .allLoaded
+                    self.configuration.infiniteControl?.isEnabled = false
+                } else {
+                    self._state = .none
+                }
+            }
             if self.state == .refreshing {
                 _items.removeAll()
                 if self.configuration.animatedRefresh {
@@ -225,27 +236,21 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                     self.reloadData()
                 }
                 configuration.refreshControl?.stopAnimating()
+                completion()
             } else {
                 self.add(items: models, at: _items.count)
-            }
-            configuration.infiniteControl?.stopAnimating()
-            self.URLCallbacks.didLoad?(error, models)
-            if models.count < self.length {
-                _state = .allLoaded
-                configuration.infiniteControl?.isEnabled = false
-            } else {
-                _state = .none
+                completion()
             }
         }
     }
     
     //MARK: - Management
     // Add
-    open func add(items items: [Model], at index: Int = 0) {
-        self.delegate?.insert(items, index: index)
+    open func add(items items: [Model], at index: Int = 0, completion: (() -> ())? = nil) {
+        self.delegate?.insert(items, index: index, completion: completion)
     }
-    open func add(_ items: Model..., at index: Int = 0) {
-        self.add(items: items, at: index)
+    open func add(_ items: Model..., at index: Int = 0, completion: (() -> ())? = nil) {
+        self.add(items: items, at: index, completion: completion)
     }
     // Delete
     open func delete(items models: [Model]) {
