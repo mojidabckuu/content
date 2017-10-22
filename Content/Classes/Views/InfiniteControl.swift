@@ -68,6 +68,7 @@ class UIInfiniteControl: UIControl {
     func setup() {
         self.activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
         self.activityIndicatorView.hidesWhenStopped = true
+        self.backgroundColor = .clear
         self.addSubview(self.activityIndicatorView)
     }
     
@@ -124,29 +125,65 @@ class UIInfiniteControl: UIControl {
         }, completion: nil)
     }
     
+    private var contentOffsetObservation: NSKeyValueObservation?
+    private var contentSizeObservation: NSKeyValueObservation?
+    
+    private var _contentOffset: CGPoint?
+    private var _contentSize: CGSize?
+    
     //MARK: - Observing
     func startObserveScrollView() {
         if !self.isObserving {
-            self.scrollView?.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
-            self.scrollView?.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
+            self.contentOffsetObservation = self.scrollView?.observe(\.contentOffset, options: [.new], changeHandler: { (view, change) in
+                if let offset = change.newValue {
+                    self._contentOffset = offset
+                    self.scrollViewDidScroll(offset)
+                }
+            })
+            
+            self.contentSizeObservation = self.scrollView?.observe(\.contentSize, options: [.new], changeHandler: { (view, change) in
+                if let size = change.newValue {
+                    if let prevSize = self._contentSize {
+                        if prevSize != size {
+                            self._contentSize = size
+                            self.layoutSubviews()
+                        }
+                    } else {
+                        self._contentSize = size
+                        self.layoutSubviews()
+                    }
+                }
+            })
+//            self.scrollView?.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
+//            self.scrollView?.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
             _isObserving = true
             self.adjustInsets()
         }
     }
     func stopObserveScrollView() {
         if self.isObserving {
-            self.scrollView?.removeObserver(self, forKeyPath: "contentOffset")
-            self.scrollView?.removeObserver(self, forKeyPath: "contentSize")
+            self.contentOffsetObservation = nil
+            self.contentSizeObservation = nil
+//            self.scrollView?.removeObserver(self, forKeyPath: "contentOffset")
+//            self.scrollView?.removeObserver(self, forKeyPath: "contentSize")
             _isObserving = false
             self.resetInsets()
         }
     }
-    
+
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if let keyPath = keyPath, keyPath == "contentOffset" {
-            if let offset = (change?[NSKeyValueChangeKey.newKey] as? NSValue)?.cgPointValue { self.scrollViewDidScroll(offset) }
+            if let offset = (change?[NSKeyValueChangeKey.newKey] as? NSValue)?.cgPointValue {
+                self.scrollViewDidScroll(offset)
+            }
         } else {
-            if let keyPath = keyPath, keyPath == "contentSize" { self.layoutSubviews() }
+            if let keyPath = keyPath, keyPath == "contentSize" {
+                if let old = change?[NSKeyValueChangeKey.oldKey] as? NSValue, let new = change?[NSKeyValueChangeKey.newKey] as? NSValue {
+                    if old != new {
+                        self.layoutSubviews()
+                    }
+                }
+            }
         }
     }
     
