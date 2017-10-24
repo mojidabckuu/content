@@ -10,12 +10,6 @@ import UIKit
 import Content
 import AlamofireImage
 
-protocol V {
-    associatedtype _Model
-//    associatedtype _View
-//    associatedtype _Delegate
-}
-
 class UsersViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
@@ -28,28 +22,32 @@ class UsersViewController: UIViewController {
         super.viewDidLoad()
         
         self.title = "Users"
-        
-//        var c = Content<Equatable, UITableView, UserTableViewCell>()
-        
-        self.content = Content(view: self.tableView).onCellSetup({ (user, cell) in
-            // Cell setup
+        self.tableView.isEditing = true
+        let delegate = TableDelegate<User, UITableView, UserTableViewCell>()
+        self.content = Content(view: self.tableView, delegate: delegate, configuration: Configuration.default).on(cellSetup: { (user, cell) in
             cell.textLabel?.text = user.name
-            cell.imageView?.af_setImageWithURL(user.avatarURL)
-        }).onSelect({ [weak self] (content, user, cell) in
+            cell.imageView?.af_setImage(withURL: user.avatarURL)
+        }).on(select: { [weak self] (contnet, user, cell) in
             let viewController = UserViewController()
             viewController.user = user
             self?.navigationController?.pushViewController(viewController, animated: true)
-        }).onLoad({ (content) in
+        }).on(load: { (content) in
             User.index({ content.fetch($0, error: nil) })
-        }).onAction({ [unowned self] (content, model, cell, action) in
+        }).on(action: { (content, user, cell, action) in
             if action == "posts" {
                 let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                if let viewController = storyboard.instantiateViewControllerWithIdentifier("PostsViewController") as? PostsViewController {
-                    viewController.user = model
+                if let viewController = storyboard.instantiateViewController(withIdentifier: "PostsViewController") as? PostsViewController {
+                    viewController.user = user
                     self.navigationController?.pushViewController(viewController, animated: true)
                 }
             }
+        }).on(cellDequeue: { (user) -> UserTableViewCell.Type? in
+            if user.name == "name3" {
+                return User2222TableViewCell.self
+            }
+            return nil
         })
+    
         self.content.refresh()
     }
     

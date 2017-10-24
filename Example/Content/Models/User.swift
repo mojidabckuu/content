@@ -14,9 +14,9 @@ func == (left: User, right: User) -> Bool {
 
 class User: Equatable, CustomStringConvertible {
     var name: String
-    var avatarURL: NSURL
+    var avatarURL: URL
     
-    init(name: String, avatarURL: NSURL) {
+    init(name: String, avatarURL: URL) {
         self.name = name
         self.avatarURL = avatarURL
     }
@@ -27,23 +27,31 @@ class User: Equatable, CustomStringConvertible {
 }
 
 extension User {
-    class func index(block: ([User] -> Void)) {
-        let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(1 * Double(NSEC_PER_SEC)))
-        dispatch_after(delayTime, dispatch_get_main_queue()) {
-            let users = [User(name: "Darwin", avatarURL: NSURL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!),
-                         User(name: "Leo", avatarURL: NSURL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!)]
+    static var counter = 0
+    class func index(_ block: @escaping (([User]) -> Void)) {
+        let delayTime = DispatchTime.now() + Double(Int64(10 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+        DispatchQueue.main.asyncAfter(deadline: delayTime) {
+//            let names = ["Darwin", "Leo", "Vinci", "Rafael", "Ioan", "Duma", "Victor", "Bah", "Mick", "Lorenco", "Donatello"]
+            var users: [User] = []
+            for _ in 0..<20 {
+                counter = counter + 1
+//                let name = i >= names.count ? "name\(counter)" : names[i]
+                let name = "name\(counter)"
+                let user = User(name: name, avatarURL: URL(string:"https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!)
+                users.append(user)
+            }
             block(users)
         }
     }
     
-    func posts(block: ([Post] -> Void)) {
-        let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(2 * Double(NSEC_PER_SEC)))
-        dispatch_after(delayTime, dispatch_get_main_queue()) {
+    func posts(_ block: @escaping (([Post]) -> Void)) {
+        let delayTime = DispatchTime.now() + Double(Int64(10 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+        DispatchQueue.main.asyncAfter(deadline: delayTime) {
             var posts: [Post] = []
-            posts.append(Post(text: "This is my post1", imageURL: NSURL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
-            posts.append(Post(text: "This is my post2", imageURL: NSURL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
-            posts.append(Post(text: "This is my post3", imageURL: NSURL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
-            posts.append(Post(text: "This is my post4", imageURL: NSURL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
+            posts.append(Post(text: "This is my post1", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
+//            posts.append(Post(text: "This is my post2", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
+//            posts.append(Post(text: "This is my post3", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
+//            posts.append(Post(text: "This is my post4", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))
             block(posts)
         }
     }

@@ -15,8 +15,20 @@ class UserTableViewCell: UITableViewCell, ContentCell {
     
     //MARK: - User interaction
     
-    @IBAction func posts(sender: AnyObject) {
+    @IBAction func posts(_ sender: AnyObject) {
         self.raiser?.raise("posts", sender: self)
+    }
+    
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+        self.textLabel?.textColor = selected ? UIColor.green : UIColor.black
+    }
+}
+
+class User2222TableViewCell: UserTableViewCell {
+    
+    @IBAction override func posts(_ sender: AnyObject) {
+        print("asjdgjaskgdjasgdjhsagd")
     }
     
 }

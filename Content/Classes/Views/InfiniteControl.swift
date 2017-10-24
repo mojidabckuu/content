@@ -8,40 +8,53 @@
 
 import UIKit
 
-class InfiniteControl: UIControl {
+protocol ContentView {
+    func startAnimating()
+    func stopAnimating()
+    var isAnimating: Bool { get }
+}
+
+extension CGRect {
+    var center: CGPoint {
+        return CGPoint(x: self.origin.x + self.width / 2, y: self.origin.y + self.height / 2)
+    }
+}
+
+class UIInfiniteControl: UIControl {
     var height: CGFloat = 60
     var activityIndicatorView: UIActivityIndicatorView!
     
-    var isAnimating: Bool { return self.activityIndicatorView.isAnimating() }
+    override var isAnimating: Bool { return self.activityIndicatorView.isAnimating }
     var isObserving: Bool { return _isObserving }
     var infiniteState: State {
         set {
             if _state != newValue {
                 let prevState = _state
                 _state = newValue
-                self.activityIndicatorView.center = self.center
+                self.activityIndicatorView.center = self.bounds.center
                 switch newValue {
-                case .Stopped:              self.activityIndicatorView.stopAnimating()
-                case .Triggered, .Loading:  self.activityIndicatorView.startAnimating()
+                case .stopped:              self.activityIndicatorView.stopAnimating()
+                case .triggered, .loading:  self.activityIndicatorView.startAnimating()
                 default:                    self.activityIndicatorView.startAnimating()
                 }
-                if prevState == .Triggered {
-                    self.sendActionsForControlEvents(.ValueChanged)
+                if prevState == .triggered {
+                    self.sendActions(for: .valueChanged)
                 }
             }
         }
         get { return _state }
     }
     
-    private var _state: State = .Stopped
-    private var _isObserving = false
+    fileprivate var _state: State = .stopped
+    fileprivate var _isObserving = false
     
-    private weak var scrollView: UIScrollView?
-    private var originalInset: UIEdgeInsets = UIEdgeInsets()
+    fileprivate weak var scrollView: UIScrollView?
+    fileprivate var originalInset: UIEdgeInsets = UIEdgeInsets()
     
-    func startAnimating() { self.infiniteState = .Loading }
-    func stopAnimating() { self.infiniteState = .Stopped }
+    override func startAnimating() { self.infiniteState = .loading }
+    override func stopAnimating() { self.infiniteState = .stopped }
     
+    //MARK: - Lifecycle
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.setup()
@@ -51,27 +64,32 @@ class InfiniteControl: UIControl {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // 
-    
+    //MARK: - Setup
     func setup() {
-        self.activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+        self.activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
         self.activityIndicatorView.hidesWhenStopped = true
-        self.activityIndicatorView.center = self.center
+        self.backgroundColor = .clear
+        self.addSubview(self.activityIndicatorView)
     }
     
-    // Layout
-    
+    //MARK: - Layout
     override func layoutSubviews() {
         super.layoutSubviews()
-        self.activityIndicatorView.center = self.center
+        let size = self.scrollView!.bounds.size
+        self.frame = CGRect(x: 0, y: self.contentSize.height, width: size.width, height: self.height)
+        self.activityIndicatorView.center = self.bounds.center
+        self.bringSubview(toFront: self.activityIndicatorView)
     }
     
     //
-    override func willMoveToSuperview(newSuperview: UIView?) {
-        super.willMoveToSuperview(newSuperview)
-        if let superView = self.superview, scrollView = newSuperview as? UIScrollView where self.scrollView == nil {
-            self.scrollView = scrollView
-            self.originalInset = scrollView.contentInset
+    override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+        if let scrollView = newSuperview as? UIScrollView {
+            if self.scrollView == nil {
+                self.scrollView = scrollView
+                self.originalInset = scrollView.contentInset
+            }
+            self.startObserveScrollView()
         }
     }
     
@@ -94,34 +112,78 @@ class InfiniteControl: UIControl {
     
     func adjustInsets() {
         var contentInset = self.scrollView!.contentInset
-        contentInset.bottom = self.originalInset.bottom + self.height
+        if self.isEnabled {
+            contentInset.bottom = self.originalInset.bottom + self.height
+        }
         self.setContentInset(contentInset)
     }
     
-    func setContentInset(contentInset: UIEdgeInsets) {
-        let options: UIViewAnimationOptions = [.AllowUserInteraction, .BeginFromCurrentState]
-        UIView.animateWithDuration(0.3, delay: 0, options: options, animations: { [weak self] in
+    func setContentInset(_ contentInset: UIEdgeInsets) {
+        let options: UIViewAnimationOptions = [.allowUserInteraction, .beginFromCurrentState]
+        UIView.animate(withDuration: 0.3, delay: 0, options: options, animations: { [weak self] in
             self?.scrollView?.contentInset = contentInset
         }, completion: nil)
     }
     
-    //
+    private var contentOffsetObservation: NSKeyValueObservation?
+    private var contentSizeObservation: NSKeyValueObservation?
     
+    private var _contentOffset: CGPoint?
+    private var _contentSize: CGSize?
+    
+    //MARK: - Observing
     func startObserveScrollView() {
-        if self.isObserving {
-            self.scrollView?.addObserver(self, forKeyPath: "contentOffset", options: .New, context: nil)
-            self.scrollView?.addObserver(self, forKeyPath: "contentSize", options: .New, context: nil)
+        if !self.isObserving {
+            self.contentOffsetObservation = self.scrollView?.observe(\.contentOffset, options: [.new], changeHandler: { (view, change) in
+                if let offset = change.newValue {
+                    self._contentOffset = offset
+                    self.scrollViewDidScroll(offset)
+                }
+            })
+            
+            self.contentSizeObservation = self.scrollView?.observe(\.contentSize, options: [.new], changeHandler: { (view, change) in
+                if let size = change.newValue {
+                    if let prevSize = self._contentSize {
+                        if prevSize != size {
+                            self._contentSize = size
+                            self.layoutSubviews()
+                        }
+                    } else {
+                        self._contentSize = size
+                        self.layoutSubviews()
+                    }
+                }
+            })
+//            self.scrollView?.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
+//            self.scrollView?.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
             _isObserving = true
-            let size = self.scrollView!.bounds.size
-            self.frame = CGRect(x: 0, y: self.contentSize.height, width: size.width, height: self.height)
+            self.adjustInsets()
         }
     }
     func stopObserveScrollView() {
         if self.isObserving {
-            self.scrollView?.removeObserver(self, forKeyPath: "contentOffset")
-            self.scrollView?.removeObserver(self, forKeyPath: "contentSize")
+            self.contentOffsetObservation = nil
+            self.contentSizeObservation = nil
+//            self.scrollView?.removeObserver(self, forKeyPath: "contentOffset")
+//            self.scrollView?.removeObserver(self, forKeyPath: "contentSize")
             _isObserving = false
             self.resetInsets()
+        }
+    }
+
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if let keyPath = keyPath, keyPath == "contentOffset" {
+            if let offset = (change?[NSKeyValueChangeKey.newKey] as? NSValue)?.cgPointValue {
+                self.scrollViewDidScroll(offset)
+            }
+        } else {
+            if let keyPath = keyPath, keyPath == "contentSize" {
+                if let old = change?[NSKeyValueChangeKey.oldKey] as? NSValue, let new = change?[NSKeyValueChangeKey.newKey] as? NSValue {
+                    if old != new {
+                        self.layoutSubviews()
+                    }
+                }
+            }
         }
     }
     
@@ -129,42 +191,42 @@ class InfiniteControl: UIControl {
     var contentSize: CGSize {
         if let tableView = self.scrollView as? UITableView {
            let rowsCount = tableView.dataSource?.tableView(tableView, numberOfRowsInSection: 0) ?? 0
-            if let footerView = tableView.tableFooterView where rowsCount == 0 {
+            if let footerView = tableView.tableFooterView , rowsCount == 0 {
                 return CGSize(width: tableView.contentSize.width, height: footerView.frame.origin.y)
             }
-            if let footerView = tableView.tableFooterView, headerView = tableView.tableHeaderView rowsCount == 0 {
-                return CGSize(width: tableView.contentSize.width, height: <#T##CGFloat#>)
+            if let footerView = tableView.tableFooterView, let headerView = tableView.tableHeaderView, rowsCount == 0 {
+                return CGSize(width: tableView.contentSize.width, height: footerView.bounds.height + headerView.bounds.height)
             }
         
         }
-        return self.scrollView?.contentSize ?? UIScreen.mainScreen().bounds.size
+        return self.scrollView?.contentSize ?? UIScreen.main.bounds.size
     }
     
-    func scrollViewDidScroll(contentOffset: CGPoint) {
-        if _state != .Loading && self.enabled {
+    func scrollViewDidScroll(_ contentOffset: CGPoint) {
+        if _state != .loading && self.isEnabled && contentOffset.y >= 0 {
             let contentSize = self.contentSize
             let threshold = contentSize.height - self.scrollView!.bounds.size.height
-            if self.scrollView?.dragging == true && _state == .Triggered {
-                self.infiniteState = .Loading
-            } else if self.scrollView?.dragging == true && contentOffset.y > threshold && _state == .Stopped {
-                self.infiniteState = .Triggered
-            } else if contentOffset.y < threshold && _state == .Stopped {
-                self.infiniteState = .Stopped
+            if self.scrollView?.isDragging == true && _state == .triggered {
+                self.infiniteState = .loading
+            } else if self.scrollView?.isDragging == true && contentOffset.y > threshold && _state == .stopped {
+                self.infiniteState = .triggered
+            } else if contentOffset.y < threshold && _state == .stopped {
+                self.infiniteState = .stopped
             }
         }
     }
     
     // UIView
-    override var enabled: Bool {
+    override var isEnabled: Bool {
         set {
-            super.enabled = newValue
-            if enabled {
+            super.isEnabled = newValue
+            if isEnabled {
                 self.startObserveScrollView()
             } else {
                 self.stopObserveScrollView()
             }
         }
-        get { return super.enabled }
+        get { return super.isEnabled }
     }
     
     override var tintColor: UIColor! {
@@ -176,11 +238,11 @@ class InfiniteControl: UIControl {
     }
 }
 
-extension InfiniteControl {
+extension UIInfiniteControl {
     enum State {
-        case Stopped
-        case Triggered
-        case Loading
-        case All
+        case stopped
+        case triggered
+        case loading
+        case all
     }
 }

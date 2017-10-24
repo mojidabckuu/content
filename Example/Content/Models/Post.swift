@@ -13,10 +13,10 @@ func == (left: Post, right: Post) -> Bool {
 }
 
 class Post: Equatable {
-    var imageURL: NSURL
+    var imageURL: URL
     var text: String
     
-    init(text: String, imageURL: NSURL) {
+    init(text: String, imageURL: URL) {
         self.imageURL = imageURL
         self.text = text
     }
