@@ -15,6 +15,9 @@ public struct Configuration {
     public var refreshControl: UIControl?
     public var infiniteControl: UIControl?
     
+    public var errorView: UIView? = ErrorView()
+    public var emptyView: UIView? = EmptyView()
+    
     public static var adapterGenerator = AdapterGenerator.init()
     
     // Default configuration is for normal flow with refresh/infinte controls.
