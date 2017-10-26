@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol ContentView {
+protocol ContentControl {
     func startAnimating()
     func stopAnimating()
     var isAnimating: Bool { get }

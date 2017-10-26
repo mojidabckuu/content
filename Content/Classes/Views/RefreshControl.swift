@@ -8,7 +8,7 @@
 
 import UIKit
 
-extension UIControl: ContentView {
+extension UIControl: ContentControl {
     func startAnimating() {}
     func stopAnimating() {}
     
