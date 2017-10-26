@@ -71,7 +71,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.delegate = delegate
         self.setupDelegate()
         self.setupControls()
-        if let errorView = self.configuration.errorView as? ContentErrorView {
+        if let errorView = self.configuration.errorView as? ContentView {
             errorView.setup(content: self)
         }
     }

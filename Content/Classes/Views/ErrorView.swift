@@ -7,11 +7,11 @@
 
 import Foundation
 
-public protocol ContentErrorView {
+public protocol ContentView {
     func setup<Model: Equatable, View: ViewDelegate & UIView, Cell: ContentCell>(content: Content<Model, View, Cell>)
 }
 
-class ErrorView: UIView, ContentErrorView {
+class ErrorView: UIView, ContentView {
     
     internal lazy var textLabel: UILabel = {
         let label = UILabel(frame: .zero)
