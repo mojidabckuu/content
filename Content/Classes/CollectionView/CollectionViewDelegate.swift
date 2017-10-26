@@ -11,7 +11,7 @@ import UIKit
 extension UICollectionView: Scrollable {}
 
 open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout where View: UIView {
- 
+    
     open var collectionView: UICollectionView { return self.content.view as! UICollectionView }
     
     open override var selectedItem: Model? {
@@ -20,7 +20,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         }
         get {
             guard let indexPath = self.collectionView.indexPathsForSelectedItems?.first else { return nil }
-            return self.content.items[indexPath.row]
+            return self.content.adapter[indexPath.row]
         }
     }
     
@@ -28,7 +28,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         set {
             self.select(models: newValue)
         }
-        get { return self.collectionView.indexPathsForSelectedItems?.map { self.content.items[$0.row] } }
+        get { return self.collectionView.indexPathsForSelectedItems?.map { self.content.adapter[$0.row] } }
     }
     
     open override var visibleItem: Model? {
@@ -37,7 +37,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         }
         get {
             guard let indexPath = self.collectionView.indexPathsForVisibleItems.first else { return nil }
-            return self.content.items[indexPath.row]
+            return self.content.adapter[indexPath.row]
         }
     }
     
@@ -45,7 +45,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         set {
             self.scroll(to: newValue)
         }
-        get { return self.collectionView.indexPathsForVisibleItems.map { self.content.items[$0.row] } }
+        get { return self.collectionView.indexPathsForVisibleItems.map { self.content.adapter[$0.row] } }
     }
     
     //MARK: - Lifecycle
@@ -60,7 +60,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     // Select
     open override func select(model: Model?, animated: Bool = false, scrollPosition: ContentScrollPosition = .none) {
         guard let model = model else { return }
-        if let index = self.content.items.index(of: model) {
+        if let index = self.content.adapter.index(of: model) {
             let indexPath = IndexPath(item: index, section: 0)
             let defaultScroll = scrollPosition == .none ? self.none : scrollPosition
             self.collectionView.selectItem(at: indexPath, animated: animated, scrollPosition: scrollPosition.collectionScroll)
@@ -77,7 +77,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     //Scroll
     open override func scroll(to model: Model?, at: ContentScrollPosition = .middle, animated: Bool = true) {
         guard let model = model else { return }
-        if let index = self.content.items.index(of: model) {
+        if let index = self.content.adapter.index(of: model) {
             let indexPath = IndexPath(row: index, section: 0)
             let defaultScroll = at == .middle ? self.middle : at
             self.collectionView.scrollToItem(at: indexPath, at: at.collectionScroll, animated: true)
@@ -90,26 +90,11 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         self.scroll(to: model, at: at, animated: animated)
     }
     
-    open override func deselect(model: Model?, animated: Bool = false) {
-        guard let model = model else { return }
-        if let index = self.content.items.index(of: model) {
-            let indexPath = IndexPath(row: index, section: 0)
-            self.collectionView.deselectItem(at: indexPath, animated: animated)
-        }
-    }
-    
-    open override func deselect(models: [Model]?, animated: Bool = false) {
-        guard let models = models else { return }
-        for (i, model) in models.enumerated() {
-            self.deselect(model: model, animated: animated)
-        }
-    }
-    
     // Insert
     override open func insert(_ models: [Model], index: Int = 0) {
         let collectionView = self.collectionView
         self.collectionView.performBatchUpdates({
-            self.content.items.insert(contentsOf: models, at: index)
+            self.content.adapter.insert(contentsOf: models, at: index)
             let indexPaths = self.indexPaths(models)
             collectionView.insertItems(at: indexPaths)
         }, completion: nil)
@@ -118,12 +103,12 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     //Delete
     open override func delete(_ models: [Model]) {
         var indexes = models
-            .flatMap { self.content.items.index(of: $0) }
+            .flatMap { self.content.adapter.index(of: $0) }
             .map {IndexPath(row: $0, section: 0)}
         let collectionView = self.collectionView
         let content = self.content
         self.collectionView.performBatchUpdates({
-            indexes.forEach { content?.items.remove(at: $0.row) }
+            indexes.forEach { content?.adapter.remove(at: $0.row) }
             collectionView.deleteItems(at: indexes)
         }, completion: nil)
     }
@@ -149,7 +134,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     //MARK: - UICollectionView delegate
     open func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! Cell
-        self.content.actions.onSelect?(self.content, self.content.items[indexPath.row], cell)
+        self.content.actions.onSelect?(self.content, self.content.adapter[indexPath.row], cell)
         if self.content.configuration.autoDeselect {
             self.collectionView.deselectItem(at: indexPath, animated: true)
         }
@@ -157,18 +142,21 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     open func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? Cell {
-            self.content.actions.onDeselect?(self.content, self.content.items[indexPath.row], cell)
+            self.content.actions.onDeselect?(self.content, self.content.adapter[indexPath.row], cell)
         }
     }
     
     open func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        let cell = collectionView.cellForItem(at: indexPath) as! Cell
-        return self.content.actions.onShouldSelect?(self.content, self.content.items[indexPath.row], cell) ?? true
+        return true;
     }
     
     //MARK: - UICollectionView data
+    open func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1;
+    }
+    
     open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.content.items.count
+        return self.content.adapter.count
     }
     
     open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -177,9 +165,10 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     //TODO: It is a workaround to achieve different rows for dequeue.
     open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath, with identifier: String) -> UICollectionViewCell {
-        let item = self.content.items[indexPath.row]
+        let item = self.content.adapter[indexPath.row]
         let id = self.content.callbacks.onDequeueBlock?(item)?.identifier ?? identifier
         let collectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath)
+        print("dequeue: \(indexPath.row) \(item)")
         if var cell = collectionViewCell as? Cell {
             cell.raiser = self.content
             self.content.callbacks.onCellSetupBlock?(item, cell)
@@ -188,7 +177,8 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     open func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        let item = self.content.items[indexPath.row]
+        let item = self.content.adapter[indexPath.row]
+        print("willDisplay: \(indexPath.row) \(item)")
         if var cell = cell as? Cell {
             cell.raiser = self.content
             self.content.callbacks.onCellDisplay?(item, cell)
@@ -198,10 +188,10 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     // CollectionView float layout
     
     open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if let size = self.content.callbacks.onLayout?(self.content, self.content.items[indexPath.row]) {
+        if let size = self.content.callbacks.onLayout?(self.content, self.content.adapter[indexPath.row]) {
             return size
         }
-//        print(#file + " You didn't specify size block. Use on(:layout) chain.")
+        //        print(#file + " You didn't specify size block. Use on(:layout) chain.")
         return CGSize(width: 40, height: 40)
     }
     
@@ -212,10 +202,10 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     open func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let pageWidth = scrollView.frame.width
         let page = Int(scrollView.contentOffset.x / pageWidth)
-        self.content.callbacks.onItemChanged?(self.content, self.content.items[page], page)
+        self.content.callbacks.onItemChanged?(self.content, self.content.adapter[page], page)
     }
     
-    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    open func scrollViewDidScroll(_ scrollView: UIScrollView) {
         self.content.scrollCallbacks.onDidScroll?(self.content)
     }
     
@@ -238,3 +228,4 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         return nil
     }
 }
+

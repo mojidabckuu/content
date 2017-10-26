@@ -20,7 +20,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         }
         get {
             guard let indexPath = self.tableView.indexPathForSelectedRow else { return nil }
-            return self.content.items[indexPath.row]
+            return self.content.adapter[indexPath.row]
         }
     }
     
@@ -29,7 +29,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
             self.select(models: newValue)
         }
         get {
-            return self.tableView.indexPathsForSelectedRows?.map { self.content.items[$0.row] }
+            return self.tableView.indexPathsForSelectedRows?.map { self.content.adapter[$0.row] }
         }
     }
     
@@ -39,7 +39,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         }
         get {
             guard let indexPath = self.tableView.indexPathsForVisibleRows?.first else { return nil }
-            return self.content.items[indexPath.row]
+            return self.content.adapter[indexPath.row]
         }
     }
     
@@ -48,7 +48,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
             self.scroll(to: newValue)
         }
         get {
-            return self.tableView.indexPathsForVisibleRows?.map { self.content.items[$0.row] }
+            return self.tableView.indexPathsForVisibleRows?.map { self.content.adapter[$0.row] }
         }
     }
     
@@ -62,7 +62,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     // Select
     open override func select(model: Model?, animated: Bool = false, scrollPosition: ContentScrollPosition = .none) {
         guard let model = model else { return }
-        if let index = self.content.items.index(of: model) {
+        if let index = self.content.adapter.index(of: model) {
             let indexPath = IndexPath(row: index, section: 0)
             self.tableView.selectRow(at: indexPath, animated: animated, scrollPosition: scrollPosition.tableScroll)
         }
@@ -78,7 +78,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     open override func deselect(model: Model?, animated: Bool = false) {
         guard let model = model else { return }
-        if let index = self.content.items.index(of: model) {
+        if let index = self.content.adapter.index(of: model) {
             let indexPath = IndexPath(row: index, section: 0)
             self.tableView.deselectRow(at: indexPath, animated: animated)
         }
@@ -94,7 +94,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     //Scroll
     open override func scroll(to model: Model?, at: ContentScrollPosition = .middle, animated: Bool = true) {
         guard let model = model else { return }
-        if let index = self.content.items.index(of: model) {
+        if let index = self.content.adapter.index(of: model) {
             let indexPath = IndexPath(row: index, section: 0)
             self.tableView.scrollToRow(at: indexPath, at: at.tableScroll, animated: animated)
         }
@@ -109,7 +109,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     // Insert
     override open func insert(_ models: [Model], index: Int = 0) {
         self.tableView.beginUpdates()
-        self.content.items.insert(contentsOf: models, at: index)
+        self.content.adapter.insert(contentsOf: models, at: index)
         self.tableView.insertRows(at: self.indexPaths(models), with: .automatic)
         self.tableView.endUpdates()
     }
@@ -121,7 +121,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     open func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let cell = tableView.cellForRow(at: indexPath) as! Cell
-            let item = self.content.items[indexPath.row]
+            let item = self.content.adapter[indexPath.row]
             self.content.actions.onDelete?(self.content, item, cell)
         }
     }
@@ -130,10 +130,10 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     open override func delete(_ models: [Model]) {
         self.tableView.beginUpdates()
         var indexes = models
-            .flatMap { self.content.items.index(of: $0) }
+            .flatMap { self.content.adapter.index(of: $0) }
             .map {IndexPath(row: $0, section: 0)}
         self.tableView.deleteRows(at: indexes, with: .fade)
-        indexes.forEach { self.content.items.remove(at: $0.row) }
+        indexes.forEach { self.content.adapter.remove(at: $0.row) }
         self.tableView.endUpdates()
     }
     
@@ -153,7 +153,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath) as! Cell
-        self.content.actions.onSelect?(self.content, self.content.items[indexPath.row], cell)
+        self.content.actions.onSelect?(self.content, self.content.adapter[indexPath.row], cell)
         if self.content.configuration.autoDeselect {
             self.tableView.deselectRow(at: indexPath, animated: true)
         }
@@ -161,7 +161,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     open func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         if let cell = tableView.cellForRow(at: indexPath) as? Cell {
-            let item = self.content.items[indexPath.row]
+            let item = self.content.adapter[indexPath.row]
             self.content.actions.onDeselect?(self.content, item, cell)
         }
     }
@@ -172,7 +172,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.content.items.count
+        return self.content.adapter.count
     }
     
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -180,7 +180,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath, with identifier: String) -> UITableViewCell {
-        let item = self.content.items[indexPath.row]
+        let item = self.content.adapter[indexPath.row]
         let id = self.content.callbacks.onDequeueBlock?(item)?.identifier ?? identifier
         let tableViewCell = tableView.dequeueReusableCell(withIdentifier: id, for: indexPath)
         if var cell = tableViewCell as? Cell {
@@ -191,7 +191,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     open func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let item = self.content.items[indexPath.row]
+        let item = self.content.adapter[indexPath.row]
         if var cell = cell as? Cell {
             cell.raiser = self.content
             self.content.callbacks.onCellDisplay?(item, cell)

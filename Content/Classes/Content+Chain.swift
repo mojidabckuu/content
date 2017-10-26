@@ -18,6 +18,11 @@ public extension Content {
         return self
     }
     
+    func on(height block: @escaping (_ model: Model) -> CGFloat?) -> Content<Model, View, Cell> {
+        self.callbacks.onHeight = block
+        return self
+    }
+    
     func on(cellDisplay block: @escaping (_ model: Model, _ cell: Cell) -> Void) -> Content<Model, View, Cell> {
         self.callbacks.onCellDisplay = block
         return self
@@ -75,7 +80,7 @@ public extension Content {
 public extension Content {
     func raise(_ action: Action, sender: ContentCell) {
         if let cell = sender as? Cell, let indexPath = self.delegate?.indexPath(cell) {
-            self.actions.onAction?(self, self.items[(indexPath as NSIndexPath).row], cell, action)
+            self.actions.onAction?(self, self.adapter[indexPath.row], cell, action)
         }
     }
 }

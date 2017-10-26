@@ -20,6 +20,7 @@
 		F5AEEF201D7DAE6C00A217C6 /* PostsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5AEEF1F1D7DAE6C00A217C6 /* PostsViewController.swift */; };
 		F5AEEF221D7DAE9400A217C6 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5AEEF211D7DAE9400A217C6 /* Post.swift */; };
 		F5AEEF241D7DAF3700A217C6 /* PostCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5AEEF231D7DAF3700A217C6 /* PostCollectionViewCell.swift */; };
+		F5C614021F9FCE9E00417A30 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C614011F9FCE9E00417A30 /* Service.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 		F5AEEF1F1D7DAE6C00A217C6 /* PostsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostsViewController.swift; sourceTree = "<group>"; };
 		F5AEEF211D7DAE9400A217C6 /* Post.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
 		F5AEEF231D7DAF3700A217C6 /* PostCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostCollectionViewCell.swift; sourceTree = "<group>"; };
+		F5C614011F9FCE9E00417A30 /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 		F8BFB95B5F4D9CC54D0D8EC0 /* Pods-Content_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Content_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Content_Example/Pods-Content_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		FD2F4561080279F62CCF06FF /* Pods-Content_Example-Content_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Content_Example-Content_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Content_Example-Content_Tests/Pods-Content_Example-Content_Tests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -164,6 +166,7 @@
 			children = (
 				F5AEEF141D7D8AF800A217C6 /* User.swift */,
 				F5AEEF211D7DAE9400A217C6 /* Post.swift */,
+				F5C614011F9FCE9E00417A30 /* Service.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -334,6 +337,7 @@
 				F5AEEF1A1D7D8B3000A217C6 /* UsersViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				F5AEEF151D7D8AF800A217C6 /* User.swift in Sources */,
+				F5C614021F9FCE9E00417A30 /* Service.swift in Sources */,
 				F5AEEF1C1D7D8B5200A217C6 /* UserTableViewCell.swift in Sources */,
 				F5AEEF241D7DAF3700A217C6 /* PostCollectionViewCell.swift in Sources */,
 			);

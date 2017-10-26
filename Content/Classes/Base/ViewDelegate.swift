@@ -92,7 +92,7 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     open func indexPaths(_ models: [Model]) -> [IndexPath] {
         var indexPaths: [IndexPath] = []
         for model in models {
-            if let index = self.content.items.index(of: model) {
+            if let index = self.content.adapter.index(of: model) {
                 let indexPath = IndexPath(row: Int(index), section: 0)
                 indexPaths.append(indexPath)
             }
