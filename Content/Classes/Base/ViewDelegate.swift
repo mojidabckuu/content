@@ -16,6 +16,8 @@ extension Scrollable {
 public protocol ViewDelegate: Scrollable {
     var contentDelegate: AnyObject? { get set }
     var contentDataSource: AnyObject? { get set }
+ 
+    var isScrollEnabled: Bool { get set }
     
     func reloadData()
 }

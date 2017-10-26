@@ -71,6 +71,9 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.delegate = delegate
         self.setupDelegate()
         self.setupControls()
+        if let errorView = self.configuration.errorView as? ContentErrorView {
+            errorView.setup(content: self)
+        }
     }
     
     func setupDelegate() {
@@ -111,6 +114,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     open dynamic func refresh() {
         if _state != .refreshing {
+            _view.isScrollEnabled = true
+            configuration.errorView?.removeFromSuperview()
             _state = .refreshing
             self.offset = nil
             configuration.infiniteControl?.isEnabled = true
@@ -136,9 +141,15 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     open func fetch(_ models: [Model]?, error: Error?) {
         if let error = error {
+            let stateWas = _state
             _state = .none
             configuration.refreshControl?.stopAnimating()
             configuration.infiniteControl?.stopAnimating()
+            if let errorView = configuration.errorView, stateWas == .refreshing {
+                _view.isScrollEnabled = false
+                errorView.frame = self.view.bounds
+                self.view.addSubview(errorView)
+            }
             self.URLCallbacks.didLoad?(error, [])
             return
         }
