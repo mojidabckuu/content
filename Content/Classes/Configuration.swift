@@ -18,6 +18,10 @@ public struct Configuration {
     public var errorView: UIView? = ErrorView()
     public var emptyView: UIView? = EmptyView()
     
+    public static var `default`: (() -> Configuration) = {
+        return items()
+    }
+    
     public static var adapterGenerator = AdapterGenerator.init()
     
     // Default configuration is for normal flow with refresh/infinte controls.
@@ -34,10 +38,6 @@ public struct Configuration {
         configuration.infiniteControl = UIInfiniteControl()
         //        configuration.adapterGenerator = RelationAdapter.init()
         return configuration
-    }
-    
-    public static func `default`() -> Configuration {
-        return Configuration.items()
     }
     
     // Simple configuration to show list without refresh/infinite controls
