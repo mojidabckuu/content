@@ -39,6 +39,10 @@ class ErrorView: UIView, ContentView {
         super.init(coder: aDecoder)
     }
     
+    deinit {
+        print("Hello from deinit ErrorView")
+    }
+    
     //MARK: - Layout
     override func layoutSubviews() {
         super.layoutSubviews()

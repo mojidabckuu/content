@@ -74,6 +74,13 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         if let errorView = self.configuration.errorView as? ContentView {
             errorView.setup(content: self)
         }
+        if let emptyView = self.configuration.emptyView as? ContentView {
+            emptyView.setup(content: self)
+        }
+    }
+    
+    deinit {
+        print("Controller deinit")
     }
     
     func setupDelegate() {
@@ -134,48 +141,76 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
     }
     open func loadItems() {
-        self.URLCallbacks.onLoad?(self)
+        let weakSelf = self
+        self.URLCallbacks.onLoad?(weakSelf)
     }
     
     // Utils
     
-    open func fetch(_ models: [Model]?, error: Error?) {
-        if let error = error {
-            let stateWas = _state
+    func handle(with error: Error) {
+        let stateWas = _state
+        _state = .none
+        configuration.refreshControl?.stopAnimating()
+        configuration.infiniteControl?.stopAnimating()
+        if let errorView = configuration.errorView, stateWas == .refreshing {
+            _view.isScrollEnabled = false
+            errorView.frame = self.view.bounds
+            self.view.addSubview(errorView)
+        }
+        self.URLCallbacks.didLoad?(error, [])
+    }
+    
+    func handle(refresh models: [Model]) {
+        self.adapter.removeAll()
+        if self.configuration.animatedRefresh {
+            self.reloadData()
+            self.add(items: models, at: self.adapter.count)
+        } else {
+            self.adapter.append(contentsOf: models)
+            self.reloadData()
+        }
+        configuration.refreshControl?.stopAnimating()
+        if let emptyView = self.configuration.emptyView, models.isEmpty {
+            emptyView.frame = self.view.bounds
+            self.view.addSubview(emptyView)
+        }
+    }
+    
+    func handle(more models: [Model]) {
+        self.add(items: models, at: self.adapter.count)
+    }
+    
+    func after(load models: [Model], error: Error? = nil) {
+        configuration.infiniteControl?.stopAnimating()
+        self.URLCallbacks.didLoad?(error, models)
+        if models.count < self.length {
+            _state = .allLoaded
+            configuration.infiniteControl?.isEnabled = false
+        } else {
             _state = .none
+        }
+    }
+    
+    open func fetch(_ models: [Model]?, error: Error?) {
+        guard let models = models else {
             configuration.refreshControl?.stopAnimating()
             configuration.infiniteControl?.stopAnimating()
-            if let errorView = configuration.errorView, stateWas == .refreshing {
-                _view.isScrollEnabled = false
-                errorView.frame = self.view.bounds
-                self.view.addSubview(errorView)
+            if let emptyView = self.configuration.emptyView {
+                emptyView.frame = self.view.bounds
+                self.view.addSubview(emptyView)
             }
-            self.URLCallbacks.didLoad?(error, [])
             return
         }
-        if let models = models {
-            if self.state == .refreshing {
-                self.adapter.removeAll()
-                if self.configuration.animatedRefresh {
-                    self.reloadData()
-                    self.add(items: models, at: self.adapter.count)
-                } else {
-                    self.adapter.append(contentsOf: models)
-                    self.reloadData()
-                }
-                configuration.refreshControl?.stopAnimating()
-            } else {
-                self.add(items: models, at: self.adapter.count)
-            }
-            configuration.infiniteControl?.stopAnimating()
-            self.URLCallbacks.didLoad?(error, models)
-            if models.count < self.length {
-                _state = .allLoaded
-                configuration.infiniteControl?.isEnabled = false
-            } else {
-                _state = .none
-            }
+        if let error = error {
+            handle(with: error)
+            return
         }
+        switch _state {
+        case .refreshing: handle(refresh: models)
+        case .loading:    handle(more: models)
+        default: print("nothing")
+        }
+        after(load: models, error: error)
     }
     
     //MARK: - Management
