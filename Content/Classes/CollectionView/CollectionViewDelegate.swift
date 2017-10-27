@@ -168,7 +168,6 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         let item = self.content.adapter[indexPath.row]
         let id = self.content.callbacks.onDequeueBlock?(item)?.identifier ?? identifier
         let collectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath)
-        print("dequeue: \(indexPath.row) \(item)")
         if var cell = collectionViewCell as? Cell {
             cell.raiser = self.content
             self.content.callbacks.onCellSetupBlock?(item, cell)
@@ -178,7 +177,6 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     
     open func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         let item = self.content.adapter[indexPath.row]
-        print("willDisplay: \(indexPath.row) \(item)")
         if var cell = cell as? Cell {
             cell.raiser = self.content
             self.content.callbacks.onCellDisplay?(item, cell)
