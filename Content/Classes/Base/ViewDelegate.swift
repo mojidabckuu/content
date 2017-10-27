@@ -56,7 +56,7 @@ public enum ContentScrollPosition {
 }
 
 open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: NSObject where View: UIView {
-    open var content: Content<Model, View, Cell>!
+    open weak var content: Content<Model, View, Cell>!
     open var selectedItem: Model?
     open var selectedItems: [Model]?
     open var visibleItem: Model?
