@@ -21,13 +21,6 @@ public protocol ContentCell: _Cell, Raiser {}
 open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: ActionRaiser where View: UIView {
     
     var adapter: Adapter<Model, View, Cell>
-    public var items: Adapter<Model, View, Cell> {
-        return self.adapter
-    }
-    public func set(_ items: [Model]) {
-        self.adapter.items = items
-        self.reloadData()
-    }
     
     open var isEditing = false
     open var selectedItem: Model? {
@@ -231,5 +224,15 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     //Reload
     open func reload(_ models: Model..., animated: Bool = false) {
         self.delegate?.reload(models, animated: animated)
+    }
+    
+    open func reset(items: [Model]) {
+        self.adapter.items = items
+        self.reloadData()
+    }
+    
+    open func reset() {
+        self.adapter.removeAll()
+        self.reloadData()
     }
 }
