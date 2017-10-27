@@ -23,7 +23,12 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     var adapter: Adapter<Model, View, Cell>
     
     open var count: Int { return adapter.count }
-        
+    
+    open subscript (position: Int) -> Model {
+        get { return self.adapter[position] }
+        set { self.replace([newValue], animated: true) }
+    }
+    
     open var isEditing = false
     open var selectedItem: Model? {
         get { return self.delegate?.selectedItem }
@@ -226,6 +231,10 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     //Reload
     open func reload(_ models: Model..., animated: Bool = false) {
         self.delegate?.reload(models, animated: animated)
+    }
+    
+    open func replace(_ models: Model..., animated: Bool = false) {
+        fatalError("Not implemeted")
     }
     
     open func reset(items: [Model]) {
