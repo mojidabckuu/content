@@ -26,7 +26,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     open subscript (position: Int) -> Model {
         get { return self.adapter[position] }
-        set { self.replace([newValue], animated: true) }
+        set { self.replace(newValue, animated: true) }
     }
     
     open var isEditing = false
