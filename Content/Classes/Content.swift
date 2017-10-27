@@ -22,6 +22,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     var adapter: Adapter<Model, View, Cell>
     
+    open var count: Int { return adapter.count }
+        
     open var isEditing = false
     open var selectedItem: Model? {
         get { return self.delegate?.selectedItem }
