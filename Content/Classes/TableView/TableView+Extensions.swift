@@ -19,6 +19,10 @@ public extension UITableView {
         get { return self.dataSource }
         set { self.dataSource = newValue as? UITableViewDataSource }
     }
+    
+    func set(contentOffset: CGPoint) {
+        self.contentOffset = contentOffset
+    }
 }
 
 extension UITableViewCell: _Cell {}
