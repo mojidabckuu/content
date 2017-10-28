@@ -164,6 +164,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         if let errorView = configuration.errorView, stateWas == .refreshing {
             _view.isScrollEnabled = false
             errorView.frame = self.view.bounds
+            errorView.layoutIfNeeded()
             self.view.addSubview(errorView)
         }
         self.URLCallbacks.didLoad?(error, [])
@@ -182,6 +183,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         if let emptyView = self.configuration.emptyView, models.isEmpty {
             _view.isScrollEnabled = false
             emptyView.frame = self.view.bounds
+            emptyView.layoutIfNeeded()
             self.view.addSubview(emptyView)
         }
     }
