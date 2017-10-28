@@ -246,4 +246,9 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.adapter.removeAll()
         self.reloadData()
     }
+    
+    //MARK: -
+    open func register(cell: Cell.Type, nib: UINib) {
+        self.delegate?.registerCell(cell.identifier, nib: nib)
+    }
 }
