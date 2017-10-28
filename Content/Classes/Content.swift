@@ -259,4 +259,9 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open func register(cell: Cell.Type, nib: UINib) {
         self.delegate?.registerCell(cell.identifier, nib: nib)
     }
+    
+    //MARK: - 
+    open func map<T>(_ transform: (Model) -> T) -> [T] {
+        return self.adapter.map(transform)
+    }
 }
