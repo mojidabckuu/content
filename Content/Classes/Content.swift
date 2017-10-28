@@ -180,6 +180,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
         configuration.refreshControl?.stopAnimating()
         if let emptyView = self.configuration.emptyView, models.isEmpty {
+            _view.isScrollEnabled = false
             emptyView.frame = self.view.bounds
             self.view.addSubview(emptyView)
         }
