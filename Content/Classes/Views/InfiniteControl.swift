@@ -14,7 +14,7 @@ public protocol ContentControl {
     var isAnimating: Bool { get }
 }
 
-open extension CGRect {
+public extension CGRect {
     var center: CGPoint {
         return CGPoint(x: self.origin.x + self.width / 2, y: self.origin.y + self.height / 2)
     }
@@ -24,7 +24,7 @@ open class UIInfiniteControl: UIControl {
     var height: CGFloat = 60
     var activityIndicatorView: UIActivityIndicatorView!
     
-    override var isAnimating: Bool { return self.activityIndicatorView.isAnimating }
+    override public var isAnimating: Bool { return self.activityIndicatorView.isAnimating }
     var isObserving: Bool { return _isObserving }
     var infiniteState: State {
         set {
@@ -51,16 +51,16 @@ open class UIInfiniteControl: UIControl {
     fileprivate weak var scrollView: UIScrollView?
     fileprivate var originalInset: UIEdgeInsets = UIEdgeInsets()
     
-    override func startAnimating() { self.infiniteState = .loading }
-    override func stopAnimating() { self.infiniteState = .stopped }
+    override public func startAnimating() { self.infiniteState = .loading }
+    override public func stopAnimating() { self.infiniteState = .stopped }
     
     //MARK: - Lifecycle
-    override init(frame: CGRect) {
+    override public init(frame: CGRect) {
         super.init(frame: frame)
         self.setup()
     }
     
-    required init?(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
@@ -72,7 +72,7 @@ open class UIInfiniteControl: UIControl {
     }
     
     //MARK: - Layout
-    override func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
         let size = self.scrollView!.bounds.size
         self.frame = CGRect(x: 0, y: self.contentSize.height, width: size.width, height: self.height)
@@ -81,7 +81,7 @@ open class UIInfiniteControl: UIControl {
     }
     
     //
-    override func willMove(toSuperview newSuperview: UIView?) {
+    override open func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
         if let scrollView = newSuperview as? UIScrollView {
             if self.scrollView == nil {
@@ -92,7 +92,7 @@ open class UIInfiniteControl: UIControl {
         }
     }
     
-    override func didMoveToWindow() {
+    override open func didMoveToWindow() {
         super.didMoveToWindow()
         if self.window == nil {
             self.stopObserveScrollView()
@@ -142,7 +142,7 @@ open class UIInfiniteControl: UIControl {
         }
     }
     
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if let keyPath = keyPath, keyPath == "contentOffset" {
             if let offset = (change?[NSKeyValueChangeKey.newKey] as? NSValue)?.cgPointValue { self.scrollViewDidScroll(offset) }
         } else {
@@ -180,7 +180,7 @@ open class UIInfiniteControl: UIControl {
     }
     
     // UIView
-    override var isEnabled: Bool {
+    override open var isEnabled: Bool {
         set {
             super.isEnabled = newValue
             if isEnabled {
@@ -192,7 +192,7 @@ open class UIInfiniteControl: UIControl {
         get { return super.isEnabled }
     }
     
-    override var tintColor: UIColor! {
+    override open var tintColor: UIColor! {
         set {
             super.tintColor = newValue
             self.activityIndicatorView.color = newValue
