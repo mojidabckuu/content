@@ -7,10 +7,10 @@
 
 import Foundation
 
-public struct Configuration {
+public class ConfigurationGenerator {
+    
     public var animatedRefresh: Bool = false
     public var length: Int = 20
-    public var isOffsetFirst = true
     public var autoDeselect = true
     public var refreshControl: UIControl?
     public var infiniteControl: UIControl?
@@ -18,25 +18,33 @@ public struct Configuration {
     public var errorView: UIView? = ErrorView()
     public var emptyView: UIView? = EmptyView()
     
-    public static var `default`: (() -> Configuration) = {
-        return items()
+}
+
+public struct Configuration {
+    public var animatedRefresh: Bool = false
+    public var length: Int = 20
+    public var autoDeselect = true
+    public var refreshControl: UIControl?
+    public var infiniteControl: UIControl?
+    
+    public var errorView: UIView? = ErrorView()
+    public var emptyView: UIView? = EmptyView()
+    
+    private static var _default: (() -> Configuration) = {
+        return full()
+    }
+    public static var `default`: (() -> Configuration) {
+        get { return { _default() } }
+        set { _default = newValue }
     }
     
     public static var adapterGenerator = AdapterGenerator.init()
     
     // Default configuration is for normal flow with refresh/infinte controls.
-    public static func items() -> Configuration {
+    public static func full() -> Configuration {
         var configuration = Configuration()
         configuration.refreshControl = UIRefreshControl()
         configuration.infiniteControl = UIInfiniteControl()
-        return configuration
-    }
-    
-    public static func relation() -> Configuration {
-        var configuration = Configuration()
-        configuration.refreshControl = UIRefreshControl()
-        configuration.infiniteControl = UIInfiniteControl()
-        //        configuration.adapterGenerator = RelationAdapter.init()
         return configuration
     }
     
@@ -45,16 +53,24 @@ public struct Configuration {
         return Configuration()
     }
     
-    // Simple configuration to show list without refresh/infinite controls
+    // Simple configuration to show refresh control only
+    public static func refresh() -> Configuration {
+        var configuration = Configuration()
+        configuration.refreshControl = UIRefreshControl()
+        return configuration
+    }
+    
+    // Simple configuration to show infinite control only
     public static func infinite() -> Configuration {
         var configuration = Configuration()
         configuration.infiniteControl = UIInfiniteControl()
         return configuration
     }
     
-    public init(animatedRefresh: Bool = false, length: Int = 50, autoDeselect: Bool = true) {
+    public init(animatedRefresh: Bool = false, length: Int = 20, autoDeselect: Bool = true) {
         self.animatedRefresh = animatedRefresh
         self.length = length
         self.autoDeselect = autoDeselect
     }
 }
+
