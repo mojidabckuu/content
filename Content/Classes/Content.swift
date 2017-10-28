@@ -23,6 +23,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     var adapter: Adapter<Model, View, Cell>
     
     open var count: Int { return adapter.count }
+    open var isEmpty: Bool { return adapter.isEmpty }
     
     open subscript (position: Int) -> Model {
         get { return self.adapter[position] }
