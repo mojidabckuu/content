@@ -130,6 +130,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open dynamic func refresh() {
         if _state != .refreshing {
             _view.isScrollEnabled = true
+            configuration.emptyView?.removeFromSuperview()
             configuration.errorView?.removeFromSuperview()
             _state = .refreshing
             self.offset = nil
