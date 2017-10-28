@@ -175,6 +175,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     func handle(refresh models: [Model]) {
+        _view.isScrollEnabled = false
+        _view.isScrollEnabled = true
         configuration.refreshControl?.stopAnimating()
         self.adapter.removeAll()
         if self.configuration.animatedRefresh {
