@@ -18,6 +18,10 @@ public extension UICollectionView {
         get { return self.dataSource }
         set { self.dataSource = newValue as? UICollectionViewDataSource }
     }
+    
+    func set(contentOffset: CGPoint) {
+        self.contentOffset = contentOffset
+    }
 }
 
 extension UICollectionViewCell: _Cell {}

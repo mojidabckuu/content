@@ -19,6 +19,9 @@ public protocol ViewDelegate: Scrollable {
  
     var isScrollEnabled: Bool { get set }
     
+    // When try to confiorm contentOffset gives a crash on reload.
+    func set(contentOffset: CGPoint)
+    
     func reloadData()
 }
 

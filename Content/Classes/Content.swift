@@ -82,8 +82,12 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         if let errorView = self.configuration.errorView as? ContentView {
             errorView.setup(content: self)
         }
-        if let emptyView = self.configuration.emptyView as? ContentView {
-            emptyView.setup(content: self)
+        if let emptyView = self.configuration.emptyView {
+            if let contentView = emptyView as? ContentView {
+                contentView.setup(content: self)
+            }
+            emptyView.isHidden = true
+            _view.addSubview(emptyView)
         }
     }
     
@@ -130,7 +134,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open dynamic func refresh() {
         if _state != .refreshing {
             _view.isScrollEnabled = true
-            configuration.emptyView?.removeFromSuperview()
+            configuration.emptyView?.isHidden = true
             configuration.errorView?.removeFromSuperview()
             _state = .refreshing
             self.offset = nil
@@ -171,6 +175,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     func handle(refresh models: [Model]) {
+        configuration.refreshControl?.stopAnimating()
         self.adapter.removeAll()
         if self.configuration.animatedRefresh {
             self.reloadData()
@@ -179,12 +184,13 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.adapter.append(contentsOf: models)
             self.reloadData()
         }
-        configuration.refreshControl?.stopAnimating()
         if let emptyView = self.configuration.emptyView, models.isEmpty {
+            configuration.refreshControl?.isHidden = true
+            _view.set(contentOffset: .zero)
             _view.isScrollEnabled = false
             emptyView.frame = self.view.bounds
             emptyView.layoutIfNeeded()
-            self.view.addSubview(emptyView)
+            emptyView.isHidden = false
         }
     }
     
