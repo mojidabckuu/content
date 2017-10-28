@@ -114,7 +114,15 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     func setupControls() {
         if let refreshControl = self.configuration.refreshControl {
             refreshControl.addTarget(self, action: "refresh", for: .valueChanged)
-            self.view.addSubview(refreshControl)
+            if #available(iOS 10.0, *) {
+                if let scrollView = _view as? UIScrollView, let refreshControl = refreshControl as? UIRefreshControl {
+                    scrollView.refreshControl = refreshControl
+                } else {
+                    self.view.addSubview(refreshControl)
+                }
+            } else {
+                self.view.addSubview(refreshControl)
+            }
         }
         if let infiniteControl = self.configuration.infiniteControl {
             infiniteControl.addTarget(self, action: "loadMore", for: .valueChanged)
