@@ -8,19 +8,19 @@
 
 import UIKit
 
-protocol ContentControl {
+public protocol ContentControl {
     func startAnimating()
     func stopAnimating()
     var isAnimating: Bool { get }
 }
 
-extension CGRect {
+open extension CGRect {
     var center: CGPoint {
         return CGPoint(x: self.origin.x + self.width / 2, y: self.origin.y + self.height / 2)
     }
 }
 
-class UIInfiniteControl: UIControl {
+open class UIInfiniteControl: UIControl {
     var height: CGFloat = 60
     var activityIndicatorView: UIActivityIndicatorView!
     
@@ -121,7 +121,7 @@ class UIInfiniteControl: UIControl {
         let options: UIViewAnimationOptions = [.allowUserInteraction, .beginFromCurrentState]
         UIView.animate(withDuration: 0.3, delay: 0, options: options, animations: { [weak self] in
             self?.scrollView?.contentInset = contentInset
-        }, completion: nil)
+            }, completion: nil)
     }
     
     //MARK: - Observing
@@ -153,14 +153,14 @@ class UIInfiniteControl: UIControl {
     // TableView returns wrong content size when takes table header and footer views.
     var contentSize: CGSize {
         if let tableView = self.scrollView as? UITableView {
-           let rowsCount = tableView.dataSource?.tableView(tableView, numberOfRowsInSection: 0) ?? 0
+            let rowsCount = tableView.dataSource?.tableView(tableView, numberOfRowsInSection: 0) ?? 0
             if let footerView = tableView.tableFooterView , rowsCount == 0 {
                 return CGSize(width: tableView.contentSize.width, height: footerView.frame.origin.y)
             }
             if let footerView = tableView.tableFooterView, let headerView = tableView.tableHeaderView, rowsCount == 0 {
                 return CGSize(width: tableView.contentSize.width, height: footerView.bounds.height + headerView.bounds.height)
             }
-        
+            
         }
         return self.scrollView?.contentSize ?? UIScreen.main.bounds.size
     }
@@ -209,3 +209,4 @@ extension UIInfiniteControl {
         case all
     }
 }
+
