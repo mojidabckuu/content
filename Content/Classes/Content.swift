@@ -25,12 +25,12 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open var count: Int { return adapter.count }
     open var isEmpty: Bool { return adapter.isEmpty }
     
-    func index(of model: Model) -> Int? {
+    open func index(of model: Model) -> Int? {
         return adapter.index(of: model)
     }
     
-    var first: Model? { return adapter.first }
-    var last: Model? { return adapter.last }
+    open var first: Model? { return adapter.first }
+    open var last: Model? { return adapter.last }
     
     open subscript (position: Int) -> Model {
         get { return self.adapter[position] }
