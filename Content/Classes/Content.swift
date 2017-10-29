@@ -124,6 +124,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                 self.view.addSubview(refreshControl)
             }
         }
+        
         if let infiniteControl = self.configuration.infiniteControl {
             infiniteControl.addTarget(self, action: "loadMore", for: .valueChanged)
             self.view.addSubview(infiniteControl)
@@ -134,6 +135,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     fileprivate var _state: State = .none
     open var state: State { return _state }
     open var isAllLoaded: Bool { return _state == .allLoaded }
+    open var isLoading: Bool { return _state == .refreshing || _state == .loading }
     
     open func reloadData() {
         self.delegate?.reload()
@@ -148,7 +150,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.offset = nil
             configuration.infiniteControl?.isEnabled = true
             let isAnimating = configuration.refreshControl?.isAnimating
-//            let refresh = configuration.refreshControl as? UIRefreshControl
+            //            let refresh = configuration.refreshControl as? UIRefreshControl
             if isAnimating == false {
                 self.configuration.infiniteControl?.startAnimating()
             }
@@ -173,6 +175,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         _state = .none
         configuration.refreshControl?.stopAnimating()
         configuration.infiniteControl?.stopAnimating()
+        configuration.emptyView?.isHidden = true
         if let errorView = configuration.errorView, stateWas == .refreshing {
             _view.isScrollEnabled = false
             errorView.frame = self.view.bounds
@@ -223,10 +226,12 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         guard let models = models else {
             configuration.refreshControl?.stopAnimating()
             configuration.infiniteControl?.stopAnimating()
-            if let emptyView = self.configuration.emptyView {
-                emptyView.frame = self.view.bounds
-                self.view.addSubview(emptyView)
+            if let error  = error {
+                handle(with: error)
+            } else {
+                
             }
+            
             return
         }
         if let error = error {
@@ -265,14 +270,17 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         fatalError("Not implemeted")
     }
     
-    open func reset(items: [Model]) {
+    open func reset(items: [Model] = [], showEmptyView: Bool = false) {
         self.adapter.items = items
         self.reloadData()
-    }
-    
-    open func reset() {
-        self.adapter.removeAll()
-        self.reloadData()
+        _view.isScrollEnabled = !showEmptyView
+        if showEmptyView {
+            if let emptyView = configuration.emptyView {
+                emptyView.frame = _view.bounds
+                emptyView.layoutIfNeeded()
+                emptyView.isHidden = false
+            }
+        }
     }
     
     //MARK: -
@@ -280,8 +288,9 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.delegate?.registerCell(cell.identifier, nib: nib)
     }
     
-    //MARK: - 
+    //MARK: -
     open func map<T>(_ transform: (Model) -> T) -> [T] {
         return self.adapter.map(transform)
     }
 }
+
