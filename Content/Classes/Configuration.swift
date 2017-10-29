@@ -7,18 +7,7 @@
 
 import Foundation
 
-public class ConfigurationGenerator {
-    
-    public var animatedRefresh: Bool = false
-    public var length: Int = 20
-    public var autoDeselect = true
-    public var refreshControl: UIControl?
-    public var infiniteControl: UIControl?
-    
-    public var errorView: UIView? = ErrorView()
-    public var emptyView: UIView? = EmptyView()
-    
-}
+public typealias ContentConfiguration = Configuration
 
 public struct Configuration {
     public var animatedRefresh: Bool = false
