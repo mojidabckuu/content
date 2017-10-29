@@ -278,7 +278,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             if let emptyView = configuration.emptyView {
                 emptyView.frame = _view.bounds
                 emptyView.layoutIfNeeded()
-                emptyView.isHidden = false
+                emptyView.isHidden = !items.isEmpty
             }
         }
     }
