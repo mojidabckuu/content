@@ -64,6 +64,10 @@ open class UIInfiniteControl: UIControl {
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        self.stopObserveScrollView()
+    }
+    
     //MARK: - Setup
     func setup() {
         self.activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
@@ -74,9 +78,10 @@ open class UIInfiniteControl: UIControl {
     //MARK: - Layout
     override open func layoutSubviews() {
         super.layoutSubviews()
-        let size = self.scrollView!.bounds.size
-        self.frame = CGRect(x: 0, y: self.contentSize.height, width: size.width, height: self.height)
-        self.activityIndicatorView.center = self.bounds.center
+        if let size = self.scrollView?.bounds.size {
+            self.frame = CGRect(x: 0, y: self.contentSize.height, width: size.width, height: self.height)
+            self.activityIndicatorView.center = self.bounds.center
+        }
         self.bringSubview(toFront: self.activityIndicatorView)
     }
     
@@ -104,17 +109,19 @@ open class UIInfiniteControl: UIControl {
     // ScrollView
     
     func resetInsets() {
-        var contentInset = self.scrollView!.contentInset
-        contentInset.bottom = self.originalInset.bottom
-        self.setContentInset(contentInset)
+        if var contentInset = self.scrollView?.contentInset {
+            contentInset.bottom = self.originalInset.bottom
+            self.setContentInset(contentInset)
+        }
     }
     
     func adjustInsets() {
-        var contentInset = self.scrollView!.contentInset
-        if self.isEnabled {
-            contentInset.bottom = self.originalInset.bottom + self.height
+        if var contentInset = self.scrollView?.contentInset {
+            if self.isEnabled {
+                contentInset.bottom = self.originalInset.bottom + self.height
+            }
+            self.setContentInset(contentInset)
         }
-        self.setContentInset(contentInset)
     }
     
     func setContentInset(_ contentInset: UIEdgeInsets) {
