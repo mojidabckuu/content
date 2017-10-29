@@ -193,6 +193,10 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         return CGSize(width: 40, height: 40)
     }
     
+    open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return (collectionViewLayout as? UICollectionViewFlowLayout)?.sectionInset ?? .zero
+    }
+    
     open func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         return UICollectionReusableView()
     }
