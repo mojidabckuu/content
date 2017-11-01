@@ -186,8 +186,12 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     func handle(refresh models: [Model]) {
-        _view.isScrollEnabled = false
-        _view.isScrollEnabled = true
+        let recognizers = _view.gestureRecognizers
+        if let recognizers = _view.gestureRecognizers {
+            for recognizer in recognizers {
+                _view.removeGestureRecognizer(recognizer)
+            }
+        }
         configuration.refreshControl?.stopAnimating()
         self.adapter.removeAll()
         if self.configuration.animatedRefresh {
@@ -197,13 +201,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.adapter.append(contentsOf: models)
             self.reloadData()
         }
-        if let emptyView = self.configuration.emptyView, models.isEmpty {
-            configuration.refreshControl?.isHidden = true
-            _view.set(contentOffset: .zero)
-            _view.isScrollEnabled = false
-            emptyView.frame = self.view.bounds
-            emptyView.layoutIfNeeded()
-            emptyView.isHidden = false
+        self.adjustEmptyView()
+        if let recognizers = recognizers {
+            for recognizer in recognizers {
+                _view.addGestureRecognizer(recognizer)
+            }
         }
     }
     
@@ -250,6 +252,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     // Add
     open func add(items models: [Model], at index: Int = 0) {
         self.delegate?.insert(models, index: index)
+        self.adjustEmptyView()
+        
     }
     open func add(_ items: Model..., at index: Int = 0) {
         self.add(items: items, at: index)
@@ -257,9 +261,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     // Delete
     open func delete(items models: [Model]) {
         self.delegate?.delete(models)
+        self.adjustEmptyView()
     }
     open func delete(_ models: Model...) {
         self.delegate?.delete(models)
+        self.adjustEmptyView()
     }
     //Reload
     open func reload(_ models: Model..., animated: Bool = false) {
@@ -272,14 +278,26 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     open func reset(items: [Model] = [], showEmptyView: Bool = false) {
         self.adapter.items = items
+        self.adjustEmptyView(hidden: !showEmptyView)
         self.reloadData()
-        _view.isScrollEnabled = !showEmptyView
-        if showEmptyView {
-            if let emptyView = configuration.emptyView {
+    }
+    
+    private func adjustEmptyView(hidden: Bool = false) {
+        if let emptyView = configuration.emptyView {
+            if self.isEmpty {
+                configuration.refreshControl?.isEnabled = !self.isEmpty
+                _view.set(contentOffset: .zero)
                 emptyView.frame = _view.bounds
                 emptyView.layoutIfNeeded()
-                emptyView.isHidden = !items.isEmpty
+                emptyView.isHidden = !self.isEmpty || hidden
+            } else {
+                let wasHidden = emptyView.isHidden
+                emptyView.isHidden = !self.isEmpty || hidden
+                if !wasHidden {
+                    configuration.refreshControl?.isEnabled = true
+                }
             }
+            _view.isScrollEnabled = emptyView.isHidden
         }
     }
     
