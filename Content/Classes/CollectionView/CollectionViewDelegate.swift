@@ -79,8 +79,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         guard let model = model else { return }
         if let index = self.content.adapter.index(of: model) {
             let indexPath = IndexPath(row: index, section: 0)
-            let defaultScroll = at == .middle ? self.middle : at
-            self.collectionView.scrollToItem(at: indexPath, at: at.collectionScroll, animated: true)
+            self.collectionView.scrollToItem(at: indexPath, at: at.collectionScroll, animated: animated)
         }
     }
     
