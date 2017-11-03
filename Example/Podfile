@@ -11,5 +11,6 @@ end
 target 'Content_Example' do
   pod 'Content', :path => '../'
   pod 'AlamofireImage', '~> 3.0'
+  pod "PromiseKit", "~> 4.4"
 #  pod 'Eureka', git: 'https://github.com/mojidabckuu/Eureka'
 end

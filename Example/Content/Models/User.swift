@@ -7,14 +7,19 @@
 //
 
 import Foundation
+import Content
 
 func == (left: User, right: User) -> Bool {
     return left.name == right.name
 }
 
-class User: Equatable, CustomStringConvertible {
-    var name: String
-    var avatarURL: URL
+final class User: Equatable, CustomStringConvertible, Servicable {
+    
+    static var modelName: String { return "user" }
+    static var modelsName: String { return "users" }
+    
+    var name: String!
+    var avatarURL: URL!
     
     init(name: String, avatarURL: URL) {
         self.name = name
@@ -24,12 +29,16 @@ class User: Equatable, CustomStringConvertible {
     var description: String {
         return "\(self.name), \(self.avatarURL.absoluteString)"
     }
+    
+    required init() {}
+    
+    class func x() -> String { return "x" }
 }
 
 extension User {
     static var counter = 0
     class func index(_ block: @escaping (([User]) -> Void)) {
-        let delayTime = DispatchTime.now() + Double(Int64(10 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+        let delayTime = DispatchTime.now() + .seconds(2)
         DispatchQueue.main.asyncAfter(deadline: delayTime) {
 //            let names = ["Darwin", "Leo", "Vinci", "Rafael", "Ioan", "Duma", "Victor", "Bah", "Mick", "Lorenco", "Donatello"]
             var users: [User] = []
@@ -45,7 +54,7 @@ extension User {
     }
     
     func posts(_ block: @escaping (([Post]) -> Void)) {
-        let delayTime = DispatchTime.now() + Double(Int64(10 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+        let delayTime = DispatchTime.now() + .seconds(1)
         DispatchQueue.main.asyncAfter(deadline: delayTime) {
             var posts: [Post] = []
             posts.append(Post(text: "This is my post1", imageURL: URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150")!))

@@ -8,6 +8,14 @@
 
 import UIKit
 import Content
+import PromiseKit
+
+class CCollectionView: UICollectionView {
+    
+    deinit {
+        print("Deinit CCollectionView")
+    }
+}
 
 class PostsViewController: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
@@ -17,6 +25,11 @@ class PostsViewController: UIViewController {
     var content: Content<Post, UICollectionView, PostCollectionViewCell>!
     
     //MARK: - 
+    
+    
+    deinit {
+        print("Controller deinit")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,14 +44,33 @@ class PostsViewController: UIViewController {
             }
         }).on(cellSetup: { (model, cell) in
            cell.textLabel.text = model.text
-        }).on(load: { (content) in
-            self.user.posts({ content.fetch($0, error: nil) })
-        }).on(layout: { (contnet, post) -> CGSize in
+        }).on(load: { [weak self] (content) in
+            let weakC = content
+//            self?.user.posts({ (posts) in
+//
+//            })
+            Promise<[Post]>.init(resolvers: { (fulfill, reject) in
+                self?.user.posts({ (posts) in
+                    fulfill(posts)
+                })
+            }).then(execute: { (posts) -> Void in
+//                let items = content.items
+//                print(items.count)
+                content.fetch(posts, error: nil)
+            })
+//            self?.user.posts({ content.fetch($0, error: nil) })
+        }).on(layout: { (content, post) -> CGSize in
+            let conte = content
             let screenSize = UIScreen.main.bounds.size
             return CGSize(width: screenSize.width, height: 400)
         }).on(select: { (content, model, cell) in
             print(model)
         })
         self.content.refresh()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+//        self.content = nil
     }
 }
