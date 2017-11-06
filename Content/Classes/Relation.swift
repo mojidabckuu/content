@@ -12,6 +12,9 @@ public protocol _Model {
     
     static var modelName: String { get }
     static var modelsName: String { get }
+    
+    static var resourceName: String { get }
+    static var resourcesName: String { get }
 }
 
 public extension _Model {
@@ -19,13 +22,27 @@ public extension _Model {
 //    static var modelsName: String { return "" }
 }
 
-class Request<Model> {
-    // Creates a new model
-    func map(_ completion: @escaping ([Model]) -> ()) -> Self { fatalError("Not implemented") }
-    func obtain(_ completion: @escaping (Model) -> ()) -> Self { fatalError("Not implemented") }
-    // Updates curent model
-    func flush(_ completion: @escaping (Model) -> ()) -> Self { fatalError("Not implemented") }
+public protocol Cancellable {
+    func cancel()
 }
+
+open class Request<Model>: Cancellable {
+    open var identifier: Int { fatalError("Not implemented") }
+    
+    public init() {}
+    // Creates a new model
+    open func map(_ completion: @escaping ([Model]) -> ()) -> Self { fatalError("Not implemented") }
+    open func obtain(_ completion: @escaping (Model) -> ()) -> Self { fatalError("Not implemented") }
+    // Updates curent model
+    open func flush(_ completion: @escaping (Model) -> ()) -> Self { fatalError("Not implemented") }
+    //
+    open func `catch`(_ completion: @escaping ((Error?) -> ())) -> Self { fatalError("Not implemented") }
+    
+    open func cancel() {
+        fatalError("Not implemented")
+    }
+}
+public typealias RelationRequest = Request
 
 public protocol _Servicable {}
 
@@ -38,13 +55,16 @@ public extension Servicable {
 }
 
 open class Service<Model: _Model> {
-    
     public init() {}
     
-    func index(params: [String: Any]) -> Request<Model> { fatalError("Not implemented") }
-    func create(params: [String: Any]) -> Request<Model> { fatalError("Not implemented") }
-    func show(params: [String: Any]) -> Request<Model> { fatalError("Not implemented") }
-    func delete(params: [String: Any]) -> Request<Model> { fatalError("Not implemented") }
+    open func index(params: [String: Any] = [:]) -> RelationRequest<Model> { fatalError("Not implemented") }
+    open func create(params: [String: Any]) -> RelationRequest<Model> { fatalError("Not implemented") }
+//    open func show(params: [String: Any]) -> RelationRequest<Model> { fatalError("Not implemented") }
+    open func patch(model: Model, params: [String: Any]) -> RelationRequest<Model> { fatalError("Not implemented") }
+    open func put(model: Model, params: [String: Any]) -> RelationRequest<Model> { fatalError("Not implemented") }
+    open func show(model: Model, params: [String: Any] = [:]) -> RelationRequest<Model> { fatalError("Not implemented") }
+    open func delete(model: Model, params: [String: Any] = [:]) -> RelationRequest<Model> { fatalError("Not implemented") }
+    open func delete(params: [String: Any]) -> RelationRequest<Model> { fatalError("Not implemented") }
 }
 
 open class Chunk<Model> {

@@ -21,21 +21,8 @@ public protocol ContentCell: _Cell, Raiser {}
 open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: ActionRaiser where View: UIView {
     
     var adapter: Adapter<Model, View, Cell>
-    
-    open var count: Int { return adapter.count }
-    open var isEmpty: Bool { return adapter.isEmpty }
-    
-    open func index(of model: Model) -> Int? {
-        return adapter.index(of: model)
-    }
-    
-    open var first: Model? { return adapter.first }
-    open var last: Model? { return adapter.last }
-    
-    open subscript (position: Int) -> Model {
-        get { return self.adapter[position] }
-        set { self.replace(newValue, animated: true) }
-    }
+    // Use it as temp access only. No items.count
+    open var items: [Model] { return adapter.items }
     
     open var isEditing = false
     open var selectedItem: Model? {
@@ -59,7 +46,13 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     open var view: View { return _view }
     private var _view: View
-    open var delegate: BaseDelegate<Model, View, Cell>?
+    open var delegate: BaseDelegate<Model, View, Cell>? {
+        didSet {
+            delegate?.content = self
+            _view.contentDelegate = delegate
+            _view.contentDataSource = delegate
+        }
+    }
     
     let actions = ContentActionsCallbacks<Model, View, Cell>()
     let URLCallbacks = ContentURLCallbacks<Model, View, Cell>()
@@ -68,17 +61,16 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     var viewDelegateCallbacks = ViewDelegateCallbacks<Model, View, Cell>()
     
     open var offset: Any?
+    open var params: [String : Any] = [:]
     open var length: Int { return self.configuration.length }
     
     public init(view: View, delegate: BaseDelegate<Model, View, Cell>? = nil, configuration: Configuration? = nil) {
         self.adapter = AdapterGenerator.generate()
         self.configuration = configuration ?? Configuration.default()
         _view = view
-        _view.contentDelegate = delegate
-        _view.contentDataSource = delegate
-        self.delegate = delegate
-        self.setupDelegate()
-        self.setupControls()
+        self.setup(delegate: delegate)
+        self.setup(refreshControl: configuration?.refreshControl)
+        self.setup(infiniteControl: configuration?.infiniteControl)
         if let errorView = self.configuration.errorView as? ContentView {
             errorView.setup(content: self)
         }
@@ -95,24 +87,22 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         print("Controller deinit")
     }
     
-    func setupDelegate() {
-        if self.delegate == nil {
+    func setup(delegate del: BaseDelegate<Model, View, Cell>?) {
+        if let delegate = del {
+            self.delegate = del
+            return
+        }
+        if delegate == nil {
             if view is UITableView {
-                self.delegate = TableDelegate(content: self)
-                _view.contentDelegate = self.delegate
-                _view.contentDataSource = self.delegate
+                delegate = TableDelegate(content: self)
             } else if view is UICollectionView {
-                self.delegate = CollectionDelegate(content: self)
-                _view.contentDelegate = self.delegate
-                _view.contentDataSource = self.delegate
+                delegate = CollectionDelegate(content: self)
             }
-        } else {
-            self.delegate?.content = self
         }
     }
     
-    func setupControls() {
-        if let refreshControl = self.configuration.refreshControl {
+    func setup(refreshControl: UIControl?) {
+        if let refreshControl = refreshControl {
             refreshControl.addTarget(self, action: "refresh", for: .valueChanged)
             if #available(iOS 10.0, *) {
                 if let scrollView = _view as? UIScrollView, let refreshControl = refreshControl as? UIRefreshControl {
@@ -124,8 +114,10 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                 self.view.addSubview(refreshControl)
             }
         }
-        
-        if let infiniteControl = self.configuration.infiniteControl {
+    }
+    
+    func setup(infiniteControl: UIControl?) {
+        if let infiniteControl = infiniteControl {
             infiniteControl.addTarget(self, action: "loadMore", for: .valueChanged)
             self.view.addSubview(infiniteControl)
         }
@@ -282,6 +274,12 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.reloadData()
     }
     
+    // TODO: Think here how we can handle it consistent
+    open func move(from: Int, to: Int) {
+        let element = self.adapter.remove(at: from)
+        self.adapter.insert(element, at: to)
+    }
+    
     private func adjustEmptyView(hidden: Bool = false) {
         if let emptyView = configuration.emptyView {
             if self.isEmpty {
@@ -312,3 +310,40 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
 }
 
+extension Content: MutableCollection, BidirectionalCollection {
+    //MARK: - MutableCollection & BidirectionalCollection impl
+    open var startIndex: Int { return adapter.startIndex }
+    open var endIndex: Int { return adapter.endIndex }
+    
+    open subscript (position: Int) -> Model {
+        get { return adapter[position] }
+        set { adapter[position] = newValue }
+    }
+    
+    open subscript (range: Range<Int>) -> ArraySlice<Model> {
+        get { return adapter[range] }
+        set { adapter.replaceSubrange(range, with: newValue) }
+    }
+    
+    open func index(after i: Int) -> Int { return adapter.index(after: i) }
+    open func index(before i: Int) -> Int { return adapter.index(before: i) }
+}
+
+//extension Content: RangeReplaceableCollection {
+//    //MARK: - RangeReplaceableCollection impl
+//    open func append(_ newElement: Model){
+//        adapter.append(newElement)
+//    }
+//
+//    open func append<S : Sequence>(contentsOf newElements: S) where S.Iterator.Element == Model {
+//        adapter.append(contentsOf: newElements)
+//    }
+//
+//    open func replaceSubrange<C : Collection>(_ subRange: Range<Int>, with newElements: C) where C.Iterator.Element == Model {
+//        adapter.replaceSubrange(subRange, with: newElements)
+//    }
+//
+//    open func removeAll(keepingCapacity keepCapacity: Bool = false) {
+//        adapter.removeAll(keepingCapacity: keepCapacity)
+//    }
+//}
