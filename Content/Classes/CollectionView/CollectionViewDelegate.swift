@@ -89,6 +89,21 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         self.scroll(to: model, at: at, animated: animated)
     }
     
+    open override func deselect(model: Model?, animated: Bool = false) {
+        guard let model = model else { return }
+        if let index = self.content.adapter.index(of: model) {
+            let indexPath = IndexPath(row: index, section: 0)
+            self.collectionView.deselectItem(at: indexPath, animated: animated)
+        }
+    }
+    
+    open override func deselect(models: [Model]?, animated: Bool = false) {
+        guard let models = models else { return }
+        for (i, model) in models.enumerated() {
+            self.deselect(model: model, animated: animated)
+        }
+    }
+    
     // Insert
     override open func insert(_ models: [Model], index: Int = 0) {
         let collectionView = self.collectionView
