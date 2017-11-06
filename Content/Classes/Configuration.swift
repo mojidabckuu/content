@@ -44,8 +44,8 @@ public struct Configuration {
     
     // Simple configuration to show refresh control only
     public static func refresh() -> Configuration {
-        var configuration = Configuration()
-        configuration.refreshControl = UIRefreshControl()
+        var configuration = Configuration.default()
+        configuration.infiniteControl = nil
         return configuration
     }
     
