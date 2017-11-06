@@ -208,7 +208,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     func after(load models: [Model], error: Error? = nil) {
         configuration.infiniteControl?.stopAnimating()
         self.URLCallbacks.didLoad?(error, models)
-        if models.count < self.length {
+        if models.count != self.length {
             _state = .allLoaded
             configuration.infiniteControl?.isEnabled = false
         } else {
