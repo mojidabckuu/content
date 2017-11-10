@@ -11,7 +11,11 @@ public protocol ContentView {
     func setup<Model: Equatable, View: ViewDelegate & UIView, Cell: ContentCell>(content: Content<Model, View, Cell>)
 }
 
-class ErrorView: UIView, ContentView {
+public protocol ErrorHandleble {
+    func setup(error: Error)
+}
+
+class ErrorView: UIView, ContentView, ErrorHandleble {
     
     internal lazy var textLabel: UILabel = {
         let label = UILabel(frame: .zero)
@@ -59,6 +63,10 @@ class ErrorView: UIView, ContentView {
     public func setup<Model: Equatable, View: ViewDelegate & UIView, Cell: ContentCell>(content: Content<Model, View, Cell>) {
         // stub
         self.retryButton.addTarget(content, action: #selector(Content<Model, View, Cell>.refresh), for: .touchUpInside)
+    }
+    
+    func setup(error: Error) {
+        self.textLabel.text = error.localizedDescription
     }
     
 }

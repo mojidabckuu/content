@@ -178,6 +178,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         configuration.emptyView?.isHidden = true
         if let errorView = configuration.errorView, stateWas == .refreshing {
             _view.isScrollEnabled = false
+            (errorView as? ErrorHandleble)?.setup(error: error)
             errorView.frame = self.view.bounds
             errorView.layoutIfNeeded()
             self.view.addSubview(errorView)
