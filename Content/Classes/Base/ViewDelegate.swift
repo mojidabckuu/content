@@ -106,7 +106,7 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     }
     
     //
-    open func registerCell(_ reuseIdentifier: String, class: AnyClass) {}
+    open func registerCell(_ reuseIdentifier: String, cell: AnyClass?) {}
     open func registerCell(_ reuseIdentifier: String, nib: UINib) {}
     
     open func dequeu() -> Cell? { return nil }

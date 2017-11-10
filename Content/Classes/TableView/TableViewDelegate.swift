@@ -149,6 +149,10 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         self.tableView.register(nib, forCellReuseIdentifier: reuseIdentifier)
     }
     
+    open override func registerCell(_ reuseIdentifier: String, cell: AnyClass?) {
+        self.tableView.register(cell, forCellReuseIdentifier: reuseIdentifier)
+    }
+    
     //UITableView delegate
     
     open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
