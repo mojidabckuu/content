@@ -9,7 +9,7 @@ import Foundation
 
 open class AdapterGenerator {
     
-    static public func generate<Model: Servicable, View: ViewDelegate & UIView, Cell: ContentCell>() -> RelationAdapter<Model, View, Cell> {
+    static public func generateR<Model: Equatable, View: ViewDelegate & UIView, Cell: ContentCell>() -> RelationAdapter<Model, View, Cell> {
         return RelationAdapter()
     }
     

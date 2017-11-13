@@ -60,17 +60,31 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     var scrollCallbacks = ScrollCallbacks<Model, View, Cell>()
     var viewDelegateCallbacks = ViewDelegateCallbacks<Model, View, Cell>()
     
-    open var offset: Any?
-    open var params: [String : Any] = [:]
+    //TODO: Close access?
+    open var offset: Any? {
+        didSet {
+            self.params["offset"] = self.offset
+        }
+    }
+    open var params: [String : Any] = [:] {
+        didSet {
+            if let offset = self.offset {
+                self.params["offset"] = offset
+            }
+        }
+    }
     open var length: Int { return self.configuration.length }
     
-    public init(view: View, delegate: BaseDelegate<Model, View, Cell>? = nil, configuration: Configuration? = nil) {
+    public init(view: View, delegate: BaseDelegate<Model, View, Cell>? = nil, configuration: Configuration? = nil, setup block: ((_ content: Content) -> Void)? = nil) {
+        if let setupBlock = block {
+            self.callbacks.onSetupBlock = setupBlock
+        }
         self.adapter = AdapterGenerator.generate()
         self.configuration = configuration ?? Configuration.default()
         _view = view
         self.setup(delegate: delegate)
-        self.setup(refreshControl: configuration?.refreshControl)
-        self.setup(infiniteControl: configuration?.infiniteControl)
+        self.setup(refreshControl: self.configuration?.refreshControl)
+        self.setup(infiniteControl: self.configuration?.infiniteControl)
         if let errorView = self.configuration.errorView as? ContentView {
             errorView.setup(content: self)
         }
@@ -81,6 +95,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             emptyView.isHidden = true
             _view.addSubview(emptyView)
         }
+        self.callbacks.onSetupBlock?(self)
     }
     
     deinit {
@@ -135,6 +150,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     open dynamic func refresh() {
         if _state != .refreshing {
+            self.URLCallbacks.beforeRefresh?()
             _view.isScrollEnabled = true
             configuration.emptyView?.isHidden = true
             configuration.errorView?.removeFromSuperview()
@@ -188,8 +204,10 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.adapter.removeAll()
         if self.configuration.animatedRefresh {
             self.reloadData()
+            self.URLCallbacks.whenRefresh?()
             self.add(items: models, at: self.adapter.count)
         } else {
+            self.URLCallbacks.whenRefresh?()
             self.adapter.append(contentsOf: models)
             self.reloadData()
         }
@@ -199,6 +217,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                 _view.addGestureRecognizer(recognizer)
             }
         }
+        self.URLCallbacks.afterRefresh?()
     }
     
     func handle(more models: [Model]) {
@@ -302,6 +321,15 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     //MARK: -
     open func register(cell: Cell.Type, nib: UINib) {
         self.delegate?.registerCell(cell.identifier, nib: nib)
+    }
+    
+    open func register(cell: Cell.Type) {
+        let nib = UINib(nibName: cell.identifier, bundle: Bundle.main)
+        self.delegate?.registerCell(cell.identifier, nib: nib)
+    }
+    
+    open func register(`class` cell: Cell.Type) {
+        self.delegate?.registerCell(cell.identifier, class: cell as! AnyClass)
     }
     
     //MARK: -

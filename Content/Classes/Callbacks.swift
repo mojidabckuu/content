@@ -20,6 +20,10 @@ class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCel
     var onLoad: ((Content<Model, View, Cell>) -> Void)?
     var willLoad: (() -> Void)?
     var didLoad: ((Error?, [Model]) -> Void)?
+    
+    var beforeRefresh: (() -> ())?
+    var afterRefresh: (() -> ())?
+    var whenRefresh: (() -> ())?
 }
 
 class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {

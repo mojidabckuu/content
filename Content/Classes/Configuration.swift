@@ -16,6 +16,8 @@ public struct Configuration {
     public var refreshControl: UIControl?
     public var infiniteControl: UIControl?
     
+    public var size: CGSize?
+    
     public var errorView: UIView? = ErrorView()
     public var emptyView: UIView? = EmptyView()
     

@@ -7,66 +7,6 @@
 
 import Foundation
 
-public protocol _Model {
-    init()
-    
-    static var modelName: String { get }
-    static var modelsName: String { get }
-    
-    static var resourceName: String { get }
-    static var resourcesName: String { get }
-}
-
-public extension _Model {
-//    static var modelName: String { return "" }
-//    static var modelsName: String { return "" }
-}
-
-public protocol Cancellable {
-    func cancel()
-}
-
-open class Request<Model>: Cancellable {
-    open var identifier: Int { fatalError("Not implemented") }
-    
-    public init() {}
-    // Creates a new model
-    open func map(_ completion: @escaping ([Model]) -> ()) -> Self { fatalError("Not implemented") }
-    open func obtain(_ completion: @escaping (Model) -> ()) -> Self { fatalError("Not implemented") }
-    // Updates curent model
-    open func flush(_ completion: @escaping (Model) -> ()) -> Self { fatalError("Not implemented") }
-    //
-    open func `catch`(_ completion: @escaping ((Error?) -> ())) -> Self { fatalError("Not implemented") }
-    
-    open func cancel() {
-        fatalError("Not implemented")
-    }
-}
-public typealias RelationRequest = Request
-
-public protocol _Servicable {}
-
-public protocol Servicable: _Model, _Servicable {
-    static var service: Service<Self> { get }
-}
-
-public extension Servicable {
-    static var service: Service<Self> { fatalError("Not implemented") }
-}
-
-open class Service<Model: _Model> {
-    public init() {}
-    
-    open func index(params: [String: Any] = [:]) -> RelationRequest<Model> { fatalError("Not implemented") }
-    open func create(params: [String: Any]) -> RelationRequest<Model> { fatalError("Not implemented") }
-//    open func show(params: [String: Any]) -> RelationRequest<Model> { fatalError("Not implemented") }
-    open func patch(model: Model, params: [String: Any]) -> RelationRequest<Model> { fatalError("Not implemented") }
-    open func put(model: Model, params: [String: Any]) -> RelationRequest<Model> { fatalError("Not implemented") }
-    open func show(model: Model, params: [String: Any] = [:]) -> RelationRequest<Model> { fatalError("Not implemented") }
-    open func delete(model: Model, params: [String: Any] = [:]) -> RelationRequest<Model> { fatalError("Not implemented") }
-    open func delete(params: [String: Any]) -> RelationRequest<Model> { fatalError("Not implemented") }
-}
-
 open class Chunk<Model> {
     public private(set) var items: [Model] = []
     public private(set) var offset: Any?
@@ -76,13 +16,12 @@ open class Chunk<Model> {
     }
 }
 
-open class Relation<Model: Servicable> {
-    fileprivate var _items: [Model] = []
+open class Relation<Model> {
+    public fileprivate(set) var items: [Model]
     
-    var items: [Model] { return _items }
     var chunks: [Chunk<Model>] { return [] }
     
-    var offset: Any? // offset starting from the last item
+    public var offset: Any? // offset starting from the last item
     var total: Int = 0 // total expected count
     var length: Int = 0 // last page received count
     
@@ -90,15 +29,21 @@ open class Relation<Model: Servicable> {
     
     var parameters: [String: Any] = [:]
     
-    required public init() {}
+    required public init() {
+        items = []
+    }
+    public init(_ items: [Model], offset: Any? = nil) {
+        self.items = items
+        self.offset = offset
+    }
 
-    func index() -> Request<Model> {
-        return Model.service.index(params: self.parameters)
-    }
-    
-    func create(attributes: [String: Any]) -> Request<Model> {
-        return Model.service.create(params: parameters)
-    }
+//    func index() -> Request<Model> {
+//        return Model.service.index(params: self.parameters) as! Request<Model>
+//    }
+//
+//    func create(attributes: [String: Any]) -> Request<Model> {
+//        return Model.service.create(params: parameters) as! Request<Model>
+//    }
     
     @discardableResult
     func `where`(_ parameters: [String: Any]) -> Self {
@@ -112,22 +57,7 @@ open class Relation<Model: Servicable> {
     }
 }
 
-extension Relation {
-    public func update(attributes: [String: Any]) {
-//        let map = Map(mappingType: .fromJSON, JSON: attributes)
-//        self.mapping(map: map)
-    }
-    
-//    public func mapping(map: Map) {
-//        newItems <- map[Model.modelsName]
-//        newItems <- map["\(Model.modelsName).items"]
-//        offset <- map["\(Model.modelsName).\(RelationConfiguration.Keys.offset)"]
-//        total  <- map["\(Model.modelsName).\(RelationConfiguration.Keys.total)"]
-//        length <- map["\(Model.modelsName).\(RelationConfiguration.Keys.length)"]
-//    }
-}
-
-open class RelationOf<Model: Servicable, Parent>: Relation<Model> {
+open class RelationOf<Model, Parent>: Relation<Model> {
 
     fileprivate var _parent: Parent?
 
@@ -157,38 +87,39 @@ open class RelationOf<Model: Servicable, Parent>: Relation<Model> {
 }
 
 extension Relation: MutableCollection, BidirectionalCollection {
-    public var startIndex: Int { return _items.startIndex }
-    public var endIndex: Int { return _items.endIndex }
+    public var startIndex: Int { return items.startIndex }
+    public var endIndex: Int { return items.endIndex }
     
     public subscript (position: Int) -> Model {
-        get { return _items[position] }
-        set { _items[position] = newValue }
+        get { return items[position] }
+        set { items[position] = newValue }
     }
     
     public subscript (range: Range<Int>) -> ArraySlice<Model> {
-        get { return _items[range] }
-        set { _items.replaceSubrange(range, with: newValue) }
+        get { return items[range] }
+        set { items.replaceSubrange(range, with: newValue) }
     }
     
-    public func index(after i: Int) -> Int { return _items.index(after: i) }
-    public func index(before i: Int) -> Int { return _items.index(before: i) }
+    public func index(after i: Int) -> Int { return items.index(after: i) }
+    public func index(before i: Int) -> Int { return items.index(before: i) }
 }
 
+// TOOD: Is it required?
 extension Relation: RangeReplaceableCollection {
     public func append(_ newElement: Model){
-        _items.append(newElement)
+        items.append(newElement)
     }
     
     public func append<S : Sequence>(contentsOf newElements: S) where S.Iterator.Element == Model {
-        _items.append(contentsOf: newElements)
+        items.append(contentsOf: newElements)
     }
     
     public func replaceSubrange<C : Collection>(_ subRange: Range<Int>, with newElements: C) where C.Iterator.Element == Model {
-        _items.replaceSubrange(subRange, with: newElements)
+        items.replaceSubrange(subRange, with: newElements)
     }
     
     public func removeAll(keepingCapacity keepCapacity: Bool = false) {
-        _items.removeAll(keepingCapacity: keepCapacity)
+        items.removeAll(keepingCapacity: keepCapacity)
     }
 }
 

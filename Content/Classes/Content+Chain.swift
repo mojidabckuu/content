@@ -70,8 +70,27 @@ public extension Content {
 
 // Loading
 public extension Content {
+    @discardableResult
     func on(load block: @escaping ((_ content: Content<Model, View, Cell>) -> Void)) -> Content<Model, View, Cell> {
         self.URLCallbacks.onLoad = block
+        return self
+    }
+    
+    @discardableResult
+    func after(refresh: @escaping () -> ()) -> Content {
+        self.URLCallbacks.afterRefresh = refresh
+        return self
+    }
+    
+    @discardableResult
+    func before(refresh: @escaping () -> ()) -> Content {
+        self.URLCallbacks.beforeRefresh = refresh
+        return self
+    }
+    
+    @discardableResult
+    func when(refresh: @escaping () -> ()) -> Content {
+        self.URLCallbacks.whenRefresh = refresh
         return self
     }
 }

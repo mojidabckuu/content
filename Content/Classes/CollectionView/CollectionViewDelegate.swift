@@ -130,6 +130,10 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         self.collectionView.register(nib, forCellWithReuseIdentifier: reuseIdentifier)
     }
     
+    open override func registerCell(_ reuseIdentifier: String, class: AnyClass) {
+        self.collectionView.register(`class`, forCellWithReuseIdentifier: reuseIdentifier)
+    }
+    
     //MARK: - UICollectionView delegate
     open func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! Cell
@@ -185,11 +189,10 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     // CollectionView float layout
     
     open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if let size = self.content.callbacks.onLayout?(self.content, self.content.adapter[indexPath.row]) {
+        if let size = self.content.callbacks.onLayout?(self.content, self.content.adapter[indexPath.row]) ?? self.content.configuration.size {
             return size
         }
-        //        print(#file + " You didn't specify size block. Use on(:layout) chain.")
-        return CGSize(width: 40, height: 40)
+        return collectionView.bounds.size
     }
     
     open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {

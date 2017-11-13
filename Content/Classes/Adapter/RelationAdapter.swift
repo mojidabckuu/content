@@ -7,7 +7,7 @@
 
 import Foundation
 
-open class RelationAdapter<Model: Equatable & Servicable, View: ViewDelegate, Cell: ContentCell>: Adapter<Model, View, Cell>  where View: UIView {
+open class RelationAdapter<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Adapter<Model, View, Cell>  where View: UIView {
     
     public private(set) var relation = Relation<Model>()
     
@@ -20,10 +20,11 @@ open class RelationAdapter<Model: Equatable & Servicable, View: ViewDelegate, Ce
     }
     
     override open func apply(content: Content<Model, View, Cell>) -> Content<Model, View, Cell> {
-        return content.on(load: { (content) in
-            let _ = self.relation.index()
+//        return content.on(load: { (content) in
+//            let _ = self.relation.index()
             // TODO: Add fetch
-        })
+//        })
+        return content
     }
 
     //MARK: -
@@ -58,6 +59,13 @@ open class RelationAdapter<Model: Equatable & Servicable, View: ViewDelegate, Ce
     
     open override func removeAll(keepingCapacity keepCapacity: Bool = false) {
         relation.removeAll(keepingCapacity: keepCapacity)
+    }
+}
+
+extension RelationAdapter {
+    open func append(contentsOf relation: Relation<Model>) {
+        self.relation.append(contentsOf: relation.items)
+        self.relation.offset = relation.offset
     }
 }
 
