@@ -93,6 +93,31 @@ public extension Content {
         self.URLCallbacks.whenRefresh = refresh
         return self
     }
+    
+    @discardableResult
+    func viewFor(error block: @escaping (Error) -> (UIView?)) -> Content {
+        self.URLCallbacks.errorView = block
+        return self
+    }
+    
+    @discardableResult
+    func viewFor(empty block: @escaping () -> (UIView?)) -> Content {
+        self.URLCallbacks.emptyView = block
+        return self
+    }
+    
+    // Experimental
+    @discardableResult
+    func errorView(_ block: @escaping (Error) -> (UIView?)) -> Content {
+        self.URLCallbacks.errorView = block
+        return self
+    }
+    
+    @discardableResult
+    func emptyView(_ block: @escaping () -> (UIView?)) -> Content {
+        self.URLCallbacks.emptyView = block
+        return self
+    }
 }
 
 // Raising

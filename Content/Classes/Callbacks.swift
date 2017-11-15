@@ -24,6 +24,9 @@ class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCel
     var beforeRefresh: (() -> ())?
     var afterRefresh: (() -> ())?
     var whenRefresh: (() -> ())?
+    
+    var errorView: ((Error) -> (UIView?))?
+    var emptyView: (() -> (UIView?))?
 }
 
 class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
