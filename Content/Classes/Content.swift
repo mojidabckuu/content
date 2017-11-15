@@ -85,16 +85,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.setup(delegate: delegate)
         self.setup(refreshControl: self.configuration?.refreshControl)
         self.setup(infiniteControl: self.configuration?.infiniteControl)
-        if let errorView = self.configuration.errorView as? ContentView {
-            errorView.setup(content: self)
-        }
-        if let emptyView = self.configuration.emptyView {
-            if let contentView = emptyView as? ContentView {
-                contentView.setup(content: self)
-            }
-            emptyView.isHidden = true
-            _view.addSubview(emptyView)
-        }
+        
         self.callbacks.onSetupBlock?(self)
     }
     
@@ -150,13 +141,15 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         if _state != .refreshing {
             self.URLCallbacks.beforeRefresh?()
             _view.isScrollEnabled = true
-            configuration.emptyView?.isHidden = true
+            
+            configuration.emptyView?.removeFromSuperview()
             configuration.errorView?.removeFromSuperview()
+            
             _state = .refreshing
             self.offset = nil
             configuration.infiniteControl?.isEnabled = true
             let isAnimating = configuration.refreshControl?.isAnimating
-            //            let refresh = configuration.refreshControl as? UIRefreshControl
+            
             if isAnimating == false {
                 self.configuration.infiniteControl?.startAnimating()
             }
@@ -180,14 +173,27 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         let stateWas = _state
         _state = .none
         configuration.refreshControl?.stopAnimating()
+        configuration.refreshControl?.isEnabled = false
+        _view.set(contentOffset: .zero)
+        configuration.refreshControl?.isEnabled = true
         configuration.infiniteControl?.stopAnimating()
-        configuration.emptyView?.isHidden = true
-        if let errorView = configuration.errorView, stateWas == .refreshing {
+        configuration.emptyView?.removeFromSuperview()
+        if stateWas == .refreshing {
+            self.adapter.removeAll()
+            self.reloadData()
+        }
+        if let errorView = self.URLCallbacks.errorView?(error) ?? configuration.errorView, stateWas == .refreshing {
             _view.isScrollEnabled = false
-            (errorView as? ErrorHandleable)?.setup(error: error)
+            if let contentView = errorView as? ContentView {
+                contentView.setup(content: self)
+            }
+            if let errorHandleable = errorView as? ErrorHandleable {
+                errorHandleable.setup(error: error)
+            }
             errorView.frame = self.view.bounds
             errorView.layoutIfNeeded()
             self.view.addSubview(errorView)
+            configuration.errorView = errorView
         }
         self.URLCallbacks.didLoad?(error, [])
     }
@@ -298,8 +304,12 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.adapter.insert(element, at: to)
     }
     
+    // TODO: Too complex
     private func adjustEmptyView(hidden: Bool = false) {
-        if let emptyView = configuration.emptyView {
+        if let emptyView = self.URLCallbacks.emptyView?() ?? configuration.emptyView {
+            if let contentView = emptyView as? ContentView {
+                contentView.setup(content: self)
+            }
             if self.isEmpty {
                 configuration.refreshControl?.isEnabled = !self.isEmpty
                 _view.set(contentOffset: .zero)
@@ -313,7 +323,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                     configuration.refreshControl?.isEnabled = true
                 }
             }
-            _view.isScrollEnabled = emptyView.isHidden
+            if !emptyView.isHidden {
+                _view.addSubview(emptyView)
+                _view.isScrollEnabled = emptyView.isHidden
+            }
+            configuration.emptyView = emptyView
         }
     }
     
