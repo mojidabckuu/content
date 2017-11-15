@@ -7,7 +7,7 @@
 
 import Foundation
 
-class EmptyView: UIView, ContentView {
+class DefaultEmptyView: UIView, ContentView {
     
     internal lazy var textLabel: UILabel = {
         let label = UILabel(frame: .zero)

@@ -145,9 +145,8 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         self.collectionView.register(nib, forCellWithReuseIdentifier: reuseIdentifier)
     }
     
-    open override func registerCell(_ reuseIdentifier: String, cell: AnyClass) {
-        self.collectionView.register(`class`, forCellWithReuseIdentifier: reuseIdentifier)
-        
+    open override func registerCell(_ reuseIdentifier: String, cell: AnyClass?) {
+        self.collectionView.register(cell, forCellWithReuseIdentifier: reuseIdentifier)
     }
     
     //MARK: - UICollectionView delegate

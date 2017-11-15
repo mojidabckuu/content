@@ -11,15 +11,15 @@ public protocol ContentView {
     func setup<Model: Equatable, View: ViewDelegate & UIView, Cell: ContentCell>(content: Content<Model, View, Cell>)
 }
 
-public protocol ErrorHandlable {
+public protocol ErrorHandleable {
     func setup(error: Error)
 }
 
-public protocol ErrorView: ContentView, ErrorHandleble { }
+public protocol ErrorView: ContentView, ErrorHandleable { }
 
 public typealias ContentErrorView = ErrorView
 
-class ErrorView: UIView, ErrorView {
+class DefaultErrorView: UIView, ErrorView {
     
     internal lazy var textLabel: UILabel = {
         let label = UILabel(frame: .zero)

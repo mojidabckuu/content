@@ -18,8 +18,8 @@ public struct Configuration {
     
     public var size: CGSize?
     
-    public var errorView: UIView? = ErrorView()
-    public var emptyView: UIView? = EmptyView()
+    public var errorView: UIView? = DefaultErrorView()
+    public var emptyView: UIView? = DefaultEmptyView()
     
     private static var _default: (() -> Configuration) = {
         return full()
