@@ -60,7 +60,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     var scrollCallbacks = ScrollCallbacks<Model, View, Cell>()
     var viewDelegateCallbacks = ViewDelegateCallbacks<Model, View, Cell>()
     
-    //TODO: Close access?
+    //TODO: Could be done better.
     open var offset: Any? {
         didSet {
             self.params["offset"] = self.offset
@@ -99,7 +99,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     deinit {
-        print("Controller deinit")
+//        print("Controller deinit")
     }
     
     func setup(delegate del: BaseDelegate<Model, View, Cell>?) {
@@ -107,6 +107,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.delegate = del
             return
         }
+        // TODO: This code a bit redundant. Can solve by extracting to resolve manager.
         if delegate == nil {
             if view is UITableView {
                 delegate = TableDelegate(content: self)
@@ -356,22 +357,3 @@ extension Content: MutableCollection, BidirectionalCollection {
     open func index(after i: Int) -> Int { return adapter.index(after: i) }
     open func index(before i: Int) -> Int { return adapter.index(before: i) }
 }
-
-//extension Content: RangeReplaceableCollection {
-//    //MARK: - RangeReplaceableCollection impl
-//    open func append(_ newElement: Model){
-//        adapter.append(newElement)
-//    }
-//
-//    open func append<S : Sequence>(contentsOf newElements: S) where S.Iterator.Element == Model {
-//        adapter.append(contentsOf: newElements)
-//    }
-//
-//    open func replaceSubrange<C : Collection>(_ subRange: Range<Int>, with newElements: C) where C.Iterator.Element == Model {
-//        adapter.replaceSubrange(subRange, with: newElements)
-//    }
-//
-//    open func removeAll(keepingCapacity keepCapacity: Bool = false) {
-//        adapter.removeAll(keepingCapacity: keepCapacity)
-//    }
-//}
