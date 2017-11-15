@@ -240,6 +240,10 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
     }
     
+    open func fetch(error: Error?) {
+        self.fetch(nil, error: error)
+    }
+    
     open func fetch(_ models: [Model]?, error: Error?) {
         guard let models = models else {
             configuration.refreshControl?.stopAnimating()
@@ -342,7 +346,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     open func register(`class` cell: Cell.Type) {
-        self.delegate?.registerCell(cell.identifier, cell: cell as! AnyClass)
+        self.delegate?.registerCell(cell.identifier, cell: (cell as! AnyClass))
     }
 }
 
