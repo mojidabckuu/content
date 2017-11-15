@@ -98,10 +98,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.callbacks.onSetupBlock?(self)
     }
     
-    deinit {
-//        print("Controller deinit")
-    }
-    
+    //MARK: - Setup
     func setup(delegate del: BaseDelegate<Model, View, Cell>?) {
         if let delegate = del {
             self.delegate = del
@@ -187,6 +184,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         configuration.emptyView?.isHidden = true
         if let errorView = configuration.errorView, stateWas == .refreshing {
             _view.isScrollEnabled = false
+            (errorView as? ErrorHandleble)?.setup(error: error)
             errorView.frame = self.view.bounds
             errorView.layoutIfNeeded()
             self.view.addSubview(errorView)
@@ -330,12 +328,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     open func register(`class` cell: Cell.Type) {
-        self.delegate?.registerCell(cell.identifier, class: cell as! AnyClass)
-    }
-    
-    //MARK: -
-    open func map<T>(_ transform: (Model) -> T) -> [T] {
-        return self.adapter.map(transform)
+        self.delegate?.registerCell(cell.identifier, cell: cell as! AnyClass)
     }
 }
 

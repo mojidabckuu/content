@@ -11,11 +11,19 @@ public protocol ContentView {
     func setup<Model: Equatable, View: ViewDelegate & UIView, Cell: ContentCell>(content: Content<Model, View, Cell>)
 }
 
-class ErrorView: UIView, ContentView {
+public protocol ErrorHandlable {
+    func setup(error: Error)
+}
+
+public protocol ErrorView: ContentView, ErrorHandleble { }
+
+public typealias ContentErrorView = ErrorView
+
+class ErrorView: UIView, ErrorView {
     
     internal lazy var textLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.text = "Sorry. Something went wrong"
+        label.text = "Sorry. Something went wrong..."
         label.textAlignment = .center
         label.textColor = .black
         self.addSubview(label)
@@ -32,7 +40,6 @@ class ErrorView: UIView, ContentView {
     //MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
-//        self.backgroundColor = UIColor.yellow.withAlphaComponent(0.4)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -59,6 +66,10 @@ class ErrorView: UIView, ContentView {
     public func setup<Model: Equatable, View: ViewDelegate & UIView, Cell: ContentCell>(content: Content<Model, View, Cell>) {
         // stub
         self.retryButton.addTarget(content, action: #selector(Content<Model, View, Cell>.refresh), for: .touchUpInside)
+    }
+    
+    func setup(error: Error) {
+        self.textLabel.text = error.localizedDescription
     }
     
 }
