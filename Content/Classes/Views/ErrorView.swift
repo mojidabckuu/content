@@ -24,6 +24,7 @@ class DefaultErrorView: UIView, ErrorView {
     internal lazy var textLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "Sorry. Something went wrong..."
+        label.numberOfLines = 0
         label.textAlignment = .center
         label.textColor = .black
         self.addSubview(label)
@@ -53,7 +54,12 @@ class DefaultErrorView: UIView, ErrorView {
     //MARK: - Layout
     override func layoutSubviews() {
         super.layoutSubviews()
-        self.textLabel.sizeToFit()
+        var frame = self.bounds
+        frame.origin.x = 16
+        frame.size.width = frame.size.width - 16 * 2
+        let size = self.textLabel.sizeThatFits(frame.size)
+        frame.size = size
+        self.textLabel.frame = frame
         self.textLabel.center = self.frame.center
         
         self.retryButton.sizeToFit()
@@ -65,6 +71,7 @@ class DefaultErrorView: UIView, ErrorView {
     //MARK: - Setups
     public func setup<Model: Equatable, View: ViewDelegate & UIView, Cell: ContentCell>(content: Content<Model, View, Cell>) {
         // stub
+//        self.retryButton.addTarget(nil, action: nil, for: .allEvents)
         self.retryButton.addTarget(content, action: #selector(Content<Model, View, Cell>.refresh), for: .touchUpInside)
     }
     
