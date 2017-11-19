@@ -324,7 +324,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             }
             if self.isEmpty && !hidden {
                 _view.addSubview(emptyView)
-                _view.isScrollEnabled = emptyView.isHidden
+                _view.isScrollEnabled = false
                 configuration.refreshControl?.isEnabled = !self.isEmpty
                 _view.set(contentOffset: .zero)
                 emptyView.frame = _view.bounds
@@ -332,7 +332,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                 emptyView.isHidden = !self.isEmpty || hidden
             } else {
                 emptyView.removeFromSuperview()
-                _view.isScrollEnabled = false
+                _view.isScrollEnabled = true
                 let wasHidden = emptyView.isHidden
                 emptyView.isHidden = !self.isEmpty || hidden
                 if !wasHidden {
