@@ -182,7 +182,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.adapter.removeAll()
             self.reloadData()
         }
-        if let errorView = self.URLCallbacks.errorView?(error) ?? configuration.errorView, stateWas == .refreshing {
+        if let errorView = errorView(error), stateWas == .refreshing {
             _view.isScrollEnabled = false
             if let contentView = errorView as? ContentView {
                 contentView.setup(content: self)
@@ -308,30 +308,38 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.adapter.insert(element, at: to)
     }
     
+    func emptyView() -> UIView? {
+        return configuration.currentEmptyView ?? self.URLCallbacks.emptyView?() ?? configuration.emptyView
+    }
+    
+    func errorView(_ error: Error) -> UIView? {
+        return configuration.currentErrorView ?? self.URLCallbacks.errorView?(error) ?? configuration.errorView
+    }
+    
     // TODO: Too complex
     private func adjustEmptyView(hidden: Bool = false) {
-        if let emptyView = self.URLCallbacks.emptyView?() ?? configuration.emptyView {
+        if let emptyView = emptyView() {
             if let contentView = emptyView as? ContentView {
                 contentView.setup(content: self)
             }
-            if self.isEmpty {
+            if self.isEmpty && !hidden {
+                _view.addSubview(emptyView)
+                _view.isScrollEnabled = emptyView.isHidden
                 configuration.refreshControl?.isEnabled = !self.isEmpty
                 _view.set(contentOffset: .zero)
                 emptyView.frame = _view.bounds
                 emptyView.layoutIfNeeded()
                 emptyView.isHidden = !self.isEmpty || hidden
             } else {
+                emptyView.removeFromSuperview()
+                _view.isScrollEnabled = false
                 let wasHidden = emptyView.isHidden
                 emptyView.isHidden = !self.isEmpty || hidden
                 if !wasHidden {
                     configuration.refreshControl?.isEnabled = true
                 }
             }
-            if !emptyView.isHidden {
-                _view.addSubview(emptyView)
-                _view.isScrollEnabled = emptyView.isHidden
-            }
-            configuration.emptyView = emptyView
+            configuration.currentEmptyView = emptyView
         }
     }
     
@@ -368,3 +376,4 @@ extension Content: MutableCollection, BidirectionalCollection {
     open func index(after i: Int) -> Int { return adapter.index(after: i) }
     open func index(before i: Int) -> Int { return adapter.index(before: i) }
 }
+

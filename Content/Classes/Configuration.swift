@@ -21,6 +21,9 @@ public struct Configuration {
     public var errorView: UIView? = DefaultErrorView()
     public var emptyView: UIView? = DefaultEmptyView()
     
+    internal var currentErrorView: UIView?
+    internal var currentEmptyView: UIView?
+    
     private static var _default: (() -> Configuration) = {
         return full()
     }
