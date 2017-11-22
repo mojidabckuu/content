@@ -13,7 +13,7 @@ func == (left: User, right: User) -> Bool {
     return left.name == right.name
 }
 
-final class User: Equatable, CustomStringConvertible, Servicable {
+final class User: Equatable, CustomStringConvertible {
     
     static var modelName: String { return "user" }
     static var modelsName: String { return "users" }

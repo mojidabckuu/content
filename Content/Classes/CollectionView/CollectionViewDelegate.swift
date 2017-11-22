@@ -10,7 +10,7 @@ import UIKit
 
 extension UICollectionView: Scrollable {}
 
-open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout where View: UIView {
+open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UICollectionViewDelegate, UICollectionViewDataSource where View: UIView {
     
     open var collectionView: UICollectionView { return self.content.view as! UICollectionView }
     
@@ -105,13 +105,23 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     // Insert
-    override open func insert(_ models: [Model], index: Int = 0) {
-        let collectionView = self.collectionView
-        self.collectionView.performBatchUpdates({
+    open override func insert(_ models: [Model], index: Int = 0, animated: Bool = true) {
+        self.insert(models, index: index, animated: animated, completion: nil)
+    }
+    
+    open func insert(_ models: [Model], index: Int = 0, animated: Bool, completion: ((Bool) -> ())? = nil) {
+        if animated {
+            let collectionView = self.collectionView
+            self.collectionView.performBatchUpdates({
+                self.content.adapter.insert(contentsOf: models, at: index)
+                let indexPaths = self.indexPaths(models)
+                collectionView.insertItems(at: indexPaths)
+            }, completion: completion)
+        } else {
             self.content.adapter.insert(contentsOf: models, at: index)
-            let indexPaths = self.indexPaths(models)
-            collectionView.insertItems(at: indexPaths)
-        }, completion: nil)
+            self.reload()
+            completion?(true)
+        }
     }
     
     //Delete
@@ -201,19 +211,6 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         }
     }
     
-    // CollectionView float layout
-    
-    open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if let size = self.content.callbacks.onLayout?(self.content, self.content.adapter[indexPath.row]) ?? self.content.configuration.size {
-            return size
-        }
-        return collectionView.bounds.size
-    }
-    
-    open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return (collectionViewLayout as? UICollectionViewFlowLayout)?.sectionInset ?? .zero
-    }
-    
     open func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         return UICollectionReusableView()
     }
@@ -245,6 +242,20 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
             return self.collectionView.indexPath(for: collectionViewCell)
         }
         return nil
+    }
+}
+
+open class CollectionFlowDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: CollectionDelegate<Model, View, Cell>, UICollectionViewDelegateFlowLayout where View: UIView {
+
+    open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if let size = self.content.callbacks.onLayout?(self.content, self.content.adapter[indexPath.row]) ?? self.content.configuration.size {
+            return size
+        }
+        return collectionView.bounds.size
+    }
+    
+    open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return (collectionViewLayout as? UICollectionViewFlowLayout)?.sectionInset ?? .zero
     }
 }
 

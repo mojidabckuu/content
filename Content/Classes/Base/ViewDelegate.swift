@@ -87,7 +87,7 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     open func scroll(to models: [Model]?, at: ContentScrollPosition, animated: Bool) {}
     
     //
-    open func insert(_ models: [Model], index: Int) {}
+    open func insert(_ models: [Model], index: Int, animated: Bool) {}
     open func delete(_ models: [Model]) { }
     open func reload() {
         self.content.view.reloadData()
@@ -115,3 +115,4 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     open func dequeu() -> Cell? { return nil }
     open func indexPath(_ cell: Cell) -> IndexPath? { return nil }
 }
+

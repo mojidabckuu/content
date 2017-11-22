@@ -100,7 +100,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             if view is UITableView {
                 delegate = TableDelegate(content: self)
             } else if view is UICollectionView {
-                delegate = CollectionDelegate(content: self)
+                delegate = CollectionFlowDelegate(content: self)
             }
         }
     }
@@ -193,12 +193,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             errorView.frame = self.view.bounds
             errorView.layoutIfNeeded()
             self.view.addSubview(errorView)
-            configuration.errorView = errorView
         }
         self.URLCallbacks.didLoad?(error, [])
     }
     
-    func handle(refresh models: [Model]) {
+    func handle(refresh models: [Model], animated: Bool) {
         let recognizers = _view.gestureRecognizers
         if let recognizers = _view.gestureRecognizers {
             for recognizer in recognizers {
@@ -207,15 +206,9 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
         configuration.refreshControl?.stopAnimating()
         self.adapter.removeAll()
-        if self.configuration.animatedRefresh {
-            self.reloadData()
-            self.URLCallbacks.whenRefresh?()
-            self.add(items: models, at: self.adapter.count)
-        } else {
-            self.URLCallbacks.whenRefresh?()
-            self.adapter.append(contentsOf: models)
-            self.reloadData()
-        }
+        self.reloadData()
+        self.URLCallbacks.whenRefresh?()
+        self.insert(contentsOf: models, at: 0, animated: animated)
         self.adjustEmptyView()
         if let recognizers = recognizers {
             for recognizer in recognizers {
@@ -225,59 +218,86 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.URLCallbacks.afterRefresh?()
     }
     
-    func handle(more models: [Model]) {
-        self.add(items: models, at: self.adapter.count)
+    func handle(more models: [Model], animated: Bool) {
+        self.append(contentsOf: models, animated: animated)
     }
     
-    func after(load models: [Model], error: Error? = nil) {
+    func after(load models: [Model]) {
+        //        self.URLCallbacks.didLoad?(error, models)
+        self.adjustInfiniteView(length: models.count)
         configuration.infiniteControl?.stopAnimating()
-        self.URLCallbacks.didLoad?(error, models)
-        if models.count != self.length {
-            _state = .allLoaded
-            configuration.infiniteControl?.isEnabled = false
-        } else {
-            _state = .none
-        }
     }
     
-    open func fetch(error: Error?) {
-        self.fetch(nil, error: error)
+    open func fetch(error: Error) {
+        handle(with: error)
     }
     
+    @available(*, deprecated)
     open func fetch(_ models: [Model]?, error: Error?) {
-        guard let models = models else {
-            configuration.refreshControl?.stopAnimating()
-            configuration.infiniteControl?.stopAnimating()
-            if let error  = error {
-                handle(with: error)
-            } else {
-                
-            }
-            
-            return
-        }
         if let error = error {
-            handle(with: error)
-            return
+            self.fetch(error: error)
+        } else {
+            self.fetch(models ?? [])
         }
+    }
+    
+    open func fetch(_ models: [Model]) {
+        //        guard let models = models else {
+        //            configuration.refreshControl?.stopAnimating()
+        //            configuration.infiniteControl?.stopAnimating()
+        //            if let error  = error {
+        //                handle(with: error)
+        //            } else {
+        //
+        //            }
+        //
+        //            return
+        //        }
+        //        if let error = error {
+        //            handle(with: error)
+        //            return
+        //        }
         switch _state {
-        case .refreshing: handle(refresh: models)
-        case .loading:    handle(more: models)
+        case .refreshing: handle(refresh: models, animated: configuration.animateRefresh)
+        case .loading:    handle(more: models, animated: configuration.animateAppend)
         default: print("nothing")
         }
-        after(load: models, error: error)
+        after(load: models)
     }
     
     //MARK: - Management
     // Add
-    open func add(items models: [Model], at index: Int = 0) {
-        self.delegate?.insert(models, index: index)
+    //    open func add(items models: [Model], at index: Int = 0) {
+    //        self.delegate?.insert(models, index: index, animated: true)
+    //        self.adjustEmptyView()
+    //
+    //    }
+    //    open func add(_ items: Model..., at index: Int = 0) {
+    //        self.add(items: items, at: index)
+    //    }
+    
+    open func insert(_ newElement: Model, at index: Int = 0, animated: Bool = true) {
+        self.delegate?.insert([newElement], index: index, animated: animated)
         self.adjustEmptyView()
-        
     }
-    open func add(_ items: Model..., at index: Int = 0) {
-        self.add(items: items, at: index)
+    
+    open func insert(_ models: [Model], at index: Int = 0) {
+        self.insert(contentsOf: models, at: index, animated: true)
     }
+    
+    open func insert(contentsOf models: [Model], at index: Int = 0, animated: Bool = true) {
+        self.delegate?.insert(models, index: index, animated: animated)
+        self.adjustEmptyView()
+    }
+    
+    open func append(contentsOf models: [Model], animated: Bool = true) {
+        self.delegate?.insert(models, index: self.count, animated: animated)
+    }
+    
+    open func append(_ models: Model..., animated: Bool = true) {
+        self.delegate?.insert(models, index: self.count, animated: animated)
+    }
+    
     // Delete
     open func delete(items models: [Model]) {
         self.delegate?.delete(models)
@@ -296,9 +316,12 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         fatalError("Not implemeted")
     }
     
-    open func reset(items: [Model] = [], showEmptyView: Bool = false) {
+    open func reset(items: [Model] = [], showEmptyView: Bool = false, adjustInfinite: Bool = false) {
         self.adapter.items = items
         self.adjustEmptyView(hidden: !showEmptyView)
+        if adjustInfinite {
+            self.adjustInfiniteView(length: items.count)
+        }
         self.reloadData()
     }
     
@@ -308,39 +331,46 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.adapter.insert(element, at: to)
     }
     
-    func emptyView() -> UIView? {
-        return configuration.currentEmptyView ?? self.URLCallbacks.emptyView?() ?? configuration.emptyView
-    }
-    
-    func errorView(_ error: Error) -> UIView? {
-        return configuration.currentErrorView ?? self.URLCallbacks.errorView?(error) ?? configuration.errorView
+    private func adjustInfiniteView(length: Int) {
+        if length < self.length || self.offset == nil {
+            _state = .allLoaded
+            configuration.infiniteControl?.isEnabled = false
+        } else {
+            _state = .none
+        }
     }
     
     // TODO: Too complex
     private func adjustEmptyView(hidden: Bool = false) {
-        if let emptyView = emptyView() {
+        if let emptyView = self.emptyView() {
             if let contentView = emptyView as? ContentView {
                 contentView.setup(content: self)
             }
-            if self.isEmpty && !hidden {
+            if self.isEmpty {
+                configuration.refreshControl?.isEnabled = !self.isEmpty
                 _view.addSubview(emptyView)
                 _view.isScrollEnabled = false
-                configuration.refreshControl?.isEnabled = !self.isEmpty
                 _view.set(contentOffset: .zero)
                 emptyView.frame = _view.bounds
                 emptyView.layoutIfNeeded()
-                emptyView.isHidden = !self.isEmpty || hidden
             } else {
                 emptyView.removeFromSuperview()
                 _view.isScrollEnabled = true
-                let wasHidden = emptyView.isHidden
-                emptyView.isHidden = !self.isEmpty || hidden
-                if !wasHidden {
-                    configuration.refreshControl?.isEnabled = true
-                }
+                configuration.refreshControl?.isEnabled = true
             }
-            configuration.currentEmptyView = emptyView
         }
+    }
+    
+    func emptyView() -> UIView? {
+        let emptyView = configuration.currentEmptyView ?? self.URLCallbacks.emptyView?() ?? configuration.emptyView
+        configuration.currentEmptyView = emptyView
+        return emptyView
+    }
+    
+    func errorView(_ error: Error) -> UIView? {
+        let errorView = configuration.currentErrorView ?? self.URLCallbacks.errorView?(error) ?? configuration.errorView
+        configuration.currentErrorView = errorView
+        return errorView
     }
     
     //MARK: -
@@ -376,4 +406,3 @@ extension Content: MutableCollection, BidirectionalCollection {
     open func index(after i: Int) -> Int { return adapter.index(after: i) }
     open func index(before i: Int) -> Int { return adapter.index(before: i) }
 }
-

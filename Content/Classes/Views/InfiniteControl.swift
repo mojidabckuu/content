@@ -24,7 +24,7 @@ open class UIInfiniteControl: UIControl {
     var height: CGFloat = 60
     var activityIndicatorView: UIActivityIndicatorView!
     
-    override public var isAnimating: Bool { return self.activityIndicatorView.isAnimating }
+    override open var isAnimating: Bool { return self.activityIndicatorView.isAnimating }
     var isObserving: Bool { return _isObserving }
     var infiniteState: State {
         set {
@@ -51,8 +51,8 @@ open class UIInfiniteControl: UIControl {
     fileprivate weak var scrollView: UIScrollView?
     fileprivate var originalInset: UIEdgeInsets = UIEdgeInsets()
     
-    override public func startAnimating() { self.infiniteState = .loading }
-    override public func stopAnimating() { self.infiniteState = .stopped }
+    override open func startAnimating() { self.infiniteState = .loading }
+    override open func stopAnimating() { self.infiniteState = .stopped }
     
     //MARK: - Lifecycle
     override public init(frame: CGRect) {
@@ -126,9 +126,11 @@ open class UIInfiniteControl: UIControl {
     
     func setContentInset(_ contentInset: UIEdgeInsets) {
         let options: UIViewAnimationOptions = [.allowUserInteraction, .beginFromCurrentState]
-        UIView.animate(withDuration: 0.3, delay: 0, options: options, animations: { [weak self] in
-            self?.scrollView?.contentInset = contentInset
-            }, completion: nil)
+//        UIView.animate(withDuration: 0.3, delay: 0, options: options, animations: { [weak self] in
+        // TODO: Needs testing.
+        // Because of animation it gives animation for ScrollView
+            self.scrollView?.contentInset = contentInset
+//            }, completion: nil)
     }
     
     //MARK: - Observing

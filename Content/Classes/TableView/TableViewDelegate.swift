@@ -11,7 +11,7 @@ import UIKit
 extension UITableView: Scrollable {}
 
 open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: BaseDelegate<Model, View, Cell>, UITableViewDelegate, UITableViewDataSource where View: UIView {
-
+    
     open var tableView: UITableView { return self.content.view as! UITableView }
     
     open override var selectedItem: Model? {
@@ -107,7 +107,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     // Insert
-    override open func insert(_ models: [Model], index: Int = 0) {
+    override open func insert(_ models: [Model], index: Int = 0, animated: Bool = true) {
         self.tableView.beginUpdates()
         self.content.adapter.insert(contentsOf: models, at: index)
         self.tableView.insertRows(at: self.indexPaths(models), with: .automatic)
@@ -218,6 +218,10 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         return self.content.viewDelegateCallbacks.onFooterViewDequeue?(self.content, section)
     }
     
+    public func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        self.content.swapAt(sourceIndexPath.row, destinationIndexPath.row)
+    }
+    
     //ScrollView
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         self.content.scrollCallbacks.onDidEndDecelerating?(self.content)
@@ -237,3 +241,4 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         return self.tableView.indexPath(for: cell)
     }
 }
+

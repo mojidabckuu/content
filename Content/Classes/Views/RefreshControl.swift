@@ -9,22 +9,23 @@
 import UIKit
 
 extension UIControl: ContentControl {
-    public func startAnimating() {}
-    public func stopAnimating() {}
+    open func startAnimating() {}
+    open func stopAnimating() {}
     
-    public var isAnimating: Bool { return false }
+    open var isAnimating: Bool { return false }
 }
 
 public extension UIRefreshControl {
-    override func startAnimating() {
+    override open func startAnimating() {
         self.beginRefreshing()
     }
     
-    override func stopAnimating() {
+    override open func stopAnimating() {
         self.endRefreshing()
     }
     
-    override var isAnimating: Bool {
+    override open var isAnimating: Bool {
         return self.isRefreshing
     }
 }
+
