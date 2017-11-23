@@ -92,7 +92,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     //MARK: - Setup
     func setup(delegate del: BaseDelegate<Model, View, Cell>?) {
         if let delegate = del {
-            self.delegate = del
+            self.delegate = delegate
             return
         }
         // TODO: This code a bit redundant. Can solve by extracting to resolve manager.
@@ -107,7 +107,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     func setup(refreshControl: UIControl?) {
         if let refreshControl = refreshControl {
-            refreshControl.addTarget(self, action: "refresh", for: .valueChanged)
+            refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
             if #available(iOS 10.0, *) {
                 if let scrollView = _view as? UIScrollView, let refreshControl = refreshControl as? UIRefreshControl {
                     scrollView.refreshControl = refreshControl
@@ -122,7 +122,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     func setup(infiniteControl: UIControl?) {
         if let infiniteControl = infiniteControl {
-            infiniteControl.addTarget(self, action: "loadMore", for: .valueChanged)
+            infiniteControl.addTarget(self, action: #selector(loadMore), for: .valueChanged)
             self.view.addSubview(infiniteControl)
         }
     }
