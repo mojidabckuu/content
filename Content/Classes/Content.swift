@@ -75,6 +75,9 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     open var length: Int { return self.configuration.length }
     
+    internal var currentErrorView: UIView?
+    internal var currentEmptyView: UIView?
+    
     public init(view: View, delegate: BaseDelegate<Model, View, Cell>? = nil, configuration: Configuration? = nil, setup block: ((_ content: Content) -> Void)? = nil) {
         if let setupBlock = block {
             self.callbacks.onSetupBlock = setupBlock
@@ -142,8 +145,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.URLCallbacks.beforeRefresh?()
             _view.isScrollEnabled = true
             
-            configuration.emptyView?.removeFromSuperview()
-            configuration.errorView?.removeFromSuperview()
+            self.currentEmptyView?.removeFromSuperview()
+            self.currentErrorView?.removeFromSuperview()
             
             _state = .refreshing
             self.offset = nil
@@ -176,7 +179,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         _view.set(contentOffset: .zero)
         configuration.refreshControl?.isEnabled = true
         configuration.infiniteControl?.stopAnimating()
-        configuration.emptyView?.removeFromSuperview()
+        self.currentEmptyView?.removeFromSuperview()
         if prevState == .refreshing {
             self.adapter.removeAll()
             self.reloadData()
@@ -293,13 +296,13 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     private func emptyView() -> UIView? {
-        let emptyView = configuration.currentEmptyView ?? self.URLCallbacks.emptyView?() ?? configuration.emptyView
+        let emptyView = self.currentEmptyView ?? self.URLCallbacks.emptyView?() ?? configuration.emptyView
         configuration.currentEmptyView = emptyView
         return emptyView
     }
     
     private func errorView(_ error: Error) -> UIView? {
-        let errorView = configuration.currentErrorView ?? self.URLCallbacks.errorView?(error) ?? configuration.errorView
+        let errorView = self.currentErrorView ?? self.URLCallbacks.errorView?(error) ?? configuration.errorView
         configuration.currentErrorView = errorView
         return errorView
     }
