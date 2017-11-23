@@ -249,19 +249,19 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     // TODO: Too complex
     internal func adjustEmptyView(hidden: Bool = false) {
-        if let emptyView = self.emptyView() {
-            if let contentView = emptyView as? ContentView {
-                contentView.setup(content: self)
-            }
-            if self.isEmpty && !hidden {
-                configuration.refreshControl?.isEnabled = !self.isEmpty
-                self.layout(view: emptyView)
-                _view.set(contentOffset: .zero)
-            } else {
-                emptyView.removeFromSuperview()
-                _view.isScrollEnabled = true
-                configuration.refreshControl?.isEnabled = true
-            }
+        guard let emptyView = self.emptyView() else { return }
+        
+        if let contentView = emptyView as? ContentView {
+            contentView.setup(content: self)
+        }
+        if self.isEmpty && !hidden {
+            configuration.refreshControl?.isEnabled = !self.isEmpty
+            self.layout(view: emptyView)
+            _view.set(contentOffset: .zero)
+        } else {
+            emptyView.removeFromSuperview()
+            _view.isScrollEnabled = true
+            configuration.refreshControl?.isEnabled = true
         }
     }
     
@@ -297,13 +297,13 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     private func emptyView() -> UIView? {
         let emptyView = self.currentEmptyView ?? self.URLCallbacks.emptyView?() ?? configuration.emptyView
-        configuration.currentEmptyView = emptyView
+        self.currentEmptyView = emptyView
         return emptyView
     }
     
     private func errorView(_ error: Error) -> UIView? {
         let errorView = self.currentErrorView ?? self.URLCallbacks.errorView?(error) ?? configuration.errorView
-        configuration.currentErrorView = errorView
+        self.currentErrorView = errorView
         return errorView
     }
     
