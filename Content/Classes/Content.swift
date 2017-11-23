@@ -220,31 +220,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         handle(with: error)
     }
     
-    @available(*, deprecated)
-    open func fetch(_ models: [Model]?, error: Error?) {
-        if let error = error {
-            self.fetch(error: error)
-        } else {
-            self.fetch(models ?? [])
-        }
-    }
-    
     open func fetch(_ models: [Model]) {
-        //        guard let models = models else {
-        //            configuration.refreshControl?.stopAnimating()
-        //            configuration.infiniteControl?.stopAnimating()
-        //            if let error  = error {
-        //                handle(with: error)
-        //            } else {
-        //
-        //            }
-        //
-        //            return
-        //        }
-        //        if let error = error {
-        //            handle(with: error)
-        //            return
-        //        }
         switch _state {
         case .refreshing: handle(refresh: models, animated: configuration.animateRefresh)
         case .loading:    handle(more: models, animated: configuration.animateAppend)
@@ -254,16 +230,6 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     //MARK: - Management
-    // Add
-    //    open func add(items models: [Model], at index: Int = 0) {
-    //        self.delegate?.insert(models, index: index, animated: true)
-    //        self.adjustEmptyView()
-    //
-    //    }
-    //    open func add(_ items: Model..., at index: Int = 0) {
-    //        self.add(items: items, at: index)
-    //    }
-    
     open func insert(_ newElement: Model, at index: Int = 0, animated: Bool = true) {
         self.delegate?.insert([newElement], index: index, animated: animated)
         self.adjustEmptyView()
@@ -422,3 +388,14 @@ extension Content: MutableCollection, BidirectionalCollection {
     open func index(before i: Int) -> Int { return adapter.index(before: i) }
 }
 
+//MARK: - Deprecated
+extension Content {
+    @available(*, deprecated)
+    open func fetch(_ models: [Model]?, error: Error?) {
+        if let error = error {
+            self.fetch(error: error)
+        } else {
+            self.fetch(models ?? [])
+        }
+    }
+}
