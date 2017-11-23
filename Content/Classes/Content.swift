@@ -163,14 +163,13 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
     }
     open func loadItems() {
-        let weakSelf = self
-        self.URLCallbacks.onLoad?(weakSelf)
+        self.URLCallbacks.onLoad?(self)
     }
     
     // Utils
     
     func handle(with error: Error) {
-        let stateWas = _state
+        let prevState = _state
         _state = .none
         configuration.refreshControl?.stopAnimating()
         configuration.refreshControl?.isEnabled = false
@@ -178,21 +177,10 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         configuration.refreshControl?.isEnabled = true
         configuration.infiniteControl?.stopAnimating()
         configuration.emptyView?.removeFromSuperview()
-        if stateWas == .refreshing {
+        if prevState == .refreshing {
             self.adapter.removeAll()
             self.reloadData()
-        }
-        if let errorView = errorView(error), stateWas == .refreshing {
-            _view.isScrollEnabled = false
-            if let contentView = errorView as? ContentView {
-                contentView.setup(content: self)
-            }
-            if let errorHandleable = errorView as? ErrorHandleable {
-                errorHandleable.setup(error: error)
-            }
-            errorView.frame = self.view.bounds
-            errorView.layoutIfNeeded()
-            self.view.addSubview(errorView)
+            self.adjustErrorView(error: error)
         }
         self.URLCallbacks.didLoad?(error, [])
     }
@@ -346,18 +334,45 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             if let contentView = emptyView as? ContentView {
                 contentView.setup(content: self)
             }
-            if self.isEmpty {
+            if self.isEmpty && !hidden {
                 configuration.refreshControl?.isEnabled = !self.isEmpty
-                _view.addSubview(emptyView)
-                _view.isScrollEnabled = false
+                self.layout(view: emptyView)
                 _view.set(contentOffset: .zero)
-                emptyView.frame = _view.bounds
-                emptyView.layoutIfNeeded()
             } else {
                 emptyView.removeFromSuperview()
                 _view.isScrollEnabled = true
                 configuration.refreshControl?.isEnabled = true
             }
+        }
+    }
+    
+    private func adjustErrorView(error: Error) {
+        guard let errorView = self.errorView(error) else {
+            if !_view.isScrollEnabled {
+                _view.isScrollEnabled = true
+            }
+            return
+        }
+        if let contentView = errorView as? ContentView {
+            contentView.setup(content: self)
+        }
+        if let errorHandleable = errorView as? ErrorHandleable {
+            errorHandleable.setup(error: error)
+        }
+        layout(view: errorView)
+        _view.set(contentOffset: .zero)
+    }
+    
+    private func layout(view: UIView) {
+        guard view.superview == nil else { return }
+        _view.isScrollEnabled = false
+        _view.addSubview(view)
+        if #available(iOS 9.0, *) {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            view.topAnchor.constraint(equalTo: _view.topAnchor).isActive = true
+            view.leadingAnchor.constraint(equalTo: _view.leadingAnchor).isActive = true
+            view.widthAnchor.constraint(equalTo: _view.widthAnchor).isActive = true
+            view.heightAnchor.constraint(equalTo: _view.heightAnchor).isActive = true
         }
     }
     
@@ -406,3 +421,4 @@ extension Content: MutableCollection, BidirectionalCollection {
     open func index(after i: Int) -> Int { return adapter.index(after: i) }
     open func index(before i: Int) -> Int { return adapter.index(before: i) }
 }
+
