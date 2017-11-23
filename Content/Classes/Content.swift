@@ -20,7 +20,7 @@ public protocol ContentCell: _Cell, Raiser {}
 
 open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: ActionRaiser where View: UIView {
     
-    var adapter: Adapter<Model, View, Cell>
+    internal var adapter: Adapter<Model, View, Cell>
     // Use it as temp access only. No items.count
     open var items: [Model] { return adapter.items }
     
@@ -228,64 +228,14 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
         after(load: models)
     }
-    
-    //MARK: - Management
-    open func insert(_ newElement: Model, at index: Int = 0, animated: Bool = true) {
-        self.delegate?.insert([newElement], index: index, animated: animated)
-        self.adjustEmptyView()
-    }
-    
-    open func insert(_ models: [Model], at index: Int = 0) {
-        self.insert(contentsOf: models, at: index, animated: true)
-    }
-    
-    open func insert(contentsOf models: [Model], at index: Int = 0, animated: Bool = true) {
-        self.delegate?.insert(models, index: index, animated: animated)
-        self.adjustEmptyView()
-    }
-    
-    open func append(contentsOf models: [Model], animated: Bool = true) {
-        self.delegate?.insert(models, index: self.count, animated: animated)
-    }
-    
-    open func append(_ models: Model..., animated: Bool = true) {
-        self.delegate?.insert(models, index: self.count, animated: animated)
-    }
-    
-    // Delete
-    open func delete(items models: [Model]) {
-        self.delegate?.delete(models)
-        self.adjustEmptyView()
-    }
-    open func delete(_ models: Model...) {
-        self.delegate?.delete(models)
-        self.adjustEmptyView()
-    }
-    //Reload
-    open func reload(_ models: Model..., animated: Bool = false) {
-        self.delegate?.reload(models, animated: animated)
-    }
-    
-    open func replace(_ models: Model..., animated: Bool = false) {
-        fatalError("Not implemeted")
-    }
-    
-    open func reset(items: [Model] = [], showEmptyView: Bool = false, adjustInfinite: Bool = false) {
-        self.adapter.items = items
-        self.adjustEmptyView(hidden: !showEmptyView)
-        if adjustInfinite {
-            self.adjustInfiniteView(length: items.count)
-        }
-        self.reloadData()
-    }
-    
+        
     // TODO: Think here how we can handle it consistent
     open func move(from: Int, to: Int) {
         let element = self.adapter.remove(at: from)
         self.adapter.insert(element, at: to)
     }
     
-    private func adjustInfiniteView(length: Int) {
+    internal func adjustInfiniteView(length: Int) {
         if length < self.length || self.offset == nil {
             _state = .allLoaded
             configuration.infiniteControl?.isEnabled = false
@@ -295,7 +245,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     // TODO: Too complex
-    private func adjustEmptyView(hidden: Bool = false) {
+    internal func adjustEmptyView(hidden: Bool = false) {
         if let emptyView = self.emptyView() {
             if let contentView = emptyView as? ContentView {
                 contentView.setup(content: self)
@@ -312,7 +262,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
     }
     
-    private func adjustErrorView(error: Error) {
+    internal func adjustErrorView(error: Error) {
         guard let errorView = self.errorView(error) else {
             if !_view.isScrollEnabled {
                 _view.isScrollEnabled = true
@@ -342,13 +292,13 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
     }
     
-    func emptyView() -> UIView? {
+    private func emptyView() -> UIView? {
         let emptyView = configuration.currentEmptyView ?? self.URLCallbacks.emptyView?() ?? configuration.emptyView
         configuration.currentEmptyView = emptyView
         return emptyView
     }
     
-    func errorView(_ error: Error) -> UIView? {
+    private func errorView(_ error: Error) -> UIView? {
         let errorView = configuration.currentErrorView ?? self.URLCallbacks.errorView?(error) ?? configuration.errorView
         configuration.currentErrorView = errorView
         return errorView
@@ -367,25 +317,6 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open func register(`class` cell: Cell.Type) {
         self.delegate?.registerCell(cell.identifier, cell: (cell as! AnyClass))
     }
-}
-
-extension Content: MutableCollection, BidirectionalCollection {
-    //MARK: - MutableCollection & BidirectionalCollection impl
-    open var startIndex: Int { return adapter.startIndex }
-    open var endIndex: Int { return adapter.endIndex }
-    
-    open subscript (position: Int) -> Model {
-        get { return adapter[position] }
-        set { adapter[position] = newValue }
-    }
-    
-    open subscript (range: Range<Int>) -> ArraySlice<Model> {
-        get { return adapter[range] }
-        set { adapter.replaceSubrange(range, with: newValue) }
-    }
-    
-    open func index(after i: Int) -> Int { return adapter.index(after: i) }
-    open func index(before i: Int) -> Int { return adapter.index(before: i) }
 }
 
 //MARK: - Deprecated
