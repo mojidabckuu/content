@@ -231,7 +231,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
         after(load: models)
     }
-        
+    
     // TODO: Think here how we can handle it consistent
     open func move(from: Int, to: Int) {
         let element = self.adapter.remove(at: from)
@@ -243,6 +243,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             _state = .allLoaded
             configuration.infiniteControl?.isEnabled = false
         } else {
+            configuration.infiniteControl?.isEnabled = true
             _state = .none
         }
     }
