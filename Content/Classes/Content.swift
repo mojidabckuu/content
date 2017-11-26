@@ -63,6 +63,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     open var offset: Any? {
         get { return relation.offset }
+        // TODO: Close access
+        set { relation.offset = newValue }
     }
     private var _params: [String : Any] = [:]
     open var params: [String : Any] {

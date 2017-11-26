@@ -7,15 +7,20 @@
 
 import Foundation
 
-typealias ContentRelation = Relation
+public typealias ContentRelation = Relation
 
 open class Relation<Model: Equatable>: MutableCollection, BidirectionalCollection, RangeReplaceableCollection {
-    var offset: Any?
+    public internal(set) var offset: Any?
     
     public private(set) var items: [Model] = []
     public private(set) var chunks: [Relation<Model>] = []
     
     public required init() {}
+    public convenience init(_ items: [Model], offset: Any? = nil) {
+        self.init()
+        self.items = items
+        self.offset = offset
+    }
     
     open func reset(items: [Model]) {
         self.removeAll()
@@ -41,19 +46,24 @@ open class Relation<Model: Equatable>: MutableCollection, BidirectionalCollectio
     public func index(before i: Int) -> Int { return items.index(before: i) }
     
     // RangeReplaceableCollection
-    public func append(_ newElement: Model) {
+    open func append(_ newElement: Model) {
         items.append(newElement)
     }
     
-    public func append<S : Sequence>(contentsOf newElements: S) where S.Iterator.Element == Model {
+    open func append<S : Sequence>(contentsOf newElements: S) where S.Iterator.Element == Model {
         items.append(contentsOf: newElements)
     }
     
-    public func replaceSubrange<C : Collection>(_ subRange: Range<Int>, with newElements: C) where C.Iterator.Element == Model {
+    open func append<S : Sequence>(contentsOf newElements: S, offset: Any?) where S.Iterator.Element == Model {
+        self.append(contentsOf: newElements)
+        self.offset = offset
+    }
+    
+    open func replaceSubrange<C : Collection>(_ subRange: Range<Int>, with newElements: C) where C.Iterator.Element == Model {
         items.replaceSubrange(subRange, with: newElements)
     }
     
-    public func removeAll(keepingCapacity keepCapacity: Bool = false) {
+    open func removeAll(keepingCapacity keepCapacity: Bool = false) {
         items.removeAll(keepingCapacity: keepCapacity)
     }
     
@@ -63,28 +73,3 @@ open class Relation<Model: Equatable>: MutableCollection, BidirectionalCollectio
         self.offset = relation.offset
     }
 }
-
-////TODO: Move to separated util
-//extension Content where Model: Mappable {
-//
-//    open func fetch(relation: Relation<Model>?, error: Error? = nil) {
-//        if let relation = relation {
-//            self.offset = relation.offset
-//        }
-//        self.fetch(relation?.items, error: error)
-//    }
-//
-//    @discardableResult
-//    func on(load block: @escaping ((_ content: Content<Model, View, Cell>) -> Promise<Relation<Model>>)) -> Content<Model, View, Cell> {
-//        self.on(load: { (content) in
-//            block(self).then(execute: { (relation) -> Void in
-//                self.fetch(relation: relation)
-//            }).catch(execute: { (error) in
-//                self.fetch(error: error)
-//            })
-//        })
-//        return self
-//    }
-//}
-
-
