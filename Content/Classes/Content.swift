@@ -20,9 +20,10 @@ public protocol ContentCell: _Cell, Raiser {}
 
 open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: ActionRaiser where View: UIView {
     
-    internal var adapter: Adapter<Model, View, Cell>
+//    internal var adapter: RelationAdapter<Model, View, Cell>
     // Use it as temp access only. No items.count
-    open var items: [Model] { return adapter.items }
+    open var relation: Relation<Model>
+    open var items: [Model] { return relation.items }
     
     open var isEditing = false
     open var selectedItem: Model? {
@@ -60,29 +61,28 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     var scrollCallbacks = ScrollCallbacks<Model, View, Cell>()
     var viewDelegateCallbacks = ViewDelegateCallbacks<Model, View, Cell>()
     
-    //TODO: Could be done better.
     open var offset: Any? {
-        didSet {
-            self.params["offset"] = self.offset
-        }
+        get { return relation.offset }
     }
-    open var params: [String : Any] = [:] {
-        didSet {
-            if let offset = self.offset {
-                self.params["offset"] = offset
-            }
+    private var _params: [String : Any] = [:]
+    open var params: [String : Any] {
+        get {
+            var params = _params
+            params["offset"] = offset
+            return params
         }
+        set { _params = newValue }
     }
     open var length: Int { return self.configuration.length }
     
     internal var currentErrorView: UIView?
     internal var currentEmptyView: UIView?
     
-    public init(view: View, delegate: BaseDelegate<Model, View, Cell>? = nil, configuration: Configuration? = nil, setup block: ((_ content: Content) -> Void)? = nil) {
+    public init(_ relation: Relation<Model>? = nil, view: View, delegate: BaseDelegate<Model, View, Cell>? = nil, configuration: Configuration? = nil, setup block: ((_ content: Content) -> Void)? = nil) {
         if let setupBlock = block {
             self.callbacks.onSetupBlock = setupBlock
         }
-        self.adapter = AdapterGenerator.generate()
+        self.relation = relation ?? Relation()
         self.configuration = configuration ?? Configuration.default()
         _view = view
         self.setup(delegate: delegate)
@@ -149,7 +149,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.currentErrorView?.removeFromSuperview()
             
             _state = .refreshing
-            self.offset = nil
+            self.relation.offset = nil
             configuration.infiniteControl?.isEnabled = true
             let isAnimating = configuration.refreshControl?.isAnimating
             
@@ -181,7 +181,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         configuration.infiniteControl?.stopAnimating()
         self.currentEmptyView?.removeFromSuperview()
         if prevState == .refreshing {
-            self.adapter.removeAll()
+            self.relation.removeAll()
             self.reloadData()
             self.adjustErrorView(error: error)
         }
@@ -196,7 +196,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             }
         }
         configuration.refreshControl?.stopAnimating()
-        self.adapter.removeAll()
+        self.relation.removeAll()
         self.reloadData()
         self.URLCallbacks.whenRefresh?()
         self.insert(contentsOf: models, at: 0, animated: animated)
@@ -223,6 +223,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         handle(with: error)
     }
     
+    open func fetch(relation: Relation<Model>) {
+        self.relation.append(relation: relation)
+        self.fetch(relation.items)
+    }
+    
     open func fetch(_ models: [Model]) {
         switch _state {
         case .refreshing: handle(refresh: models, animated: configuration.animateRefresh)
@@ -234,8 +239,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     // TODO: Think here how we can handle it consistent
     open func move(from: Int, to: Int) {
-        let element = self.adapter.remove(at: from)
-        self.adapter.insert(element, at: to)
+        let element = self.relation.remove(at: from)
+        self.relation.insert(element, at: to)
     }
     
     internal func adjustInfiniteView(length: Int) {

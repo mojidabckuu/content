@@ -124,7 +124,7 @@ public extension Content {
 public extension Content {
     func raise(_ action: Action, sender: ContentCell) {
         if let cell = sender as? Cell, let indexPath = self.delegate?.indexPath(cell) {
-            self.actions.onAction?(self, self.adapter[indexPath.row], cell, action)
+            self.actions.onAction?(self, self.relation[indexPath.row], cell, action)
         }
     }
 }

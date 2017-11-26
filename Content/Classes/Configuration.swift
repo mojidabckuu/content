@@ -34,9 +34,7 @@ public struct Configuration {
         get { return { _default() } }
         set { _default = newValue }
     }
-    
-    public static var adapterGenerator = AdapterGenerator.init()
-    
+        
     // Default configuration is for normal flow with refresh/infinte controls.
     public static func full() -> Configuration {
         var configuration = Configuration()

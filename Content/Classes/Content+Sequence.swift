@@ -51,7 +51,7 @@ extension Content {
     }
     
     open func reset(items: [Model] = [], showEmptyView: Bool = false, adjustInfinite: Bool = false) {
-        self.adapter.items = items
+        self.relation.reset(items: items)
         self.adjustEmptyView(hidden: !showEmptyView)
         if adjustInfinite {
             self.adjustInfiniteView(length: items.count)
@@ -62,19 +62,19 @@ extension Content {
 
 extension Content: MutableCollection, BidirectionalCollection {
     //MARK: - MutableCollection & BidirectionalCollection impl
-    open var startIndex: Int { return adapter.startIndex }
-    open var endIndex: Int { return adapter.endIndex }
+    open var startIndex: Int { return relation.startIndex }
+    open var endIndex: Int { return relation.endIndex }
     
     open subscript (position: Int) -> Model {
-        get { return adapter[position] }
-        set { adapter[position] = newValue }
+        get { return relation[position] }
+        set { relation[position] = newValue }
     }
     
     open subscript (range: Range<Int>) -> ArraySlice<Model> {
-        get { return adapter[range] }
-        set { adapter.replaceSubrange(range, with: newValue) }
+        get { return relation[range] }
+        set { relation.replaceSubrange(range, with: newValue) }
     }
     
-    open func index(after i: Int) -> Int { return adapter.index(after: i) }
-    open func index(before i: Int) -> Int { return adapter.index(before: i) }
+    open func index(after i: Int) -> Int { return relation.index(after: i) }
+    open func index(before i: Int) -> Int { return relation.index(before: i) }
 }
