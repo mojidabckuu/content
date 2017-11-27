@@ -107,11 +107,12 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     // Insert
-    override open func insert(_ models: [Model], index: Int = 0, animated: Bool = true) {
+    override open func insert(_ models: [Model], index: Int = 0, animated: Bool = true, completion: Completion?) {
         self.tableView.beginUpdates()
         self.content.relation.insert(contentsOf: models, at: index)
         self.tableView.insertRows(at: self.indexPaths(models), with: .automatic)
         self.tableView.endUpdates()
+        completion?()
     }
     
     public func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {

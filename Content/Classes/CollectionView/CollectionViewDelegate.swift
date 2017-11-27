@@ -105,22 +105,24 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     // Insert
-    open override func insert(_ models: [Model], index: Int = 0, animated: Bool = true) {
-        self.insert(models, index: index, animated: animated, completion: nil)
-    }
-    
-    open func insert(_ models: [Model], index: Int = 0, animated: Bool, completion: ((Bool) -> ())? = nil) {
+    open override func insert(_ models: [Model], index: Int = 0, animated: Bool = true, completion: Completion?) {
         if animated {
             let collectionView = self.collectionView
             self.collectionView.performBatchUpdates({
                 self.content.relation.insert(contentsOf: models, at: index)
                 let indexPaths = self.indexPaths(models)
                 collectionView.insertItems(at: indexPaths)
-            }, completion: completion)
+            }, completion: { finished in
+                completion?()
+            })
         } else {
             self.content.relation.insert(contentsOf: models, at: index)
+            var obs: NSKeyValueObservation? = nil
+            obs = self.collectionView.observe(\.contentSize, options: [.new], changeHandler: { (view, value) in
+                completion?()
+                obs = nil
+            })
             self.reload()
-            completion?(true)
         }
     }
     

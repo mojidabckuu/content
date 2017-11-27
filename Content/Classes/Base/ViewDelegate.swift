@@ -71,6 +71,7 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     
     init(content: Content<Model, View, Cell>) {
         self.content = content
+        super.init()
     }
     
     // Setup
@@ -86,8 +87,10 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     open func scroll(to model: Model?, at: ContentScrollPosition, animated: Bool) {}
     open func scroll(to models: [Model]?, at: ContentScrollPosition, animated: Bool) {}
     
+    public typealias Completion = (() -> ())
+    
     //
-    open func insert(_ models: [Model], index: Int, animated: Bool) {}
+    open func insert(_ models: [Model], index: Int, animated: Bool, completion: Completion? = nil) {}
     open func delete(_ models: [Model]) { }
     open func reload() {
         self.content.view.reloadData()

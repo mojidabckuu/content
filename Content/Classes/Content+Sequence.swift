@@ -24,8 +24,17 @@ extension Content {
         self.adjustEmptyView()
     }
     
-    open func append(contentsOf models: [Model], animated: Bool = true) {
-        self.delegate?.insert(models, index: self.count, animated: animated)
+    open func insert(contentsOf models: [Model], at index: Int = 0, animated: Bool = true, completion: @escaping () ->()) {
+        self.delegate?.insert(models, index: index, animated: animated, completion: completion)
+        self.adjustEmptyView()
+    }
+    
+//    open func append(contentsOf models: [Model], animated: Bool = true) {
+//        self.delegate?.insert(models, index: self.count, animated: animated)
+//    }
+    
+    open func append(contentsOf models: [Model], animated: Bool = true, completion: (() ->())? = nil) {
+        self.delegate?.insert(models, index: self.count, animated: animated, completion: completion)
     }
     
     open func append(_ models: Model..., animated: Bool = true) {
@@ -50,13 +59,27 @@ extension Content {
         fatalError("Not implemeted")
     }
     
-    open func reset(items: [Model] = [], showEmptyView: Bool = false, adjustInfinite: Bool = false) {
-        self.relation.reset(items: items)
-        self.adjustEmptyView(hidden: !showEmptyView)
-        if adjustInfinite {
-            self.adjustInfiniteView(length: items.count)
+    open func reset(showEmptyView: Bool = false, adjustInfinite: Bool = false, completion: (() -> ())? = nil) {
+        let items = self.items
+        self.relation.removeAll()
+        self.append(contentsOf: items, animated: false) {
+            self.adjustEmptyView(hidden: !showEmptyView)
+            if adjustInfinite {
+                self.adjustInfiniteView(length: self.items.count)
+            }
+            completion?()
         }
-        self.reloadData()
+    }
+    
+    open func reset(items: [Model] = [], showEmptyView: Bool = false, adjustInfinite: Bool = false, completion: (() -> ())? = nil) {
+        self.relation.removeAll()
+        self.append(contentsOf: items, animated: false) {
+            self.adjustEmptyView(hidden: !showEmptyView)
+            if adjustInfinite {
+                self.adjustInfiniteView(length: items.count)
+            }
+            completion?()
+        }
     }
 }
 

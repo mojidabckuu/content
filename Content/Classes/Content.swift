@@ -91,7 +91,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.setup(refreshControl: self.configuration?.refreshControl)
         self.setup(infiniteControl: self.configuration?.infiniteControl)
         
-        self.callbacks.onSetupBlock?(self)
+        self.callbacks.onSetupBlock?(self)        
     }
     
     //MARK: - Setup
@@ -162,8 +162,9 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
     }
     open dynamic func loadMore() {
-        if _state != .loading && _state != .refreshing && _state != .allLoaded {
+        if _state != .loading && _state != .refreshing && _state != .allLoaded && self.offset != nil {
             _state = .loading
+            configuration.infiniteControl?.startAnimating()
             self.loadItems()
         }
     }
@@ -190,7 +191,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.URLCallbacks.didLoad?(error, [])
     }
     
-    func handle(refresh models: [Model], animated: Bool) {
+    func handle(refresh models: [Model], animated: Bool, completion: @escaping () ->()) {
         let recognizers = _view.gestureRecognizers
         if let recognizers = _view.gestureRecognizers {
             for recognizer in recognizers {
@@ -201,7 +202,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.relation.removeAll()
         self.reloadData()
         self.URLCallbacks.whenRefresh?()
-        self.insert(contentsOf: models, at: 0, animated: animated)
+        self.insert(contentsOf: models, at: 0, animated: animated, completion: completion)
         self.adjustEmptyView()
         if let recognizers = recognizers {
             for recognizer in recognizers {
@@ -211,8 +212,9 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.URLCallbacks.afterRefresh?()
     }
     
-    func handle(more models: [Model], animated: Bool) {
-        self.append(contentsOf: models, animated: animated)
+    func handle(more models: [Model], animated: Bool, completion: @escaping () ->()) {
+        self.delegate?.insert(models, index: self.count, animated: animated, completion: completion)
+//        self.append(contentsOf: models, animated: animated)
     }
     
     func after(load models: [Model]) {
@@ -226,17 +228,19 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     open func fetch(relation: Relation<Model>) {
-        self.relation.append(relation: relation)
+//        self.relation.append(relation: relation)
+        self.offset = relation.offset
         self.fetch(relation.items)
     }
     
     open func fetch(_ models: [Model]) {
+        let completion = { self.after(load: models) }
         switch _state {
-        case .refreshing: handle(refresh: models, animated: configuration.animateRefresh)
-        case .loading:    handle(more: models, animated: configuration.animateAppend)
+        case .refreshing: handle(refresh: models, animated: configuration.animateRefresh, completion: completion)
+        case .loading:    handle(more: models, animated: configuration.animateAppend, completion: completion)
         default: print("nothing")
         }
-        after(load: models)
+        
     }
     
     // TODO: Think here how we can handle it consistent
