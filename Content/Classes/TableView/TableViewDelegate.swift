@@ -106,6 +106,13 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         self.scroll(to: model, at: at, animated: animated)
     }
     
+    //Move
+    open override func move(from: Int, to: Int) {
+        let sourceIndexPath = IndexPath(row: from, section: 0)
+        let destinationPath = IndexPath(row: to, section: 0)
+        self.tableView.moveRow(at: sourceIndexPath, to: destinationPath)
+    }
+    
     // Insert
     override open func insert(_ models: [Model], index: Int = 0, animated: Bool = true, completion: Completion?) {
         self.tableView.beginUpdates()

@@ -213,8 +213,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     func handle(more models: [Model], animated: Bool, completion: @escaping () ->()) {
-        self.delegate?.insert(models, index: self.count, animated: animated, completion: completion)
-//        self.append(contentsOf: models, animated: animated)
+        self.append(contentsOf: models, animated: animated, completion: completion)
     }
     
     func after(load models: [Model]) {
@@ -240,13 +239,6 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         case .loading:    handle(more: models, animated: configuration.animateAppend, completion: completion)
         default: print("nothing")
         }
-        
-    }
-    
-    // TODO: Think here how we can handle it consistent
-    open func move(from: Int, to: Int) {
-        let element = self.relation.remove(at: from)
-        self.relation.insert(element, at: to)
     }
     
     internal func adjustInfiniteView(length: Int) {

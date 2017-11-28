@@ -24,6 +24,17 @@ extension Content {
         self.adjustEmptyView()
     }
     
+    open func swap(from: Int, to: Int) {
+        self.relation.swapAt(from, to)
+    }
+    
+    open func move(from: Int, to: Int) {
+        if from != to {
+            self.relation.swapAt(from, to) // Doesn't allow use use content because of mutation
+            self.delegate?.move(from: from, to: to)
+        }
+    }
+    
     open func insert(contentsOf models: [Model], at index: Int = 0, animated: Bool = true, completion: @escaping () ->()) {
         self.delegate?.insert(models, index: index, animated: animated, completion: completion)
         self.adjustEmptyView()

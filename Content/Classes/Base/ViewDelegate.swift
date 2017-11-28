@@ -97,6 +97,8 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     }
     open func reload(_ models: [Model], animated: Bool) {}
     
+    open func move(from: Int, to: Int) {}
+    
     open func indexPaths(_ models: [Model]) -> [IndexPath] {
         var indexPaths: [IndexPath] = []
         for model in models {

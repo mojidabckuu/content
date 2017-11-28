@@ -184,5 +184,4 @@ public extension Content where View: UIScrollView {
         self.scrollCallbacks.onDidEndDragging = block
         return self
     }
-    
 }

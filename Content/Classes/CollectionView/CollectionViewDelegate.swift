@@ -126,6 +126,13 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         }
     }
     
+    //Move
+    open override func move(from: Int, to: Int) {
+        let sourceIndexPath = IndexPath(row: from, section: 0)
+        let destinationPath = IndexPath(row: to, section: 0)
+        self.collectionView.moveItem(at: sourceIndexPath, to: destinationPath)
+    }
+    
     //Delete
     open override func delete(_ models: [Model]) {
         var indexes = models
