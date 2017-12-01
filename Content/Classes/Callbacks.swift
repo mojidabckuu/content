@@ -19,7 +19,8 @@ class ContentActionsCallbacks<Model: Equatable, View: ViewDelegate, Cell: Conten
 class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
     var onLoad: ((Content<Model, View, Cell>) -> Void)?
     var willLoad: (() -> Void)?
-    var didLoad: ((Error?, [Model]) -> Void)?
+    var didLoad: ((Content<Model, View, Cell>, [Model]) -> Void)?
+//    var didLoad: ((Error?, [Model]) -> Void)?
     
     var beforeRefresh: (() -> ())?
     var afterRefresh: (() -> ())?

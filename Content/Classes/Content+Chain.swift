@@ -77,6 +77,12 @@ public extension Content {
     }
     
     @discardableResult
+    func on(loaded block: @escaping ((_ content: Content<Model, View, Cell>, [Model]) -> Void)) -> Content<Model, View, Cell> {
+        self.URLCallbacks.didLoad = block
+        return self
+    }
+    
+    @discardableResult
     func after(refresh: @escaping () -> ()) -> Content {
         self.URLCallbacks.afterRefresh = refresh
         return self

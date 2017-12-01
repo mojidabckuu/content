@@ -188,7 +188,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.reloadData()
             self.adjustErrorView(error: error)
         }
-        self.URLCallbacks.didLoad?(error, [])
+        // TODO: Did load with an error callback
     }
     
     func handle(refresh models: [Model], animated: Bool, completion: @escaping () ->()) {
@@ -233,7 +233,10 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     open func fetch(_ models: [Model]) {
-        let completion = { self.after(load: models) }
+        let completion = {
+            self.after(load: models)
+            self.URLCallbacks.didLoad?(self, models)
+        }
         switch _state {
         case .refreshing: handle(refresh: models, animated: configuration.animateRefresh, completion: completion)
         case .loading:    handle(more: models, animated: configuration.animateAppend, completion: completion)

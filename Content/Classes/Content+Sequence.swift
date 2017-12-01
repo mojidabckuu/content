@@ -62,6 +62,10 @@ extension Content {
         self.adjustEmptyView()
     }
     //Reload
+    open func reload(_ models: [Model], animated: Bool = false) {
+        self.delegate?.reload(models, animated: animated)
+    }
+    
     open func reload(_ models: Model..., animated: Bool = false) {
         self.delegate?.reload(models, animated: animated)
     }
