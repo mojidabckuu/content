@@ -234,6 +234,17 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         self.content.scrollCallbacks.onDidScroll?(self.content)
     }
     
+    public func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        return true
+    }
+    
+    open override func scrollToBottom() {
+        let bounds = self.collectionView.bounds
+        let origin = CGPoint(x: 0, y: self.collectionView.contentSize.height - bounds.size.height)
+        let rect = CGRect(origin: origin, size: bounds.size)
+        self.collectionView.scrollRectToVisible(rect, animated: true)
+    }
+    
     //MARK: - Utils
     
     private var none : ContentScrollPosition {

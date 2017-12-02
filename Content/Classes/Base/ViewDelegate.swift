@@ -86,6 +86,8 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     //Scroll
     open func scroll(to model: Model?, at: ContentScrollPosition, animated: Bool) {}
     open func scroll(to models: [Model]?, at: ContentScrollPosition, animated: Bool) {}
+    open func scrollToBottom() {}
+    open func scrollToTop() {}
     
     public typealias Completion = (() -> ())
     
