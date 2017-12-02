@@ -81,9 +81,6 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     internal var currentEmptyView: UIView?
     
     public init(_ relation: Relation<Model>? = nil, view: View, delegate: BaseDelegate<Model, View, Cell>? = nil, configuration: Configuration? = nil, setup block: ((_ content: Content) -> Void)? = nil) {
-        if let setupBlock = block {
-            self.callbacks.onSetupBlock = setupBlock
-        }
         self.relation = relation ?? Relation()
         self.configuration = configuration ?? Configuration.default()
         _view = view
@@ -91,7 +88,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.setup(refreshControl: self.configuration?.refreshControl)
         self.setup(infiniteControl: self.configuration?.infiniteControl)
         
-        self.callbacks.onSetupBlock?(self)        
+        block?(self)
     }
     
     //MARK: - Setup
