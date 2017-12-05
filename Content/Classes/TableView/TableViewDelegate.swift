@@ -134,6 +134,13 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         }
     }
     
+    open override func update(_ block: () -> (), completion: (() -> ())?) {
+        self.tableView.beginUpdates()
+        block()
+        self.tableView.endUpdates()
+        completion?()
+    }
+    
     //Delete
     open override func delete(_ models: [Model]) {
         self.tableView.beginUpdates()
@@ -147,6 +154,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     //Reload
     open override func reload(_ models: [Model], animated: Bool) {
+        guard !models.isEmpty else { return }
         let indexes = self.indexPaths(models)
         let animationStyle: UITableViewRowAnimation = animated ? .automatic : .none
         self.tableView.reloadRows(at: indexes, with: animationStyle)

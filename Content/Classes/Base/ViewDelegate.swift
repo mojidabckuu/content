@@ -99,6 +99,10 @@ open class BaseDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell>
     }
     open func reload(_ models: [Model], animated: Bool) {}
     
+    open func update(_ block: () -> (), completion: (() -> ())? = nil) {
+        block()
+    }
+    
     open func move(from: Int, to: Int) {}
     
     open func indexPaths(_ models: [Model]) -> [IndexPath] {

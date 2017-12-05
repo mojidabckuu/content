@@ -146,17 +146,23 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         }, completion: nil)
     }
     
+    open override func update(_ block: () -> (), completion: (() -> ())? = nil) {
+        self.collectionView.performBatchUpdates(block, completion: { finished in
+            completion?()
+        })
+    }
+    
     //Reload
     open override func reload(_ models: [Model], animated: Bool) {
         let indexes = self.indexPaths(models)
         let collectionView = self.collectionView
-        if animated {
+//        if animated {
             collectionView.performBatchUpdates({
                 collectionView.reloadItems(at: indexes)
             }, completion: nil)
-        } else {
-            collectionView.reloadItems(at: indexes)
-        }
+//        } else {
+//            collectionView.reloadItems(at: indexes)
+//        }
     }
     
     // Registration
