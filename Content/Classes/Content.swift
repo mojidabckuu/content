@@ -12,13 +12,13 @@ public struct Configuration {
     public var animatedRefresh: Bool = false
     public var length: Int = 50
     public var autoDeselect = true
-    public var refreshControl: UIControl?
-    public var infiniteControl: UIControl?
+    public var refreshControl: (UIControl & ContentView)?
+    public var infiniteControl: (UIControl & ContentView)?
     
     // Default configuration is for normal flow with refresh/infinte controls.
     public static var `default`: Configuration {
         var configuration = Configuration()
-        configuration.refreshControl = UIRefreshControl()
+        configuration.refreshControl = RefreshControl()
         configuration.infiniteControl = UIInfiniteControl()
         return configuration
     }
@@ -182,20 +182,20 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open func reloadData() {
         self.delegate?.reload()
     }
-    open dynamic func refresh() {
+    @objc open dynamic func refresh() {
         if _state != .refreshing {
             _state = .refreshing
             self.offset = nil
             configuration.infiniteControl?.isEnabled = true
             let isAnimating = configuration.refreshControl?.isAnimating
-            let refresh = configuration.refreshControl as? UIRefreshControl
+            let refresh = configuration.refreshControl as? RefreshControl
             if isAnimating == false {
                 self.configuration.infiniteControl?.startAnimating()
             }
             self.loadItems()
         }
     }
-    open dynamic func loadMore() {
+    @objc open dynamic func loadMore() {
         if _state != .loading && _state != .refreshing && _state != .allLoaded {
             _state = .loading
             self.loadItems()
@@ -241,14 +241,14 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     //MARK: - Management
     // Add
-    open func add(items items: [Model], at index: Int = 0) {
+    open func add(items: [Model], at index: Int = 0) {
         self.delegate?.insert(items, index: index)
     }
     open func add(_ items: Model..., at index: Int = 0) {
         self.add(items: items, at: index)
     }
     // Delete
-    open func delete(items models: [Model]) {
+    open func delete(models: [Model]) {
         self.delegate?.delete(models)
     }
     open func delete(_ models: Model...) {

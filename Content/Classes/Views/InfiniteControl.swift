@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol ContentView {
+public protocol ContentView {
     func startAnimating()
     func stopAnimating()
     var isAnimating: Bool { get }
@@ -20,11 +20,11 @@ extension CGRect {
     }
 }
 
-class UIInfiniteControl: UIControl {
+class UIInfiniteControl: UIControl, ContentView {
     var height: CGFloat = 60
     var activityIndicatorView: UIActivityIndicatorView!
     
-    override var isAnimating: Bool { return self.activityIndicatorView.isAnimating }
+    var isAnimating: Bool { return self.activityIndicatorView.isAnimating }
     var isObserving: Bool { return _isObserving }
     var infiniteState: State {
         set {
@@ -51,8 +51,8 @@ class UIInfiniteControl: UIControl {
     fileprivate weak var scrollView: UIScrollView?
     fileprivate var originalInset: UIEdgeInsets = UIEdgeInsets()
     
-    override func startAnimating() { self.infiniteState = .loading }
-    override func stopAnimating() { self.infiniteState = .stopped }
+    func startAnimating() { self.infiniteState = .loading }
+    func stopAnimating() { self.infiniteState = .stopped }
     
     //MARK: - Lifecycle
     override init(frame: CGRect) {
