@@ -116,11 +116,17 @@ open class UIInfiniteControl: UIControl {
     }
     
     func adjustInsets() {
-        if var contentInset = self.scrollView?.contentInset {
+        if let contentInset = self.scrollView?.contentInset {
+            var newInsets = contentInset
             if self.isEnabled {
-                contentInset.bottom = self.originalInset.bottom + self.height
+                newInsets.bottom = self.originalInset.bottom + self.height
             }
-            self.setContentInset(contentInset)
+//            self.setContentInset(contentInset)
+            if contentInset.bottom != newInsets.bottom {
+                self.scrollView?.removeObserver(self, forKeyPath: "contentInset")
+                self.setContentInset(newInsets)
+                self.scrollView?.addObserver(self, forKeyPath: "contentInset", options: .new, context: nil)
+            }
         }
     }
     
@@ -129,6 +135,7 @@ open class UIInfiniteControl: UIControl {
 //        UIView.animate(withDuration: 0.3, delay: 0, options: options, animations: { [weak self] in
         // TODO: Needs testing.
         // Because of animation it gives animation for ScrollView
+        
             self.scrollView?.contentInset = contentInset
 //            }, completion: nil)
     }
@@ -138,6 +145,7 @@ open class UIInfiniteControl: UIControl {
         if !self.isObserving {
             self.scrollView?.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
             self.scrollView?.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
+            self.scrollView?.addObserver(self, forKeyPath: "contentInset", options: .new, context: nil)
             _isObserving = true
             self.adjustInsets()
         }
@@ -146,16 +154,25 @@ open class UIInfiniteControl: UIControl {
         if self.isObserving {
             self.scrollView?.removeObserver(self, forKeyPath: "contentOffset")
             self.scrollView?.removeObserver(self, forKeyPath: "contentSize")
+            self.scrollView?.removeObserver(self, forKeyPath: "contentInset")
             _isObserving = false
             self.resetInsets()
         }
     }
     
     override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if let keyPath = keyPath, keyPath == "contentOffset" {
+        guard let keyPath = keyPath else { return }
+        if keyPath == "contentOffset" {
             if let offset = (change?[NSKeyValueChangeKey.newKey] as? NSValue)?.cgPointValue { self.scrollViewDidScroll(offset) }
-        } else {
-            if let keyPath = keyPath, keyPath == "contentSize" { self.layoutSubviews() }
+        } else if keyPath == "contentSize" {
+            self.layoutSubviews()
+        } else if keyPath == "contentInset" {
+            if let value = change?[NSKeyValueChangeKey.newKey] as? NSValue {
+                self.originalInset = value.uiEdgeInsetsValue
+                //                self.scrollView?.removeObserver(self, forKeyPath: "contentInset")
+                self.adjustInsets()
+                //                self.scrollView?.addObserver(self, forKeyPath: "contentInset", options: .new, context: nil)
+            }
         }
     }
     
