@@ -9,14 +9,17 @@ import Foundation
 
 public typealias ContentConfiguration = Configuration
 
-public struct Configuration {
-    public var animateRefresh: Bool = false
-    public var animateAppend: Bool = true
+extension Configuration {
     @available(*, deprecated)
     public var animatedRefresh: Bool {
         get { return animateRefresh }
         set { animateRefresh = newValue }
     }
+}
+
+public struct Configuration {
+    public var animateRefresh: Bool = false
+    public var animateAppend: Bool = true
     public var length: Int = 20
     public var autoDeselect = true
     public var refreshControl: UIControl?
