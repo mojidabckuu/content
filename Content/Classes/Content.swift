@@ -140,10 +140,6 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open var isAllLoaded: Bool { return _state == .allLoaded }
     open var isLoading: Bool { return _state == .refreshing || _state == .loading }
     
-    open func reloadData() {
-        self.delegate?.reload()
-    }
-    
     open dynamic func refresh() {
         if _state != .refreshing {
             self.URLCallbacks.beforeRefresh?()
@@ -344,6 +340,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
 
 //MARK: - Deprecated
 extension Content {
+    @available(*, deprecated)
+    open func reloadData() {
+        self.delegate?.reload()
+    }
+    
     @available(*, deprecated)
     open func fetch(_ models: [Model]?, error: Error?) {
         if let error = error {
