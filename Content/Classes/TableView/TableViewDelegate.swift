@@ -135,6 +135,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     open override func update(_ block: () -> (), completion: (() -> ())?) {
+        self.content.adjustEmptyView()
         self.tableView.beginUpdates()
         block()
         self.tableView.endUpdates()
