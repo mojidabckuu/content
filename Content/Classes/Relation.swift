@@ -74,4 +74,9 @@ open class Relation<Model: Equatable>: MutableCollection, BidirectionalCollectio
         self.items.append(contentsOf: relation.items)
         self.offset = relation.offset
     }
+    
+    open func insert(relation: Relation, at index: Int = 0) {
+        self.chunks.append(relation)
+        self.items.insert(contentsOf: relation.items, at: index)
+    }
 }
