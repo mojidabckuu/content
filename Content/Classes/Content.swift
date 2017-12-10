@@ -43,7 +43,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         set { self.delegate?.visibleItems = newValue }
     }
     
-    public private(set) var configuration: Configuration!
+    public private(set) var configuration: Configuration
     
     open var view: View { return _view }
     private var _view: View
@@ -64,7 +64,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open var offset: Any? {
         get { return relation.offset }
         // TODO: Close access
-        set { relation.offset = newValue }
+//        set { relation.offset = newValue }
     }
     private var _params: [String : Any] = [:]
     open var params: [String : Any] {
@@ -84,9 +84,14 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.relation = relation ?? Relation()
         self.configuration = configuration ?? Configuration.default()
         _view = view
+        
         self.setup(delegate: delegate)
-        self.setup(refreshControl: self.configuration?.refreshControl)
-        self.setup(infiniteControl: self.configuration?.infiniteControl)
+        self.setup(refreshControl: self.configuration.refreshControl)
+        self.setup(infiniteControl: self.configuration.infiniteControl)
+        
+        if let relation = relation {
+            reloadData()
+        }
         
         block?(self)
     }
@@ -225,7 +230,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     open func fetch(relation: Relation<Model>) {
 //        self.relation.append(relation: relation)
-        self.offset = relation.offset
+        self.relation.offset = relation.offset
+//        self.offset = relation.offset
         self.fetch(relation.items)
     }
     
@@ -238,6 +244,16 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         case .refreshing: handle(refresh: models, animated: configuration.animateRefresh, completion: completion)
         case .loading:    handle(more: models, animated: configuration.animateAppend, completion: completion)
         default: print("nothing")
+        }
+    }
+    
+    internal func adjustInfinteControl() {
+        if self.relation.hasMore {
+            configuration.infiniteControl?.isEnabled = true
+            _state = .none
+        } else {
+            _state = .allLoaded
+            configuration.infiniteControl?.isEnabled = false
         }
     }
     
