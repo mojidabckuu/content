@@ -31,7 +31,6 @@ class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCel
 }
 
 class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
-    var onSetupBlock: ((Content<Model, View, Cell>) -> Void)?
     var onHeight: ((Model) -> CGFloat?)?
     var onEstimatedHeight: ((Model) -> CGFloat?)?
     var onCellSetupBlock: ((Model, Cell) -> Void)?
