@@ -28,8 +28,8 @@ public extension Content {
         return self
     }
     
-    func on(setup block: @escaping (_ content: Content<Model, View, Cell>) -> Void) -> Content<Model, View, Cell> {
-        self.callbacks.onSetupBlock = block
+    @available(*, deprecated)
+    func on(setup block: (_ content: Content<Model, View, Cell>) -> Void) -> Content<Model, View, Cell> {
         block(self)
         return self
     }
