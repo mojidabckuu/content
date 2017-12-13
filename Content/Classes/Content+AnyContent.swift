@@ -21,7 +21,7 @@ extension Content: AnyContent {
     
     public func delete(_ element: Any) {
         guard let realElement = element as? Model else { return }
-        self.delete(realElement)
+        self.delete(items: [realElement])
     }
     
     public func delete(contentsOf models: Any) {
