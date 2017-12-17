@@ -19,9 +19,9 @@ public func == (key: String, action: Action) -> Bool {
     return actionString == key
 }
 
-public protocol ActionRaiser {
-    var isEditing: Bool { get set }
-    func raise(_ action: Action, sender: ContentCell)
+public protocol ActionRaiser: class {
+//    var isEditing: Bool { get set }
+    func raise(_ action: Action, sender: Raiser)
 }
 
 public protocol Raiser {
