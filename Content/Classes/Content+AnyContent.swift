@@ -67,4 +67,25 @@ extension Content: AnyContent {
     public func scrollToEnd() {
         self.delegate?.scrollToBottom()
     }
+    
+    public func scrollTo(_ element: Any) {
+        guard let realElement = element as? Model else { return }
+        self.delegate?.scroll(to: realElement, at: .none, animated: true)
+    }
+    
+    public func scrollTo(_ model: Model) {
+        self.delegate?.scroll(to: model, at: .none, animated: true)
+    }
+    
+    //MARK: -
+    public func view(for element: Any) -> UIView? {
+        guard let realElement = element as? Model else { return nil }
+        return self.view(for: realElement) as? UIView
+    }
+    
+    public func view(for model: Model) -> ContentCell? {
+        guard let index = self.index(of: model) else { return nil }
+        let indexPath = IndexPath(row: index, section: 0)
+        return self.delegate?.dequeu(at: indexPath)
+    }
 }

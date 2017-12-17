@@ -36,6 +36,9 @@ public protocol AnyContent {
     
     func move(_ element: Any, to: Int)
     
+    func view(for element: Any) -> UIView?
+    
+    func scrollTo(_ element: Any)
     func scrollToBegining()
     func scrollToEnd()
     
