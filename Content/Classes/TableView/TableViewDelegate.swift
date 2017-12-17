@@ -61,7 +61,12 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     // Select
     open override func select(model: Model?, animated: Bool = false, scrollPosition: ContentScrollPosition = .none) {
-        guard let model = model else { return }
+        guard let model = model else {
+            if let indexPath = self.tableView.indexPathForSelectedRow {
+                self.tableView.deselectRow(at: indexPath, animated: animated)
+            }
+            return
+        }
         if let index = self.content.relation.index(of: model) {
             let indexPath = IndexPath(row: index, section: 0)
             self.tableView.selectRow(at: indexPath, animated: animated, scrollPosition: scrollPosition.tableScroll)
