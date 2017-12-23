@@ -61,16 +61,14 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     var scrollCallbacks = ScrollCallbacks<Model, View, Cell>()
     var viewDelegateCallbacks = ViewDelegateCallbacks<Model, View, Cell>()
     
-    open var offset: Any? {
-        get { return relation.offset }
-        // TODO: Close access
-//        set { relation.offset = newValue }
-    }
+    open var offset: Any? { return relation.offset }
     private var _params: [String : Any] = [:]
     open var params: [String : Any] {
         get {
             var params = _params
-            params["offset"] = offset
+            if _state == .loading {
+                params["offset"] = offset
+            }
             return params
         }
         set { _params = newValue }
@@ -149,8 +147,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.currentErrorView?.removeFromSuperview()
             
             _state = .refreshing
-            self.relation.offset = nil
-            configuration.infiniteControl?.isEnabled = true
+            
+//            configuration.infiniteControl?.isEnabled = !self.relation.isEmpty
             let isAnimating = configuration.refreshControl?.isAnimating
             
             if isAnimating == false {
