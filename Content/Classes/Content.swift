@@ -89,6 +89,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         
         if let relation = relation {
             reloadData()
+            self.adjustInfinteControl()
         }
         
         block?(self)
