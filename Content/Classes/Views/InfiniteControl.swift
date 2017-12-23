@@ -51,7 +51,12 @@ open class UIInfiniteControl: UIControl {
     fileprivate weak var scrollView: UIScrollView?
     fileprivate var originalInset: UIEdgeInsets = UIEdgeInsets()
     
-    override open func startAnimating() { self.infiniteState = .loading }
+    override open func startAnimating() {
+        self.layoutSubviews()
+        if self.isEnabled {
+            self.infiniteState = .loading
+        }
+    }
     override open func stopAnimating() { self.infiniteState = .stopped }
     
     //MARK: - Lifecycle
@@ -121,7 +126,6 @@ open class UIInfiniteControl: UIControl {
             if self.isEnabled {
                 newInsets.bottom = self.originalInset.bottom + self.height
             }
-//            self.setContentInset(contentInset)
             if contentInset.bottom != newInsets.bottom {
                 self.scrollView?.removeObserver(self, forKeyPath: "contentInset")
                 self.setContentInset(newInsets)
@@ -168,10 +172,11 @@ open class UIInfiniteControl: UIControl {
             self.layoutSubviews()
         } else if keyPath == "contentInset" {
             if let value = change?[NSKeyValueChangeKey.newKey] as? NSValue {
-                self.originalInset = value.uiEdgeInsetsValue
-                //                self.scrollView?.removeObserver(self, forKeyPath: "contentInset")
-                self.adjustInsets()
-                //                self.scrollView?.addObserver(self, forKeyPath: "contentInset", options: .new, context: nil)
+                let targetBottom = self.isEnabled ? self.originalInset.bottom + self.height : self.originalInset.bottom
+                if targetBottom != value.uiEdgeInsetsValue.bottom {
+                    self.originalInset = value.uiEdgeInsetsValue
+                    self.adjustInsets()
+                }
             }
         }
     }
