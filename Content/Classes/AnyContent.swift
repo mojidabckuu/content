@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol hasContent {
+public protocol hasContent: class {
     var content: AnyContent { get }
 }
 
