@@ -87,12 +87,13 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.setup(refreshControl: self.configuration.refreshControl)
         self.setup(infiniteControl: self.configuration.infiniteControl)
         
+        block?(self)
+        
         if let relation = relation {
             reloadData()
             self.adjustInfinteControl()
+            self.adjustEmptyView()
         }
-        
-        block?(self)
     }
     
     //MARK: - Setup
