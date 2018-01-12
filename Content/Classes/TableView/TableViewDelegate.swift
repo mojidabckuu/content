@@ -122,7 +122,8 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     override open func insert(_ models: [Model], index: Int = 0, animated: Bool = true, completion: Completion?) {
         self.tableView.beginUpdates()
         self.content.relation.insert(contentsOf: models, at: index)
-        self.tableView.insertRows(at: self.indexPaths(models), with: .automatic)
+        let animation: UITableViewRowAnimation = animated ? .automatic : .none
+        self.tableView.insertRows(at: self.indexPaths(models), with: animation)
         self.tableView.endUpdates()
         completion?()
     }
@@ -165,6 +166,10 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         let animationStyle: UITableViewRowAnimation = animated ? .automatic : .none
         self.tableView.reloadRows(at: indexes, with: animationStyle)
     }
+    
+//    open override func dequeu(at indexPath: IndexPath) -> Cell? {
+//        self.tableView.dequeueReusableCell(withIdentifier: Cell.identifier, for: indexPath)
+//    }
     
     //Register
     override open func registerCell(_ reuseIdentifier: String, nib: UINib) {
