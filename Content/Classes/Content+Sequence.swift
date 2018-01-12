@@ -74,27 +74,33 @@ extension Content {
         fatalError("Not implemeted")
     }
     
-    open func reset(showEmptyView: Bool = false, adjustInfinite: Bool = false, completion: (() -> ())? = nil) {
-        let items = self.items
-        self.relation.removeAll()
-        self.append(contentsOf: items, animated: false) {
-            self.adjustEmptyView(hidden: !showEmptyView)
-            if adjustInfinite {
-                self.adjustInfiniteView(length: self.items.count)
-            }
-            completion?()
-        }
-    }
+//    open func reset(showEmptyView: Bool = false, adjustInfinite: Bool = false, completion: (() -> ())? = nil) {
+//        let items = self.items
+//        self.relation.removeAll()
+//        self.append(contentsOf: items, animated: false) {
+//            self.adjustEmptyView(hidden: !showEmptyView)
+//            if adjustInfinite {
+//                self.adjustInfiniteView(length: self.items.count)
+//            }
+//            completion?()
+//        }
+//    }
     
     open func reset(items: [Model] = [], showEmptyView: Bool = false, adjustInfinite: Bool = false, completion: (() -> ())? = nil) {
         self.relation.removeAll()
-        self.append(contentsOf: items, animated: false) {
-            self.adjustEmptyView(hidden: !showEmptyView)
-            if adjustInfinite {
-                self.adjustInfiniteView(length: items.count)
-            }
+        
+        if items.isEmpty {
+            self.reload()
             completion?()
+            return
         }
+        self.relation.insert(contentsOf: items, at: self.count)
+        self.delegate?.reload()
+        self.adjustEmptyView(hidden: !showEmptyView)
+        if adjustInfinite {
+            self.adjustInfiniteView(length: items.count)
+        }
+        completion?()
     }
 }
 
