@@ -40,7 +40,7 @@ public struct Configuration {
         
     // Default configuration is for normal flow with refresh/infinte controls.
     public static func full() -> Configuration {
-        var configuration = Configuration()
+        var configuration = self.default()
         configuration.refreshControl = UIRefreshControl()
         configuration.infiniteControl = UIInfiniteControl()
         return configuration
@@ -48,7 +48,10 @@ public struct Configuration {
     
     // Simple configuration to show list without refresh/infinite controls
     public static func regular() -> Configuration {
-        return Configuration()
+        var configuration = self.default()
+        configuration.refreshControl = nil
+        configuration.infiniteControl = nil
+        return configuration
     }
     
     // Simple configuration to show refresh control only
