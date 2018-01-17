@@ -181,6 +181,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         configuration.refreshControl?.isEnabled = true
         configuration.infiniteControl?.stopAnimating()
         self.currentEmptyView?.removeFromSuperview()
+        self.currentErrorView?.removeFromSuperview()
+        self.currentErrorView = nil
         if prevState == .refreshing {
             self.relation.removeAll()
             self.reloadData()
@@ -201,7 +203,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.reloadData()
         self.URLCallbacks.whenRefresh?()
         self.insert(contentsOf: models, at: 0, animated: animated, completion: completion)
-        self.adjustEmptyView()
+        if self.isEmpty {
+            self.currentEmptyView?.removeFromSuperview()
+            self.currentErrorView?.removeFromSuperview()
+            self.adjustEmptyView()
+        }
         if let recognizers = recognizers {
             for recognizer in recognizers {
                 _view.addGestureRecognizer(recognizer)
