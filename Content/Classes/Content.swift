@@ -140,7 +140,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open var isAllLoaded: Bool { return _state == .allLoaded }
     open var isLoading: Bool { return _state == .refreshing || _state == .loading }
     
-    open dynamic func refresh() {
+    @objc open func refresh() {
         if _state != .refreshing {
             self.URLCallbacks.beforeRefresh?()
             _view.isScrollEnabled = true
@@ -159,7 +159,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.loadItems()
         }
     }
-    open dynamic func loadMore() {
+    @objc open func loadMore() {
         if _state != .loading && _state != .refreshing && _state != .allLoaded && self.offset != nil {
             _state = .loading
             configuration.infiniteControl?.startAnimating()
