@@ -9,7 +9,7 @@ import Foundation
 
 public typealias ContentRelation = Relation
 
-open class Relation<Model: Equatable>: MutableCollection, BidirectionalCollection, RangeReplaceableCollection {
+open class Relation<Model>: MutableCollection, BidirectionalCollection, RangeReplaceableCollection {
     public internal(set) var offset: Any?
     
     public var hasMore: Bool { return offset != nil }
