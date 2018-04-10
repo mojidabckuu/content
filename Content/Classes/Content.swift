@@ -12,8 +12,10 @@ public enum State {
     case none
     case loading
     case refreshing
+    case loaded
     case allLoaded
     case cancelled
+    case error
 }
 
 public protocol ContentCell: _Cell, Raiser {}
@@ -174,7 +176,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     func handle(with error: Error) {
         let prevState = _state
-        _state = .none
+        _state = .error
         configuration.refreshControl?.stopAnimating()
         configuration.refreshControl?.isEnabled = false
         _view.set(contentOffset: .zero)
@@ -252,7 +254,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     internal func adjustInfinteControl() {
         if self.relation.hasMore {
             configuration.infiniteControl?.isEnabled = true
-            _state = .none
+            _state = .loaded
         } else {
             _state = .allLoaded
             configuration.infiniteControl?.isEnabled = false
@@ -265,7 +267,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             configuration.infiniteControl?.isEnabled = false
         } else {
             configuration.infiniteControl?.isEnabled = true
-            _state = .none
+            _state = .loaded
         }
     }
     
