@@ -93,6 +93,7 @@ extension Content {
             self.relation.insert(contentsOf: items, at: self.count)
         }
         self.reload()
+        self.currentErrorView?.removeFromSuperview()
         self.adjustEmptyView(hidden: !showEmptyView)
         if adjustInfinite {
             self.adjustInfiniteView(length: items.count)

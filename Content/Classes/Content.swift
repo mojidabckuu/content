@@ -185,11 +185,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         self.currentEmptyView?.removeFromSuperview()
         self.currentErrorView?.removeFromSuperview()
         self.currentErrorView = nil
-        if prevState == .refreshing {
+//        if prevState == .refreshing {
             self.relation.removeAll()
             self.reloadData()
             self.adjustErrorView(error: error)
-        }
+//        }
         // TODO: Did load with an error callback
     }
     
