@@ -88,14 +88,11 @@ extension Content {
     
     open func reset(items: [Model] = [], showEmptyView: Bool = false, adjustInfinite: Bool = false, completion: (() -> ())? = nil) {
         self.relation.removeAll()
-        
-        if items.isEmpty {
-            self.reload()
-            completion?()
-            return
+
+        if !items.isEmpty {
+            self.relation.insert(contentsOf: items, at: self.count)
         }
-        self.relation.insert(contentsOf: items, at: self.count)
-        self.delegate?.reload()
+        self.reload()
         self.adjustEmptyView(hidden: !showEmptyView)
         if adjustInfinite {
             self.adjustInfiniteView(length: items.count)
