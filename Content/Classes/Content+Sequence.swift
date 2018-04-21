@@ -97,7 +97,10 @@ extension Content {
         self.adjustEmptyView(hidden: !showEmptyView)
         if adjustInfinite {
             self.adjustInfiniteView(length: items.count)
+        } else {
+            self.configuration.infiniteControl?.isEnabled = true
         }
+        self._state = .none
         completion?()
     }
 }

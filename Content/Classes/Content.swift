@@ -137,7 +137,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     // URL lifecycle
-    fileprivate var _state: State = .none
+    internal var _state: State = .none
     open var state: State { return _state }
     open var isAllLoaded: Bool { return _state == .allLoaded }
     open var isLoading: Bool { return _state == .refreshing || _state == .loading }
@@ -161,6 +161,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.loadItems()
         }
     }
+        
     open dynamic func loadMore() {
         if _state != .loading && _state != .refreshing && _state != .allLoaded && self.offset != nil {
             _state = .loading
