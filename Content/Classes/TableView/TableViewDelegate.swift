@@ -120,11 +120,16 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     
     // Insert
     override open func insert(_ models: [Model], index: Int = 0, animated: Bool = true, completion: Completion?) {
-        self.tableView.beginUpdates()
-        self.content.relation.insert(contentsOf: models, at: index)
-        let animation: UITableViewRowAnimation = animated ? .automatic : .none
-        self.tableView.insertRows(at: self.indexPaths(models), with: animation)
-        self.tableView.endUpdates()
+        if self.content.isEmpty && !animated {
+            self.content.relation.insert(contentsOf: models, at: index)
+            self.reload()
+        } else {
+            self.tableView.beginUpdates()
+            self.content.relation.insert(contentsOf: models, at: index)
+            let animation: UITableViewRowAnimation = animated ? .automatic : .none
+            self.tableView.insertRows(at: self.indexPaths(models), with: animation)
+            self.tableView.endUpdates()
+        }
         completion?()
     }
     
