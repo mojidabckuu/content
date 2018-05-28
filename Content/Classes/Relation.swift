@@ -21,8 +21,7 @@ open class Relation<Model>: MutableCollection, BidirectionalCollection, RangeRep
     public required init<S>(_ elements: S) where S : Sequence, Model == S.Element {
         self.items = Array(elements)
     }
-    public convenience init(_ items: [Model], offset: Any? = nil) {
-        self.init()
+    public required init(items: [Model], offset: Any? = nil) {
         self.items = items
         self.offset = offset
     }
