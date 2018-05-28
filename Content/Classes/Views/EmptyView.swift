@@ -34,11 +34,7 @@ class DefaultEmptyView: UIView, ContentView {
         super.init(coder: aDecoder)
         self.setup()
     }
-    
-    deinit {
-        print("Hello from deinit Empty")
-    }
-    
+        
     //MARK: - Layout
     override func layoutSubviews() {
         super.layoutSubviews()
