@@ -18,9 +18,6 @@ open class Relation<Model>: MutableCollection, BidirectionalCollection, RangeRep
     public private(set) var chunks: [Relation<Model>] = []
     
     public required init() {}
-    public required init<S>(_ elements: S) where S : Sequence, Model == S.Element {
-        self.items = Array(elements)
-    }
     public required init(items: [Model], offset: Any? = nil) {
         self.items = items
         self.offset = offset
