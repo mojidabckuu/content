@@ -12,8 +12,10 @@ public enum State {
     case none
     case loading
     case refreshing
+    case loaded
     case allLoaded
     case cancelled
+    case error
 }
 
 public protocol ContentCell: _Cell, Raiser {}
@@ -135,7 +137,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     // URL lifecycle
-    fileprivate var _state: State = .none
+    internal var _state: State = .none
     open var state: State { return _state }
     open var isAllLoaded: Bool { return _state == .allLoaded }
     open var isLoading: Bool { return _state == .refreshing || _state == .loading }
@@ -159,7 +161,8 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.loadItems()
         }
     }
-    @objc open func loadMore() {
+        
+    open dynamic func loadMore() {
         if _state != .loading && _state != .refreshing && _state != .allLoaded && self.offset != nil {
             _state = .loading
             configuration.infiniteControl?.startAnimating()
@@ -174,7 +177,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     func handle(with error: Error) {
         let prevState = _state
-        _state = .none
+        _state = .error
         configuration.refreshControl?.stopAnimating()
         configuration.refreshControl?.isEnabled = false
         _view.set(contentOffset: .zero)
@@ -252,7 +255,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     internal func adjustInfinteControl() {
         if self.relation.hasMore {
             configuration.infiniteControl?.isEnabled = true
-            _state = .none
+            _state = .loaded
         } else {
             _state = .allLoaded
             configuration.infiniteControl?.isEnabled = false
@@ -265,7 +268,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             configuration.infiniteControl?.isEnabled = false
         } else {
             configuration.infiniteControl?.isEnabled = true
-            _state = .none
+            _state = .loaded
         }
     }
     
