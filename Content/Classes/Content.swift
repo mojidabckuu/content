@@ -162,7 +162,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
     }
         
-    open dynamic func loadMore() {
+    @objc open dynamic func loadMore() {
         if _state != .loading && _state != .refreshing && _state != .allLoaded && self.offset != nil {
             _state = .loading
             configuration.infiniteControl?.startAnimating()
