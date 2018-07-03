@@ -313,10 +313,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         _view.addSubview(view)
         if #available(iOS 9.0, *) {
             view.translatesAutoresizingMaskIntoConstraints = false
-            view.topAnchor.constraint(equalTo: _view.topAnchor).isActive = true
-            view.leadingAnchor.constraint(equalTo: _view.leadingAnchor).isActive = true
-            view.widthAnchor.constraint(equalTo: _view.widthAnchor).isActive = true
-            view.heightAnchor.constraint(equalTo: _view.heightAnchor).isActive = true
+            _view.layoutMargins = .zero
+            view.topAnchor.constraint(equalTo: _view.layoutMarginsGuide.topAnchor).isActive = true
+            view.leadingAnchor.constraint(equalTo: _view.layoutMarginsGuide.leadingAnchor).isActive = true
+            view.trailingAnchor.constraint(equalTo: _view.layoutMarginsGuide.trailingAnchor).isActive = true
+            view.bottomAnchor.constraint(equalTo: _view.layoutMarginsGuide.bottomAnchor).isActive = true
         }
     }
     
