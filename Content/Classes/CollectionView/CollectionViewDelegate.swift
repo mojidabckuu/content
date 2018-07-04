@@ -230,6 +230,16 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
         return UICollectionReusableView()
     }
     
+    @objc open func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
+        print("canMoveItemAt")
+        return false
+    }
+    
+    @objc open func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        print("swap")
+        self.content.swap(from: sourceIndexPath.row, to: destinationIndexPath.row)
+    }
+    
     open func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let pageWidth = scrollView.frame.width
         let page = Int(scrollView.contentOffset.x / pageWidth)
