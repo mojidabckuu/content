@@ -63,8 +63,9 @@ public struct Configuration {
     
     // Simple configuration to show infinite control only
     public static func infinite() -> Configuration {
-        var configuration = Configuration()
-        configuration.infiniteControl = UIInfiniteControl()
+        var configuration = Configuration.default()
+        configuration.refreshControl = nil
+        configuration.infiniteControl = configuration.infiniteControl ?? UIInfiniteControl()
         return configuration
     }
     
