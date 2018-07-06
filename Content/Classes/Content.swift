@@ -152,12 +152,13 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             
             _state = .refreshing
             
-//            configuration.infiniteControl?.isEnabled = !self.relation.isEmpty
+            
             let isAnimating = configuration.refreshControl?.isAnimating
             
-            if isAnimating == false {
+            if isAnimating == nil || isAnimating == false {
                 self.configuration.infiniteControl?.startAnimating()
             }
+            
             self.loadItems()
         }
     }
@@ -224,8 +225,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     func after(load models: [Model]) {
-        //        self.URLCallbacks.didLoad?(error, models)
-        self.adjustInfiniteView(length: models.count)
+        if length < self.length || self.offset == nil {
+            _state = .allLoaded
+        } else {
+            _state = .loaded
+        }
         configuration.infiniteControl?.stopAnimating()
     }
     
@@ -241,10 +245,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     open func fetch(_ models: [Model]) {
-        let completion = {
+        let completion: () -> () = {
             self.after(load: models)
             self.URLCallbacks.didLoad?(self, models)
         }
+        self.adjustInfiniteView(length: models.count)
         switch _state {
         case .refreshing: handle(refresh: models, animated: configuration.animateRefresh, completion: completion)
         case .loading:    handle(more: models, animated: configuration.animateAppend, completion: completion)
@@ -264,11 +269,9 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     internal func adjustInfiniteView(length: Int) {
         if length < self.length || self.offset == nil {
-            _state = .allLoaded
             configuration.infiniteControl?.isEnabled = false
         } else {
             configuration.infiniteControl?.isEnabled = true
-            _state = .loaded
         }
     }
     
