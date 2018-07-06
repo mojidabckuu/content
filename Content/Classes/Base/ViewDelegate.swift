@@ -48,6 +48,7 @@ public enum ContentScrollPosition {
     
     var collectionScroll: UICollectionViewScrollPosition {
         switch self {
+        case .none: return []
         case .middle, .centeredVertically: return UICollectionViewScrollPosition.centeredVertically
         case .bottom: return UICollectionViewScrollPosition.bottom
         case .left: return UICollectionViewScrollPosition.left
