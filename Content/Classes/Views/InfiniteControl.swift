@@ -87,7 +87,6 @@ open class UIInfiniteControl: UIControl {
             self.frame = CGRect(x: 0, y: self.contentSize.height, width: size.width, height: self.height)
             self.activityIndicatorView.center = self.bounds.center
         }
-        self.bringSubview(toFront: self.activityIndicatorView)
     }
     
     //
@@ -193,6 +192,18 @@ open class UIInfiniteControl: UIControl {
             }
             
         }
+        if let collectionView = self.scrollView as? UICollectionView {
+            if let sections = collectionView.dataSource?.numberOfSections!(in: collectionView) {
+                let numberOfTotalRows = Array(0..<sections).map {
+                 collectionView.dataSource?.collectionView(collectionView, numberOfItemsInSection: $0) ?? 0
+                }.reduce(0, +)
+                // TODO: Very rude hack.
+                if numberOfTotalRows == 0 && sections <= 1 {
+                    return .zero
+                }
+            }
+        }
+        
         return self.scrollView?.contentSize ?? UIScreen.main.bounds.size
     }
     
