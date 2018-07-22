@@ -14,7 +14,7 @@ public protocol ContentControl {
     var isAnimating: Bool { get }
 }
 
-public extension CGRect {
+extension CGRect {
     var center: CGPoint {
         return CGPoint(x: self.origin.x + self.width / 2, y: self.origin.y + self.height / 2)
     }
