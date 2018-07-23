@@ -31,7 +31,10 @@ public struct Configuration {
     public var emptyView: UIView? = DefaultEmptyView()
     
     private static var _default: (() -> Configuration) = {
-        return full()
+        var configuration = Configuration()
+        configuration.refreshControl = UIRefreshControl()
+        configuration.infiniteControl = UIInfiniteControl()
+        return configuration
     }
     public static var `default`: (() -> Configuration) {
         get { return { _default() } }
