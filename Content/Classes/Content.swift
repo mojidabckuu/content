@@ -55,7 +55,7 @@ class ContentActionsCallbacks<Model: Equatable, View: ViewDelegate, Cell: Conten
     var onSelect: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
     var onDeselect: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
     var onShouldSelect: ((Content<Model, View, Cell>, Model, Cell) -> Bool)?
-    var onAction: ((Content<Model, View, Cell>, Model, Cell, Action) -> Void)?
+    var onAction: ((Content<Model, View, Cell>, Model, Cell, Action, [String: Any]) -> Void)?
     var onAdd: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
     var onDelete: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
 }
