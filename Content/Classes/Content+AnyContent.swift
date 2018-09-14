@@ -37,6 +37,8 @@ extension Content: AnyContent {
     
     //MARK: -
     public func reload() {
+        self.adjustEmptyView()
+        self.adjustErrorView()
         self.delegate?.reload()
     }
     

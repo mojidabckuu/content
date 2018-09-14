@@ -293,6 +293,15 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
     }
     
+    internal func adjustErrorView() {
+        if let errorView = self.currentErrorView {
+            if !_view.isScrollEnabled {
+                _view.isScrollEnabled = true
+            }
+            errorView.removeFromSuperview()
+        }
+    }
+    
     internal func adjustErrorView(error: Error) {
         guard let errorView = self.errorView(error) else {
             if !_view.isScrollEnabled {
