@@ -147,7 +147,10 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     open override func update(_ block: () -> (), completion: (() -> ())? = nil) {
-        self.collectionView.performBatchUpdates(block, completion: { finished in
+        self.collectionView.performBatchUpdates({
+            block()
+            self.content.adjustEmptyView()
+        }, completion: { finished in
             completion?()
         })
     }
@@ -156,13 +159,13 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     open override func reload(_ models: [Model], animated: Bool) {
         let indexes = self.indexPaths(models)
         let collectionView = self.collectionView
-//        if animated {
+        if animated {
             collectionView.performBatchUpdates({
                 collectionView.reloadItems(at: indexes)
             }, completion: nil)
-//        } else {
-//            collectionView.reloadItems(at: indexes)
-//        }
+        } else {
+            collectionView.reloadItems(at: indexes)
+        }
     }
     
     // Registration
@@ -199,7 +202,8 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.content.relation.count
+        let count = self.content.relation.count
+        return count
     }
     
     open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
