@@ -146,11 +146,22 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     open override func update(_ block: () -> (), completion: (() -> ())?) {
-        self.content.adjustEmptyView()
-        self.tableView.beginUpdates()
-        block()
-        self.tableView.endUpdates()
-        completion?()
+        if #available(iOS 11.0, *) {
+            self.tableView.beginUpdates()
+            self.tableView.performBatchUpdates({
+                block()
+                self.content.adjustEmptyView()
+            }, completion: { (finished) in
+                completion?()
+            })
+            self.tableView.endUpdates()
+        } else {
+            self.tableView.beginUpdates()
+            block()
+            self.content.adjustEmptyView()
+            self.tableView.endUpdates()
+            completion?()
+        }
     }
     
     //Delete
