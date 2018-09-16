@@ -190,4 +190,8 @@ public extension Content where View: UIScrollView {
         self.scrollCallbacks.onDidEndDragging = block
         return self
     }
+    func on(shouldScrollToTop block: ((Content<Model, View, Cell>) -> Bool)?) -> Content {
+        self.scrollCallbacks.onShouldScrollToTop = block
+        return self
+    }
 }

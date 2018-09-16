@@ -278,6 +278,10 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         self.content.scrollCallbacks.onDidEndDragging?(self.content, decelerate)
     }
     
+    public func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        return self.content.scrollCallbacks.onShouldScrollToTop?(self.content) ?? true
+    }
+    
     //Utils
     open override func indexPath(_ cell: Cell) -> IndexPath? {
         guard let cell = cell as? UITableViewCell else { return nil }

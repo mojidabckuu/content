@@ -41,6 +41,7 @@ class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> 
 }
 
 class ScrollCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
+    var onShouldScrollToTop: ((Content<Model, View, Cell>) -> Bool)?
     var onDidScroll: ((Content<Model, View, Cell>) -> Void)?
     var onDidEndDecelerating : ((Content<Model, View, Cell>) -> Void)?
     var onDidStartDecelerating : ((Content<Model, View, Cell>) -> Void)?

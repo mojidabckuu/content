@@ -10,11 +10,11 @@ import Foundation
 public typealias ContentRelation = Relation
 
 open class Relation<Model>: MutableCollection, BidirectionalCollection, RangeReplaceableCollection {
-    public internal(set) var offset: Any?
+    open var offset: Any?
     
-    public var hasMore: Bool { return offset != nil }
+    open var hasMore: Bool { return offset != nil }
     
-    public private(set) var items: [Model] = []
+    open var items: [Model] = []
     public private(set) var chunks: [Relation<Model>] = []
     
     public required init() {}

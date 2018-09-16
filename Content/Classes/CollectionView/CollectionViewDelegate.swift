@@ -235,12 +235,10 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     @objc open func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
-        print("canMoveItemAt")
         return false
     }
     
     @objc open func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        print("swap")
         self.content.swap(from: sourceIndexPath.row, to: destinationIndexPath.row)
     }
     
@@ -255,7 +253,7 @@ open class CollectionDelegate<Model: Equatable, View: ViewDelegate, Cell: Conten
     }
     
     public func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
-        return true
+        return self.content.scrollCallbacks.onShouldScrollToTop?(self.content) ?? true
     }
     
     open override func scrollToBottom() {
