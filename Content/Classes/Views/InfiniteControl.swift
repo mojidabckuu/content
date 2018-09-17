@@ -134,13 +134,7 @@ open class UIInfiniteControl: UIControl {
     }
     
     func setContentInset(_ contentInset: UIEdgeInsets) {
-        let options: UIViewAnimationOptions = [.allowUserInteraction, .beginFromCurrentState]
-//        UIView.animate(withDuration: 0.3, delay: 0, options: options, animations: { [weak self] in
-        // TODO: Needs testing.
-        // Because of animation it gives animation for ScrollView
-        
-            self.scrollView?.contentInset = contentInset
-//            }, completion: nil)
+        self.scrollView?.contentInset = contentInset
     }
     
     //MARK: - Observing
@@ -166,7 +160,9 @@ open class UIInfiniteControl: UIControl {
     override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         guard let keyPath = keyPath else { return }
         if keyPath == "contentOffset" {
-            if let offset = (change?[NSKeyValueChangeKey.newKey] as? NSValue)?.cgPointValue { self.scrollViewDidScroll(offset) }
+            if let offset = (change?[NSKeyValueChangeKey.newKey] as? NSValue)?.cgPointValue {
+                self.scrollViewDidScroll(offset)
+            }
         } else if keyPath == "contentSize" {
             self.layoutSubviews()
         } else if keyPath == "contentInset" {
@@ -210,10 +206,11 @@ open class UIInfiniteControl: UIControl {
     func scrollViewDidScroll(_ contentOffset: CGPoint) {
         if _state != .loading && self.isEnabled && contentOffset.y >= 0 {
             let contentSize = self.contentSize
+            guard contentSize.height > CGFloat.leastNormalMagnitude else { return }
             let threshold = contentSize.height - self.scrollView!.bounds.size.height
-            if self.scrollView?.isDragging == true && _state == .triggered {
+            if _state == .triggered {
                 self.infiniteState = .loading
-            } else if self.scrollView?.isDragging == true && contentOffset.y > threshold && _state == .stopped {
+            } else if contentOffset.y > threshold && _state == .stopped {
                 self.infiniteState = .triggered
             } else if contentOffset.y < threshold && _state == .stopped {
                 self.infiniteState = .stopped
