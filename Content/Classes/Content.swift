@@ -247,9 +247,10 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     open func fetch(_ models: [Model]) {
         let completion: () -> () = {
             self.after(load: models)
+            self.adjustInfiniteView(length: models.count)
             self.URLCallbacks.didLoad?(self, models)
         }
-        self.adjustInfiniteView(length: models.count)
+        self.configuration.infiniteControl?.stopAnimating()
         switch _state {
         case .refreshing: handle(refresh: models, animated: configuration.animateRefresh, completion: completion)
         case .loading:    handle(more: models, animated: configuration.animateAppend, completion: completion)
