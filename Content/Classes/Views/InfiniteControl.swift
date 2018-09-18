@@ -26,7 +26,7 @@ open class UIInfiniteControl: UIControl {
     
     override open var isAnimating: Bool { return self.activityIndicatorView.isAnimating }
     var isObserving: Bool { return _isObserving }
-    var infiniteState: State {
+    var infiniteState: ControlState {
         set {
             if _state != newValue {
                 let prevState = _state
@@ -45,7 +45,7 @@ open class UIInfiniteControl: UIControl {
         get { return _state }
     }
     
-    fileprivate var _state: State = .stopped
+    fileprivate var _state: ControlState = .stopped
     fileprivate var _isObserving = false
     
     fileprivate weak var scrollView: UIScrollView?
@@ -241,7 +241,7 @@ open class UIInfiniteControl: UIControl {
 }
 
 extension UIInfiniteControl {
-    enum State {
+    enum ControlState {
         case stopped
         case triggered
         case loading
