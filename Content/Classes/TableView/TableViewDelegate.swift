@@ -109,7 +109,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     // Insert
     override open func insert(_ models: [Model], index: Int = 0) {
         self.tableView.beginUpdates()
-        self.content.items.insert(contentsOf: models, at: index)
+        self.content._items.insert(contentsOf: models, at: index)
         self.tableView.insertRows(at: self.indexPaths(models), with: .automatic)
         self.tableView.endUpdates()
     }

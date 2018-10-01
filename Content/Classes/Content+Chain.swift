@@ -67,7 +67,7 @@ public extension Content {
     }
     
     @discardableResult
-    func on(action block: @escaping ((Content<Model, View, Cell>, Model, Cell, _ action: Action) -> Void)) -> Content<Model, View, Cell> {
+    func on(action block: @escaping ((Content<Model, View, Cell>, Model, Cell, _ action: Action, _ params: [String: Any]) -> Void)) -> Content<Model, View, Cell> {
         self.actions.onAction = block
         return self
     }
@@ -97,8 +97,12 @@ public extension Content {
 // Raising
 public extension Content {
     func raise(_ action: Action, sender: ContentCell) {
+        self.raise(action, sender: sender, params: [:])
+    }
+    
+    func raise(_ action: Action, sender: ContentCell, params: [String: Any]) {
         if let cell = sender as? Cell, let indexPath = self.delegate?.indexPath(cell) {
-            self.actions.onAction?(self, self.items[(indexPath as NSIndexPath).row], cell, action)
+            self.actions.onAction?(self, self.items[(indexPath as NSIndexPath).row], cell, action, params)
         }
     }
 }

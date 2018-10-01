@@ -22,6 +22,7 @@ public func == (key: String, action: Action) -> Bool {
 public protocol ActionRaiser {
     var isEditing: Bool { get set }
     func raise(_ action: Action, sender: ContentCell)
+    func raise(_ action: Action, sender: ContentCell, params: [String: Any])
 }
 
 public protocol Raiser {
