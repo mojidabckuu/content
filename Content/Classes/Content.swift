@@ -249,8 +249,13 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.after(load: models)
             self.adjustInfiniteView(length: models.count)
             self.URLCallbacks.didLoad?(self, models)
+            self.configuration.infiniteControl?.isHidden = false
         }
-        self.configuration.infiniteControl?.stopAnimating()
+        if isLastPage(length: models.count) && _state == .refreshing && !self.configuration.animateRefresh {
+            self.adjustInfiniteView(length: models.count)
+        }
+        self.configuration.infiniteControl?.isHidden = true
+
         switch _state {
         case .refreshing: handle(refresh: models, animated: configuration.animateRefresh, completion: completion)
         case .loading:    handle(more: models, animated: configuration.animateAppend, completion: completion)
@@ -266,6 +271,10 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             _state = .allLoaded
             configuration.infiniteControl?.isEnabled = false
         }
+    }
+    
+    func isLastPage(length: Int) -> Bool {
+        return length < self.length || self.offset == nil
     }
     
     internal func adjustInfiniteView(length: Int) {
