@@ -274,11 +274,11 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     func isLastPage(length: Int) -> Bool {
-        return length < self.length || self.offset == nil
+        return !(self.offset != nil || length >= self.length)
     }
     
     internal func adjustInfiniteView(length: Int) {
-        if length < self.length || self.offset == nil {
+        if isLastPage(length: length) {
             configuration.infiniteControl?.isEnabled = false
         } else {
             configuration.infiniteControl?.isEnabled = true
