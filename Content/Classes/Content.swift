@@ -144,7 +144,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     
     @objc open func refresh() {
         if _state != .refreshing {
-            self.URLCallbacks.beforeRefresh?()
+            self.URLCallbacks.beforeRefresh?(self)
             _view.isScrollEnabled = true
             
             self.currentEmptyView?.removeFromSuperview()
@@ -205,7 +205,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         configuration.refreshControl?.stopAnimating()
         self.relation.removeAll()
         self.reloadData()
-        self.URLCallbacks.whenRefresh?()
+        self.URLCallbacks.whenRefresh?(self)
         self.insert(contentsOf: models, at: 0, animated: animated, completion: completion)
         if self.isEmpty {
             self.currentEmptyView?.removeFromSuperview()
@@ -217,7 +217,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                 _view.addGestureRecognizer(recognizer)
             }
         }
-        self.URLCallbacks.afterRefresh?()
+        self.URLCallbacks.afterRefresh?(self)
     }
     
     func handle(more models: [Model], animated: Bool, completion: @escaping () ->()) {
