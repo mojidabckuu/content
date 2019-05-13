@@ -83,19 +83,19 @@ public extension Content {
     }
     
     @discardableResult
-    func after(refresh: @escaping () -> ()) -> Content {
+    func after(refresh: @escaping (Content<Model, View, Cell>) -> ()) -> Content {
         self.URLCallbacks.afterRefresh = refresh
         return self
     }
     
     @discardableResult
-    func before(refresh: @escaping () -> ()) -> Content {
+    func before(refresh: @escaping (Content<Model, View, Cell>) -> ()) -> Content {
         self.URLCallbacks.beforeRefresh = refresh
         return self
     }
     
     @discardableResult
-    func when(refresh: @escaping () -> ()) -> Content {
+    func when(refresh: @escaping (Content<Model, View, Cell>) -> ()) -> Content {
         self.URLCallbacks.whenRefresh = refresh
         return self
     }

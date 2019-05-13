@@ -22,9 +22,9 @@ class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCel
     var didLoad: ((Content<Model, View, Cell>, [Model]) -> Void)?
 //    var didLoad: ((Error?, [Model]) -> Void)?
     
-    var beforeRefresh: (() -> ())?
-    var afterRefresh: (() -> ())?
-    var whenRefresh: (() -> ())?
+    var beforeRefresh: ((Content<Model, View, Cell>) -> ())?
+    var afterRefresh: ((Content<Model, View, Cell>) -> ())?
+    var whenRefresh: ((Content<Model, View, Cell>) -> ())?
     
     var errorView: ((Error) -> (UIView?))?
     var emptyView: (() -> (UIView?))?
