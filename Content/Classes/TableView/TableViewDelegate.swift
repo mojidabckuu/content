@@ -119,10 +119,8 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     open func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            let cell = tableView.cellForRow(at: indexPath) as! Cell
-            let item = self.content.items[indexPath.row]
-            self.content.actions.onDelete?(self.content, item, cell)
+        if editingStyle == .delete, let cell = tableView.cellForRow(at: indexPath) as? Cell, let callback = self.content.actions.onDelete {
+            callback(self.content, self.content.items[indexPath.row], cell)
         }
     }
     
@@ -152,25 +150,24 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     //UITableView delegate
     
     open func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        let cell = tableView.cellForRow(at: indexPath) as! Cell
-        if let should = self.content.actions.onShouldSelect?(self.content, self.content.items[indexPath.row], cell), should == false {
+        if let cell = tableView.cellForRow(at: indexPath) as? Cell, let callback = self.content.actions.onShouldSelect, callback(self.content, self.content.items[indexPath.row], cell) == false {
             return nil
         }
         return indexPath
     }
     
     open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath) as! Cell
-        self.content.actions.onSelect?(self.content, self.content.items[indexPath.row], cell)
+        if let cell = tableView.cellForRow(at: indexPath) as? Cell, let callback = self.content.actions.onSelect {
+            callback(self.content, self.content.items[indexPath.row], cell)
+        }
         if self.content.configuration.autoDeselect {
             self.tableView.deselectRow(at: indexPath, animated: true)
         }
     }
     
     open func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        if let cell = tableView.cellForRow(at: indexPath) as? Cell {
-            let item = self.content.items[indexPath.row]
-            self.content.actions.onDeselect?(self.content, item, cell)
+        if let cell = tableView.cellForRow(at: indexPath) as? Cell, let callback = self.content.actions.onDeselect {
+            callback(self.content, self.content.items[indexPath.row], cell)
         }
     }
     
@@ -199,21 +196,21 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
     }
     
     open func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let item = self.content.items[indexPath.row]
-        if var cell = cell as? Cell {
-            cell.raiser = self.content
-            self.content.callbacks.onCellDisplay?(item, cell)
+        guard var cell = cell as? Cell else { return }
+        cell.raiser = self.content
+        if let callback = self.content.callbacks.onCellDisplay {
+            callback(self.content.items[indexPath.row], cell)
         }
     }
     
     open func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let item = self.content.items[indexPath.row]
-        return self.content.callbacks.onHeight?(item) ?? tableView.rowHeight
+        guard let callback = self.content.callbacks.onHeight else { return tableView.rowHeight }
+        return callback(self.content.items[indexPath.row]) ?? tableView.rowHeight
     }
     
     open func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        let item = self.content.items[indexPath.row]
-        return self.content.callbacks.onHeight?(item) ?? tableView.estimatedRowHeight
+        guard let callback = self.content.callbacks.onHeight else { return tableView.estimatedRowHeight }
+        return callback(self.content.items[indexPath.row]) ?? tableView.estimatedRowHeight
     }
     
     open func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
