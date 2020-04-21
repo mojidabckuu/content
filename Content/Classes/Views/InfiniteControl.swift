@@ -189,6 +189,9 @@ open class UIInfiniteControl: UIControl {
             
         }
         if let collectionView = self.scrollView as? UICollectionView {
+            if collectionView.contentSize != self.scrollView?.bounds.size {
+               return collectionView.contentSize
+            }
             if let sections = collectionView.dataSource?.numberOfSections!(in: collectionView) {
                 let numberOfTotalRows = Array(0..<sections).map {
                  collectionView.dataSource?.collectionView(collectionView, numberOfItemsInSection: $0) ?? 0

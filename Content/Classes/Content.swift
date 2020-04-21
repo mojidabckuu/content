@@ -22,7 +22,7 @@ public protocol ContentCell: _Cell, Raiser {}
 
 open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: ActionRaiser where View: UIView {
     
-//    internal var adapter: RelationAdapter<Model, View, Cell>
+    //    internal var adapter: RelationAdapter<Model, View, Cell>
     // Use it as temp access only. No items.count
     open var relation: Relation<Model>
     open var items: [Model] { return relation.items }
@@ -57,9 +57,9 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         }
     }
     
-    let actions = ContentActionsCallbacks<Model, View, Cell>()
+    public let actions = ContentActionsCallbacks<Model, View, Cell>()
     let URLCallbacks = ContentURLCallbacks<Model, View, Cell>()
-    var callbacks = ContentCallbacks<Model, View, Cell>()
+    public private(set) var callbacks = ContentCallbacks<Model, View, Cell>()
     var scrollCallbacks = ScrollCallbacks<Model, View, Cell>()
     var viewDelegateCallbacks = ViewDelegateCallbacks<Model, View, Cell>()
     
@@ -152,17 +152,17 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             
             _state = .refreshing
             
-            
             let isAnimating = configuration.refreshControl?.isAnimating
             
             if isAnimating == nil || isAnimating == false {
+                self.configuration.infiniteControl?.isEnabled = true
                 self.configuration.infiniteControl?.startAnimating()
             }
             
             self.loadItems()
         }
     }
-        
+    
     @objc open dynamic func loadMore() {
         if _state != .loading && _state != .refreshing && _state != .allLoaded && self.offset != nil {
             _state = .loading
@@ -238,9 +238,9 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     open func fetch(relation: Relation<Model>) {
-//        self.relation.append(relation: relation)
+        //        self.relation.append(relation: relation)
         self.relation.offset = relation.offset
-//        self.offset = relation.offset
+        //        self.offset = relation.offset
         self.fetch(relation.items)
     }
     
@@ -255,7 +255,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
             self.adjustInfiniteView(length: models.count)
         }
         self.configuration.infiniteControl?.isHidden = true
-
+        
         switch _state {
         case .refreshing: handle(refresh: models, animated: configuration.animateRefresh, completion: completion)
         case .loading:    handle(more: models, animated: configuration.animateAppend, completion: completion)
@@ -336,7 +336,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         if #available(iOS 9.0, *) {
             view.translatesAutoresizingMaskIntoConstraints = false
             _view.layoutMargins = .zero
-            view.topAnchor.constraint(equalTo: _view.layoutMarginsGuide.topAnchor).isActive = true
+            view.topAnchor.constraint(equalTo: _view.layoutMarginsGuide.topAnchor, constant: _view.scrollView.contentSize.height).isActive = true
             view.leadingAnchor.constraint(equalTo: _view.layoutMarginsGuide.leadingAnchor).isActive = true
             view.trailingAnchor.constraint(equalTo: _view.layoutMarginsGuide.trailingAnchor).isActive = true
             view.bottomAnchor.constraint(equalTo: _view.layoutMarginsGuide.bottomAnchor).isActive = true
@@ -344,13 +344,13 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
     }
     
     private func emptyView() -> UIView? {
-        let emptyView = self.currentEmptyView ?? self.URLCallbacks.emptyView?() ?? configuration.emptyView
+        let emptyView = self.currentEmptyView ?? self.URLCallbacks.emptyView?(self) ?? configuration.emptyView
         self.currentEmptyView = emptyView
         return emptyView
     }
     
     private func errorView(_ error: Error) -> UIView? {
-        let errorView = self.currentErrorView ?? self.URLCallbacks.errorView?(error) ?? configuration.errorView
+        let errorView = self.currentErrorView ?? self.URLCallbacks.errorView?(self, error) ?? configuration.errorView
         self.currentErrorView = errorView
         return errorView
     }

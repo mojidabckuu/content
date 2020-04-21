@@ -7,37 +7,37 @@
 
 import Foundation
 
-class ContentActionsCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
-    var onSelect: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
-    var onDeselect: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
-    var onShouldSelect: ((Content<Model, View, Cell>, Model, Cell) -> Bool)?
-    var onAction: ((Content<Model, View, Cell>, Model, Cell, Action) -> Void)?
-    var onAdd: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
-    var onDelete: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
+public class ContentActionsCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
+    public internal(set) var onSelect: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
+    public internal(set) var onDeselect: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
+    public internal(set) var onShouldSelect: ((Content<Model, View, Cell>, Model, Cell) -> Bool)?
+    public internal(set) var onAction: ((Content<Model, View, Cell>, Model, Cell, Action) -> Void)?
+    public internal(set) var onAdd: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
+    public internal(set) var onDelete: ((Content<Model, View, Cell>, Model, Cell) -> Void)?
 }
 
 class ContentURLCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
     var onLoad: ((Content<Model, View, Cell>) -> Void)?
     var willLoad: (() -> Void)?
     var didLoad: ((Content<Model, View, Cell>, [Model]) -> Void)?
-//    var didLoad: ((Error?, [Model]) -> Void)?
+    //    var didLoad: ((Error?, [Model]) -> Void)?
     
     var beforeRefresh: ((Content<Model, View, Cell>) -> ())?
     var afterRefresh: ((Content<Model, View, Cell>) -> ())?
     var whenRefresh: ((Content<Model, View, Cell>) -> ())?
     
-    var errorView: ((Error) -> (UIView?))?
-    var emptyView: (() -> (UIView?))?
+    var errorView: ((Content<Model, View, Cell>, Error) -> (UIView?))?
+    var emptyView: ((Content<Model, View, Cell>) -> (UIView?))?
 }
 
-class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
-    var onHeight: ((Model) -> CGFloat?)?
-    var onEstimatedHeight: ((Model) -> CGFloat?)?
-    var onCellSetupBlock: ((Model, Cell) -> Void)?
-    var onCellDisplay: ((Model, Cell) -> Void)?
-    var onLayout: ((Content<Model, View, Cell>, Model) -> CGSize)?
-    var onItemChanged: ((Content<Model, View, Cell>, Model, Int) -> Void)?
-    var onDequeueBlock: ((Model) -> Cell.Type?)?
+public final class ContentCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
+    public internal(set) var onHeight: ((Model) -> CGFloat?)?
+    public internal(set) var onEstimatedHeight: ((Model) -> CGFloat?)?
+    public internal(set) var onCellSetupBlock: ((Model, Cell) -> Void)?
+    public internal(set) var onCellDisplay: ((Model, Cell) -> Void)?
+    public internal(set) var onLayout: ((Content<Model, View, Cell>, Model) -> CGSize)?
+    public internal(set) var onItemChanged: ((Content<Model, View, Cell>, Model, Int) -> Void)?
+    public internal(set) var onDequeueBlock: ((Model) -> Cell.Type?)?
 }
 
 class ScrollCallbacks<Model: Equatable, View: ViewDelegate, Cell: ContentCell> where View: UIView {
