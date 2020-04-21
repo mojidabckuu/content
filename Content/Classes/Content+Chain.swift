@@ -112,16 +112,20 @@ public extension Content {
         return self
     }
     
-    // Experimental
+        // Experimental
     @discardableResult
-    func errorView(_ block: @escaping (Content<Model, View, Cell>, Error) -> (UIView?)) -> Content {
-        self.URLCallbacks.errorView = block
+    func errorView(_ block: @escaping (Error) -> (UIView?)) -> Content {
+        self.URLCallbacks.errorView = { _, error in
+            block(error)
+        }
         return self
     }
     
     @discardableResult
-    func emptyView(_ block: @escaping (Content<Model, View, Cell>) -> (UIView?)) -> Content {
-        self.URLCallbacks.emptyView = block
+    func emptyView(_ block: @escaping () -> (UIView?)) -> Content {
+        self.URLCallbacks.emptyView = { _ in
+            block()
+        }
         return self
     }
 }
