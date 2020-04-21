@@ -133,7 +133,7 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         completion?()
     }
     
-    public func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+    open func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return self.content.isEditing
     }
     
@@ -245,40 +245,40 @@ open class TableDelegate<Model: Equatable, View: ViewDelegate, Cell: ContentCell
         }
     }
     
-    public func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    open func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return self.content.viewDelegateCallbacks.onHeaderDequeue?(self.content, section)
     }
     
-    public func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+    open func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         return self.content.viewDelegateCallbacks.onFooterDequeue?(self.content, section)
     }
     
-    public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    open func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return self.content.viewDelegateCallbacks.onHeaderViewDequeue?(self.content, section)
     }
     
-    public func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+    open func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         return self.content.viewDelegateCallbacks.onFooterViewDequeue?(self.content, section)
     }
     
-    public func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    open func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         self.content.swapAt(sourceIndexPath.row, destinationIndexPath.row)
     }
     
     //ScrollView
-    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+    open func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         self.content.scrollCallbacks.onDidEndDecelerating?(self.content)
     }
     
-    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    open func scrollViewDidScroll(_ scrollView: UIScrollView) {
         self.content.scrollCallbacks.onDidScroll?(self.content)
     }
     
-    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    open func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         self.content.scrollCallbacks.onDidEndDragging?(self.content, decelerate)
     }
     
-    public func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+    open func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
         return self.content.scrollCallbacks.onShouldScrollToTop?(self.content) ?? true
     }
     
