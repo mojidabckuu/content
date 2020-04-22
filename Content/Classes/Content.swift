@@ -202,6 +202,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
                 _view.removeGestureRecognizer(recognizer)
             }
         }
+        configuration.infiniteControl?.stopAnimating()
         configuration.refreshControl?.stopAnimating()
         self.relation.removeAll()
         self.reloadData()
