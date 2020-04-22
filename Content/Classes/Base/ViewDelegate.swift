@@ -37,7 +37,7 @@ public enum ContentScrollPosition {
     case centeredHorizontally
     case right
     
-    var tableScroll: UITableViewScrollPosition {
+    public var tableScroll: UITableViewScrollPosition {
         switch self {
         case .top: return UITableViewScrollPosition.top
         case .middle, .centeredVertically: return UITableViewScrollPosition.middle
@@ -46,7 +46,7 @@ public enum ContentScrollPosition {
         }
     }
     
-    var collectionScroll: UICollectionViewScrollPosition {
+    public var collectionScroll: UICollectionViewScrollPosition {
         switch self {
         case .none: return []
         case .middle, .centeredVertically: return UICollectionViewScrollPosition.centeredVertically
