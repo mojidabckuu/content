@@ -183,6 +183,7 @@ open class Content<Model: Equatable, View: ViewDelegate, Cell: ContentCell>: Act
         configuration.refreshControl?.isEnabled = false
         _view.set(contentOffset: .zero)
         configuration.refreshControl?.isEnabled = true
+        configuration.infiniteControl?.isEnabled = false
         configuration.infiniteControl?.stopAnimating()
         self.currentEmptyView?.removeFromSuperview()
         self.currentErrorView?.removeFromSuperview()
