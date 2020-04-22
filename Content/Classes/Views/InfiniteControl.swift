@@ -179,7 +179,8 @@ open class UIInfiniteControl: UIControl {
     // TableView returns wrong content size when takes table header and footer views.
     var contentSize: CGSize {
         if let tableView = self.scrollView as? UITableView {
-            let rowsCount = tableView.dataSource?.tableView(tableView, numberOfRowsInSection: 0) ?? 0
+            let sectionsCount = tableView.dataSource?.numberOfSections?(in: tableView) ?? 0
+            let rowsCount = sectionsCount > 0 ? tableView.dataSource?.tableView(tableView, numberOfRowsInSection: 0) ?? 0 : 0
             if let footerView = tableView.tableFooterView , rowsCount == 0 {
                 return CGSize(width: tableView.contentSize.width, height: footerView.frame.origin.y)
             }
