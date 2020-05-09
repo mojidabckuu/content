@@ -231,6 +231,7 @@ open class UIInfiniteControl: UIControl {
             } else {
                 self.stopObserveScrollView()
             }
+            self.activityIndicatorView.isHidden = !isEnabled
         }
         get { return super.isEnabled }
     }
